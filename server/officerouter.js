@@ -23,7 +23,7 @@ router.delete("/data/command", data.commandDelete);
 
 router.post("/api/sensorsave", api.sensorLogSave);
 router.post("/api/commandsave", api.commandSave);
-router.post("/api/loadcommands", api.loadCommands);
+router.get("/api/loadcommands", api.loadCommands);
 
 // ************************* Static
 
