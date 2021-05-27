@@ -39,7 +39,17 @@ export default {
 			}
 
 			response.status(200).json({ id: webBody.id });
-		})
+		});
+	},
+
+	loadCommands: (request, response) => {
+		webRequest.get({ url: request.protocol + "://" + request.headers.host + "/data/command" }, (error, webResponse, webBody) => {
+			if (error) {
+				return response.status(560).json({ error: error.message });
+			}
+
+			response.status(200).json({ commands: webBody.commands });
+		});
 	}
 
 };
