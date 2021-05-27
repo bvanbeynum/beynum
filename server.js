@@ -1,4 +1,4 @@
-// Setup =======================================================================
+// Imports =======================================================================
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -6,6 +6,8 @@ import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
 import officeRouter from "./server/officerouter.js"
+
+// Declarations =======================================================================
 
 const app = express();
 const { json, urlencoded } = bodyParser;
