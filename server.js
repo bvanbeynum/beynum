@@ -26,6 +26,8 @@ app.use(urlencoded({ extended: true }));
 
 app.use(officeRouter);
 
+app.get("/", (request, response) => response.send("Ok"));
+
 // listen (start app with node server.js) ======================================
 
 app.listen(port);
