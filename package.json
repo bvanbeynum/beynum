@@ -1,0 +1,14 @@
+{
+	"name": "beynum",
+	"version": "0.0.1",
+	"description": "",
+	"main": "server.js",
+	"repository": "",
+	"author": "Brett van Beynum <maildrop444@gmail.com>",
+	"type": "module",
+	"dependencies": {
+		"express": "^4.17.1",
+		"mongoose": "^5.12.11",
+		"request": "^2.88.2"
+	}
+}
