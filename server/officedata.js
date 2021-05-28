@@ -67,7 +67,7 @@ export default {
 			return response.status(560).json({ error: "Missing ID to delete" });
 		}
 
-		data.sensorLog.deleteOne({ _id: request.query.id })
+		data.sensorLog.deleteOne({ _id: parseInt(request.query.id) })
 			.then(() => {
 				response.status(200).json({ status: "ok" });
 			})
@@ -141,13 +141,27 @@ export default {
 			return response.status(560).json({ error: "Missing ID to delete" });
 		}
 
-		data.command.deleteOne({ _id: request.query.id })
-			.then(() => {
-				response.status(200).json({ status: "ok" });
-			})
-			.catch(error => {
-				response.status(561).json({ error: error.message });
-			});
+		if (request.query.id === "all") {
+			data.command
+				.deleteMany({})
+				.exec()
+				.then(() => {
+					response.status(200).json({ status: "ok" });
+				})
+				.catch(error => {
+					response.status(561).json({ error: error.message });
+				});
+				
+		}
+		else {
+			data.command.deleteOne({ _id: parseInt(request.query.id) })
+				.then(() => {
+					response.status(200).json({ status: "ok" });
+				})
+				.catch(error => {
+					response.status(561).json({ error: error.message });
+				});
+		}
 	}
 	
 };

@@ -43,7 +43,7 @@ export default {
 	},
 
 	loadCommands: (request, response) => {
-		webRequest.get({ url: request.protocol + "://" + request.headers.host + "/data/command" }, (error, webResponse, webBody) => {
+		webRequest.get({ url: request.protocol + "://" + request.headers.host + "/data/command", json: true }, (error, webResponse, webBody) => {
 			if (error) {
 				return response.status(560).json({ error: error.message });
 			}
@@ -52,7 +52,14 @@ export default {
 				commands: webBody.commands.filter(command => command.status)
 			};
 
-			response.status(200).json(output);
+			webRequest.delete({ url: request.protocol + "://" + request.headers.host + "/data/command?id=all", json: true }, (error, webResponse, webBody) => {
+				if (error) {
+					return response.status(561).json({ error: error.message });
+				}
+
+				console.log("out:" + JSON.stringify(output));
+				response.status(200).json(output);
+			});
 		});
 	}
 
