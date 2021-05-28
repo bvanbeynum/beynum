@@ -57,7 +57,6 @@ export default {
 					return response.status(561).json({ error: error.message });
 				}
 
-				console.log("out:" + JSON.stringify(output));
 				response.status(200).json(output);
 			});
 		});
