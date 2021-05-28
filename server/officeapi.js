@@ -48,7 +48,11 @@ export default {
 				return response.status(560).json({ error: error.message });
 			}
 
-			response.status(200).json({ commands: webBody.commands });
+			const output = {
+				commands: webBody.commands.filter(command => command.status)
+			};
+
+			response.status(200).json(output);
 		});
 	}
 
