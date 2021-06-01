@@ -5,8 +5,8 @@ import path, { dirname } from "path";
 import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
-import officeRouter from "./server/officerouter.js"
-import webpackConfig from "./webpack.dev.js";
+import officeRouter from "./server/officerouter.js";
+import devRouter from "./server/devrouter.js";
 
 // Declarations =======================================================================
 
@@ -27,12 +27,8 @@ app.use(urlencoded({ extended: true }));
 
 app.use(officeRouter);
 
-if (webpackConfig.mode === "development") {
-	const webpack = require("webpack");
-	const webpackDevMiddleware = require("webpack-dev-middleware")
-	const compilier = webpack(webpackConfig);
-
-	app.use(webpackDevMiddleware(compilier, { publicPath: webpackConfig.output.publicPath }))
+if (config.mode === "development") {
+	app.use(devRouter);
 }
 else {
 	app.use(express.static(path.join(currentDirectory, "/client/static")));
