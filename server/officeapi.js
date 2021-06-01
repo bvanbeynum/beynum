@@ -8,6 +8,7 @@ export default {
 		}
 
 		const sensorLogSave = request.body.sensorlog;
+		sensorLogSave.logTime = new Date();
 
 		webRequest.post(request.protocol + "://" + request.headers.host + "/data/sensorlog")
 			.send({ sensorlog: sensorLogSave })
@@ -26,6 +27,7 @@ export default {
 		}
 
 		const commandSave = request.body.command;
+		commandSave.insertTime = new Date();
 
 		webRequest.post(request.protocol + "://" + request.headers.host + "/data/command")
 			.send({ command: commandSave })
