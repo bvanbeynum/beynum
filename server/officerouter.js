@@ -27,6 +27,4 @@ router.get("/api/loadcommands", api.loadCommands);
 
 // ************************* Static
 
-router.get("/", (request, response) => response.send("Ok"));
-
 export default router;
