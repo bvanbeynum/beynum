@@ -9,6 +9,6 @@
 	"dependencies": {
 		"express": "^4.17.1",
 		"mongoose": "^5.12.11",
-		"request": "^2.88.2"
+		"superagent": "^6.1.0"
 	}
 }

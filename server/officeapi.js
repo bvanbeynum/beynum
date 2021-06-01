@@ -1,4 +1,4 @@
-import webRequest from "request";
+import webRequest from "superagent";
 
 export default {
 
@@ -9,17 +9,15 @@ export default {
 
 		const sensorLogSave = request.body.sensorlog;
 
-		webRequest.post({ 
-			url: request.protocol + "://" + request.headers.host + "/data/sensorlog",
-			form: { sensorlog: sensorLogSave },
-			json: true
-		}, (error, webResponse, webBody) => {
-			if (error) {
-				return response.status(561).json({ error: error.message });
-			}
+		webRequest.post(request.protocol + "://" + request.headers.host + "/data/sensorlog")
+			.send({ sensorlog: sensorLogSave })
+			.then(webResponse => {
+				return response.status(200).json({ id: webRequest.body.id });
+			})
+			.catch(() => {
+				return response.status(561).json({ error: "Error saving sensor log" });
+			});
 
-			response.status(200).json({ id: webBody.id });
-		})
 	},
 
 	commandSave: (request, response) => {
@@ -29,37 +27,38 @@ export default {
 
 		const commandSave = request.body.command;
 
-		webRequest.post({ 
-			url: request.protocol + "://" + request.headers.host + "/data/command",
-			form: { command: commandSave },
-			json: true
-		}, (error, webResponse, webBody) => {
-			if (error) {
-				return response.status(561).json({ error: error.message });
-			}
+		webRequest.post(request.protocol + "://" + request.headers.host + "/data/command")
+			.send({ command: commandSave })
+			.then(webResponse => {
+				return response.status(200).json({ id: webResponse.body.id });
+			})
+			.catch(() => {
+				return response.status(561).json({ error: "Error saving command" });
+			})
 
-			response.status(200).json({ id: webBody.id });
-		});
 	},
 
 	loadCommands: (request, response) => {
-		webRequest.get({ url: request.protocol + "://" + request.headers.host + "/data/command", json: true }, (error, webResponse, webBody) => {
-			if (error) {
-				return response.status(560).json({ error: error.message });
-			}
+		
+		webRequest.get(request.protocol + "://" + request.headers.host + "/data/command")
+			.then(webResponse => {
+				const output = {
+					commands: webResponse.body.commands.filter(command => command.status)
+				};
 
-			const output = {
-				commands: webBody.commands.filter(command => command.status)
-			};
+				webRequest.delete(request.protocol + "://" + request.headers.host + "/data/command")
+				.query("id=all")
+				.then(() => {
+					response.status(200).json(output);
+				})
+				.catch(() => {
+					return response.status(561).json({ error: "Error calling delete function" });
+				});
 
-			webRequest.delete({ url: request.protocol + "://" + request.headers.host + "/data/command?id=all", json: true }, (error, webResponse, webBody) => {
-				if (error) {
-					return response.status(561).json({ error: error.message });
-				}
-
-				response.status(200).json(output);
-			});
-		});
+			})
+			.catch(() => {
+				return response.status(560).json({ error: "Error getting commands"});
+			})
 	}
 
 };
