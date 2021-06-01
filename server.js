@@ -28,9 +28,8 @@ app.use(urlencoded({ extended: true }));
 app.use(officeRouter);
 
 if (webpackConfig.mode === "development") {
-	import webpack from "webpack";
-	import webpackDevMiddleware from "webpack-dev-middleware";
-	
+	const webpack = require("webpack");
+	const webpackDevMiddleware = require("webpack-dev-middleware")
 	const compilier = webpack(webpackConfig);
 
 	app.use(webpackDevMiddleware(compilier, { publicPath: webpackConfig.output.publicPath }))
