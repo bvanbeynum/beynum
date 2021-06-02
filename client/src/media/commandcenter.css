@@ -1,0 +1,134 @@
+html, body {
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-size: 13px;
+	background-color: rgb(36 54 75);
+	color: rgb(49 208 123);
+	margin: 0;
+	padding: 0;
+}
+
+.toast {
+	border: solid 1px rgb(245 81 28);
+	background-color: rgb(239 176 156);
+	color: rgb(87, 87, 97);
+	position: absolute;
+	font-weight: bold;
+	font-size: 14px;
+	bottom: 90px;
+	left: 3%;
+	padding: 8px 15px;
+	display: none;
+}
+.toast.isActive {
+	display: flex;
+}
+
+.toast.info {
+	border: solid 2px rgb(79, 116, 128);
+	background-color: rgb(152, 188, 255);
+	color: rgb(79, 116, 128);
+}
+.toast.error {
+	border: solid 2px rgb(220, 80, 80);
+	background-color: rgb(244, 174, 174);
+	color: rgb(222, 23, 23);
+}
+
+.appContainer {
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	align-content: center;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.controlsContainer {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.panelContainer {
+	display: flex;
+	background-color: rgb(44 63 88);
+	color: rgb(26 145 114);
+	fill: rgb(26 145 114);
+	border-radius: 20px;
+	margin-right: 20px;
+	margin-bottom: 20px;
+	padding: 10px 20px;
+}
+
+.panelContainer.active {
+	background-color: rgb(53 160 143);
+	fill: rgb(44 63 88);
+	color: rgb(44 63 88);
+}
+
+.panelHeader {
+	display: flex;
+}
+
+.controlContainer {
+	width: 80px;
+	height: 150px;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.controlContainer.controllable {
+	cursor: pointer;
+}
+
+.controlContainer.controllable:hover {
+	background-color: rgb(60 81 109);
+}
+
+.controlContainer > .controlIcon {
+	width: 70px;
+}
+
+.controlContainer > .controlText {
+	font-size: 1.5em;
+}
+
+.graphContainer {
+	flex-direction: column;
+}
+
+.graphSelection {
+	font-size: 1.1em;
+	padding: 3px 7px;
+	margin-right: 15px;
+	border-radius: 10px;
+}
+
+.graphSelection.active {
+	background-color: rgb(53 160 143);
+	fill: rgb(44 63 88);
+	color: rgb(44 63 88);
+}
+
+.graph {
+	width: 100%;
+	padding-top: 40%;
+	height: 0;
+	overflow: hidden;
+	position: relative;
+}
+
+.graph > svg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}

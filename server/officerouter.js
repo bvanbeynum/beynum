@@ -21,6 +21,8 @@ router.delete("/data/command", data.commandDelete);
 
 // ************************* API
 
+router.get("/api/commandcenterload", api.commandCenterLoad);
+
 router.post("/api/sensorsave", api.sensorLogSave);
 router.post("/api/commandsave", api.commandSave);
 router.get("/api/loadcommands", api.loadCommands);

@@ -5,7 +5,25 @@ export default {
 	// ******************** Sensor ************************
 
 	sensorLogGet: (request, response) => {
-		data.sensorLog.find()
+		const filter = {};
+
+		if (request.query.timespan) {
+			switch (request.query.timespan) {
+			case "day":
+				filter.logTime = { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+				break;
+
+			case "week":
+				filter.logTime = { $gt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+				break;
+			
+			case "month":
+				filter.logTime = { $gt: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000) }
+				break;
+			}
+		}
+
+		data.sensorLog.find(filter)
 			.lean()
 			.exec()
 			.then(sensorLogsDB => {

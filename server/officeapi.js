@@ -2,6 +2,28 @@ import webRequest from "superagent";
 
 export default {
 
+	commandCenterLoad: (request, response) => {
+		webRequest.get(request.protocol + "://" + request.headers.host + "/data/sensorlog" + (request.originalUrl.indexOf("?") > 0 ? request.originalUrl.slice(request.originalUrl.indexOf("?")) : "" ))
+			.then(webResponse => {
+				const sensorLogs = webResponse.body.sensorLogs
+					.map(({ logTime, ...log }) => ({ logTime: new Date(logTime), ...log }))
+					.sort((logA, logB) => logB.logTime - logA.logTime);
+
+				const maxLogs = 100,
+					totalLogs = sensorLogs.length,
+					logInterval = Math.round(totalLogs / maxLogs);
+
+				const output = {
+					sensorLogs: sensorLogs.filter((log, logIndex) => logIndex % logInterval === 0)
+				};
+
+				return response.status(200).json(output);
+			})
+			.catch(error => {
+				return response.status(560).json({ error: "Error getting sensor logs"});
+			})
+	},
+	
 	sensorLogSave: (request, response) => {
 		if (!request.body.sensorlog) {
 			return response.status(560).json({ error: "Missing object to save" });
@@ -45,17 +67,17 @@ export default {
 		webRequest.get(request.protocol + "://" + request.headers.host + "/data/command")
 			.then(webResponse => {
 				const output = {
-					commands: webResponse.body.commands.filter(command => command.status)
+					commands: webResponse.body.commands
 				};
 
 				webRequest.delete(request.protocol + "://" + request.headers.host + "/data/command")
-				.query("id=all")
-				.then(() => {
-					response.status(200).json(output);
-				})
-				.catch(() => {
-					return response.status(561).json({ error: "Error calling delete function" });
-				});
+					.query("id=all")
+					.then(() => {
+						return response.status(200).json(output);
+					})
+					.catch(() => {
+						return response.status(561).json({ error: "Error calling delete function" });
+					});
 
 			})
 			.catch(() => {

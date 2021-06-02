@@ -2,7 +2,7 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 
 export default {
 	entry: {
-		commandcenter: "./client/src/commandcenter.js"
+		commandcenter: "./client/src/commandcenter.jsx"
 	},
 	plugins: [
 		new HtmlWebpackPlugin({ 
