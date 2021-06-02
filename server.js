@@ -6,7 +6,6 @@ import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
 import officeRouter from "./server/officerouter.js";
-import devRouter from "./server/devrouter.js";
 
 // Declarations =======================================================================
 
@@ -28,7 +27,18 @@ app.use(urlencoded({ extended: true }));
 app.use(officeRouter);
 
 if (config.mode === "development") {
-	app.use(devRouter);
+	Promise.all([
+		import("webpack"),
+		import("webpack-dev-middleware"),
+		import("./webpack.dev.js")
+	])
+	.then(([webpack, webpackDevMiddleware, webpackConfig]) => {
+		const webpackLoader = webpack.default;
+		const middleware = webpackDevMiddleware.default;
+
+		const compilier = webpackLoader(webpackConfig.default);
+		app.use(middleware(compilier, { publicPath: "/" }));
+	});
 }
 else {
 	app.use(express.static(path.join(currentDirectory, "/client/static")));
