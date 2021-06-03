@@ -11,10 +11,10 @@ export default {
 
 				const maxLogs = 100,
 					totalLogs = sensorLogs.length,
-					logInterval = Math.round(totalLogs / maxLogs);
+					logInterval = Math.floor(totalLogs / maxLogs);
 
 				const output = {
-					sensorLogs: sensorLogs.filter((log, logIndex) => logIndex % logInterval === 0)
+					sensorLogs: sensorLogs.filter((log, logIndex) => logIndex % logInterval === 0).slice(0, 100)
 				};
 
 				return response.status(200).json(output);

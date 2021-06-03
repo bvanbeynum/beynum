@@ -23,7 +23,7 @@ export default {
 				use: [ "style-loader", "css-loader" ]
 			},
 			{
-				test: /\.(png|gif|jpg)$/i,
+				test: /\.(png|gif|jpg|ico)$/i,
 				type: "asset/resource"
 			}
 		]
