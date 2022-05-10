@@ -4,10 +4,10 @@ import config from "./config.js";
 import data from "./officedata.js";
 import api from "./officeapi.js";
 
-const { connect } = mongoose;
+// const { connect } = mongoose;
 const router = express.Router();
 
-connect("mongodb://" + config.db.user + ":" + config.db.pass + "@" + config.db.servers.join(",") + "/" + config.db.db + "?authSource=" + config.db.authDB, {useNewUrlParser: true, useUnifiedTopology: true });
+// connect("mongodb://" + config.db.user + ":" + config.db.pass + "@" + config.db.servers.join(",") + "/" + config.db.db + "?authSource=" + config.db.authDB, {useNewUrlParser: true, useUnifiedTopology: true });
 
 // ************************* Data
 

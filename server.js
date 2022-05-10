@@ -6,6 +6,7 @@ import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
 import officeRouter from "./server/officerouter.js";
+import financeRouter from "./server/financerouter.js";
 
 // Declarations =======================================================================
 
@@ -25,6 +26,8 @@ app.use(urlencoded({ extended: true }));
 // Routes =======================================================================
 
 app.use(officeRouter);
+app.use(financeRouter);
+app.use("/media", express.static(path.join(currentDirectory, "/client/src/media")));
 
 if (config.mode === "development") {
 	Promise.all([

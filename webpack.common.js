@@ -2,12 +2,23 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 
 export default {
 	entry: {
-		commandcenter: "./client/src/commandcenter.jsx"
+		commandcenter: "./client/src/commandcenter.jsx",
+		finance: "./client/src/finance.jsx"
 	},
 	plugins: [
 		new HtmlWebpackPlugin({ 
 			filename: "commandcenter.html",
 			template: "./client/src/commandcenter.html"
+		}),
+		new HtmlWebpackPlugin({ 
+			filename: "finance.html",
+			title: "Fianace",
+			favicon: "./client/src/media/favicon.ico",
+			meta: {
+				viewport: "width=device-width, initial-scale=1"
+			},
+			chunks: [ "finance" ],
+			templateContent: "<html><body><div id='root'></div></body></html>"
 		})
 	],
 	module: {
