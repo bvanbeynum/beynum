@@ -142,7 +142,12 @@ class BlackJack extends Component {
 			playerValue = this.calculateValue(playerHand),
 			dealerValue = this.calculateValue(dealerHand);
 
-		this.setState(({ game }) => ({
+		this.setState(({ game, strategy }) => ({
+			strategy: {
+				...strategy,
+				display: "",
+				table: strategy.table.map(row => row.map(column => ({ ... column, highlight: false })))
+			},
 			game: {
 				...game,
 				currentAmount: game.currentAmount - bet,
@@ -547,14 +552,18 @@ class BlackJack extends Component {
 		const dealerCard = this.state.game.dealer.map(card => card.card === "A" ? "A" : isNaN(card.card) ? 10 : +card.card)[1],
 			dealerIndex = this.state.strategy.dealer.findIndex(strategy => strategy == dealerCard),
 			playerCards = this.state.game.player.isComplete && this.state.game.split ? this.state.game.split.cards
-				: this.state.game.player.cards;
+				: this.state.game.player.cards,
+			aces = playerCards.filter(card => card.card === "A").map(card => card.card),
+			hardTotal = playerCards.filter(card => card.card !== "A").map(card => isNaN(card.card) ? 10 : +card.card).reduce((total, value) => total + +value, 0);
+
 		let playerIndex = -1,
 			display = "";
 		
-		if (playerCards.map(card => card.card === "A" ? "A" : isNaN(card.card) ? "10" : card.card).includes("A")) {
+		if (aces.length > 0 && hardTotal + (aces.length * 11) <= 21) {
 			// Ace
-			const playerString = playerCards.map(card => card.card === "A" ? "A" : isNaN(card.card) ? "10" : card.card).sort((cardA, cardB) => cardA > cardB ? -1 : 1).join(",");
-			playerIndex = this.state.strategy.player.findIndex(strategy => strategy == playerString);
+			const remainingValue = this.calculateValue(playerCards) - 11;
+			// const playerString = playerCards.map(card => card.card === "A" ? "A" : isNaN(card.card) ? "10" : card.card).sort((cardA, cardB) => cardA > cardB ? -1 : 1).join(",");
+			playerIndex = this.state.strategy.player.findIndex(strategy => strategy == `A,${ remainingValue }`);
 		}
 		else if (playerCards.length === 2 && playerCards[0].card === playerCards[1].card) {
 			// Split
@@ -562,15 +571,14 @@ class BlackJack extends Component {
 		}
 		else {
 			// Hard Total
-			const cardValue = playerCards.map(card => card.card === "A" ? "A" : isNaN(card.card) ? 10 : +card.card).reduce((total, value) => total + +value, 0);
-			playerIndex = this.state.strategy.player.findIndex(strategy => strategy == cardValue);
+			const currentValue = this.calculateValue(playerCards);
+			playerIndex = this.state.strategy.player.findIndex(strategy => strategy == currentValue);
 
 			if (playerIndex < 0) {
-				display = cardValue < 8 ? "Hit" : "Stand";
+				display = currentValue < 8 ? "Hit" : "Stand";
 			}
 		}
 
-		console.log(`r: ${ playerIndex }, c: ${ dealerIndex }`);
 		if (dealerIndex >= 0 && playerIndex >= 0) {
 			const abbreviation = this.state.strategy.table[playerIndex][dealerIndex + 1].value;
 
