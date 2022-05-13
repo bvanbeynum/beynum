@@ -1,0 +1,263 @@
+html, body, #root {
+	font-family: verdana, sans-serif;
+	font-size: 12px;
+	color: rgb(32, 32, 32);
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex: 1;
+}
+
+.pageContainer {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.button {
+	cursor: pointer;
+}
+
+.loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+}
+
+.content {
+	display: flex;
+	flex: 1;
+	background-color: rgb(100 141 129);
+	flex-direction: column;
+	align-items: center;
+}
+
+.topNav {
+	display: flex;
+	width: 100%;
+	background-color: rgb(67 77 83);
+	box-shadow: rgb(67 77 83 / 35%) -2px 4px 6px 0px;
+	margin-bottom: 10px;
+}
+
+.gameStats {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.gameStat {
+	padding: 10px 10px;
+	width: 50px;
+	text-align: right;
+	background-color: rgb(67 77 83);
+	color: rgb(225 225 225);
+}
+
+.gameLabel {
+	width: 30px;
+	text-align: center;
+	background-color: rgb(3 116 135);
+	color: rgb(225 225 225);
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.strategyDisplay {
+	flex: 1;
+	text-align: center;
+	color: rgb(255 255 0);
+	font-weight: bold;
+}
+
+.statLine {
+	height: 70px;
+	width: 100%;
+}
+
+.statLine line {
+	stroke: rgb(233 233 233);
+	stroke-dasharray: 10 11;
+}
+
+.statLine path {
+	stroke: rgb(114 114 114);
+	stroke-width: 2px;
+	fill: none;
+}
+
+.handContainer {
+	display: flex;
+	align-items: center;
+}
+
+.result {
+	z-index: 2;
+	border: 2px solid rgb(188 189 120);
+	background-color: rgb(67 77 83);
+	color: rgb(225 225 225);
+	padding: 10px;
+	position: absolute;
+	width: 50px;
+	text-align: center;
+	left: 40%;
+}
+
+.card {
+	background-color: white;
+	margin: 20px 0px;
+	padding: 3px 3px;
+	width: 55px;
+	height: 90px;
+	border-radius: 3px;
+	border: 1px solid rgb(177 177 177);
+	box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	z-index: 1;
+	font-size: 15px;
+}
+
+.cardText:nth-child(2) {
+	flex: 1;
+}
+
+.cardText:nth-last-child(-n+2) {
+	transform: rotate(180deg);
+}
+
+.card:nth-child(n+2) {
+	margin-left: -30;
+}
+
+.cardMiddle {
+	font-size: 20px;
+	text-align: center;
+}
+
+.cardBottom {
+	transform: rotate(180deg);
+}
+
+.cardRed {
+	color: rgb(197, 67, 66);
+}
+
+.bottomContainer {
+	display: flex;
+	width: 100%;
+	justify-content: space-evenly;
+}
+
+.actionContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+.actionContainer .button {
+	width: 90px;
+	text-align: center;
+	padding: 7px 0px;
+	color: rgb(32, 32, 32);
+	margin: 10px 0px;
+	border-radius: 5px;
+	border: 2px solid;
+}
+
+.actionContainer .button.inactive {
+	background-color: rgb(187 187 187) !important;
+	border-color: rgb(86 86 86) !important;
+	color: rgb(106 106 106) !important;
+	cursor: not-allowed;
+}
+
+.bottomNav {
+	width: 100%;
+	box-shadow: rgb(67 77 83 / 35%) 0px -4px 6px 0px;
+	display: flex;
+	justify-content: space-evenly;
+	background-color: rgb(67 77 83);
+}
+
+.bottomNav .button {
+	width: 36px;
+	padding: 10px 0px;
+	fill: rgb(225 225 225);
+}
+
+.button label {
+	cursor: pointer;
+}
+
+.strategy {
+	margin: auto 0px;
+	background-color: rgb(233 233 233 / 50%);
+	border-collapse: collapse;
+}
+
+.strategy th, .strategy td {
+	border: 1px solid rgb(139 139 139);
+	text-align: center;
+	font-size: 9px;
+	width: 12px;
+}
+
+.strategy th {
+	font-weight: normal;
+}
+
+.strategy td.H {
+	background-color: rgb(219 176 176);
+}
+
+.strategy td.D {
+	background-color: rgb(153 193 243);
+}
+
+.strategy td.S {
+	background-color: rgb(219 208 158);
+}
+
+.strategy td.P {
+	background-color: rgb(184 207 177);
+}
+
+.strategy td.highlight {
+	border: 2px dashed rgb(228 255 0);
+	font-weight: bold;
+}
+
+/* ****************************** Toast Section ************************* */
+
+.toast {
+	border: solid 1px rgb(245 81 28);
+	background-color: rgb(239 176 156);
+	color: rgb(87, 87, 97);
+	position: absolute;
+	font-weight: bold;
+	font-size: 14px;
+	bottom: 90px;
+	left: 3%;
+	padding: 8px 15px;
+	display: none;
+}
+.toast.isActive {
+	display: flex;
+}
+
+.toast.info {
+	border: solid 2px rgb(79, 116, 128);
+	background-color: rgb(152, 188, 255);
+	color: rgb(79, 116, 128);
+}
+.toast.error {
+	border: solid 2px rgb(220, 80, 80);
+	background-color: rgb(244, 174, 174);
+	color: rgb(222, 23, 23);
+}

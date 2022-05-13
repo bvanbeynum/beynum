@@ -3,7 +3,8 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 export default {
 	entry: {
 		commandcenter: "./client/src/commandcenter.jsx",
-		finance: "./client/src/finance.jsx"
+		finance: "./client/src/finance.jsx",
+		blackjack: "./client/src/blackjack.jsx"
 	},
 	plugins: [
 		new HtmlWebpackPlugin({ 
@@ -18,6 +19,16 @@ export default {
 				viewport: "width=device-width, initial-scale=1"
 			},
 			chunks: [ "finance" ],
+			templateContent: "<html><body><div id='root'></div></body></html>"
+		}),
+		new HtmlWebpackPlugin({ 
+			filename: "blackjack.html",
+			title: "Black Jack",
+			favicon: "./client/src/media/favicon.ico",
+			meta: {
+				viewport: "width=device-width, initial-scale=1"
+			},
+			chunks: [ "blackjack" ],
 			templateContent: "<html><body><div id='root'></div></body></html>"
 		})
 	],

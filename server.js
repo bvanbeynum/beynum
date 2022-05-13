@@ -7,6 +7,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import officeRouter from "./server/officerouter.js";
 import financeRouter from "./server/financerouter.js";
+import blackJackRouter from "./server/blackjackrouter.js";
 
 // Declarations =======================================================================
 
@@ -27,6 +28,8 @@ app.use(urlencoded({ extended: true }));
 
 app.use(officeRouter);
 app.use(financeRouter);
+app.use(blackJackRouter);
+
 app.use("/media", express.static(path.join(currentDirectory, "/client/src/media")));
 
 if (config.mode === "development") {
