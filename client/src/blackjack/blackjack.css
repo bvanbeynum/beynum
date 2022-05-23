@@ -296,3 +296,13 @@ html, body, #root {
 	background-color: rgb(244, 174, 174);
 	color: rgb(222, 23, 23);
 }
+
+@media screen and (min-width: 450px) {
+	.listItem {
+		width: 450px;
+	}
+
+	.rowContainer {
+		width: 450px;
+	}
+}
