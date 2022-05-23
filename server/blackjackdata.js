@@ -1,4 +1,4 @@
-import data from "./financeschema.js";
+import data from "./blackjackschema.js";
 
 export default {
 

@@ -7,6 +7,8 @@ const router = express.Router();
 
 // ************************* Middleware
 
+router.use(lib.loadSetup);
+
 // ************************* Data
 
 router.get("/data/game", data.gameGet);
@@ -16,6 +18,7 @@ router.delete("/data/game", data.gameDelete);
 // ************************* API
 
 router.get("/api/blackjackload", api.blackJackLoad);
+router.post("/api/blackjacksave", api.blackJackSave);
 
 // ************************* Static
 
