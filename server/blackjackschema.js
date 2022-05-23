@@ -7,10 +7,13 @@ export default {
 
 	game: cnBlackJack.model("game", {
 		start: Date,
-		end: Date,
-		startingAmount: Number,
-		currentAmount: Number,
-		transactions: [ Number ]
+		lastUpdate: Date,
+		hands: [{
+			player: [ String ],
+			split: [ String ],
+			dealer: [ String ],
+			bank: Number
+		}]
 	})
 
 };

@@ -75,7 +75,33 @@ html, body, #root {
 	font-weight: bold;
 }
 
-.statLine {
+.listItem {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	padding: 20px 0px;
+	color: rgb(233 233 233);
+	border-bottom: 1px solid rgb(32, 32, 32);
+}
+
+.listHeader {
+	padding: 0px 15px;
+	fill: white;
+	display: flex;
+	height: 24px;
+	justify-content: space-between;
+}
+
+.listHeader svg {
+	height: 24px;
+	cursor: pointer;
+}
+
+.listGraph {
+	cursor: pointer;
+}
+
+.statLine.vertical {
 	height: 400px;
 	width: 100px;
 }

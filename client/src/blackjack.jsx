@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import Toast from "./toast.jsx";
 import "./blackjack/blackjack.css";
 import Game from "./blackjack/game";
+import ListGame from "./blackjack/listgame.jsx";
 
 class BlackJack extends Component {
 
@@ -11,12 +12,109 @@ class BlackJack extends Component {
 
 		this.state = {
 			isLoading: true,
+			games: [],
 			toast: { message: "", type: "info" }
 		};
 	};
 
 	componentDidMount() {
-		fetch("/api/blackjackload")
+		this.viewGames();
+	};
+
+	viewGames = () => {
+		this.setState({ isLoading: true }, () => {
+			fetch("/api/blackjackload")
+				.then(response => {
+					if (response.ok) {
+						return response.json();
+					}
+					else {
+						throw Error(response.statusText);
+					}
+				})
+				.then(data => {
+					this.setState({
+						isLoading: false,
+						selectedGame: null,
+						games: this.loadGames(data.games)
+					});
+				})
+				.catch(error => {
+					console.warn(error);
+					this.setState({ isLoading: false, toast: { text: "Error loading data", type: "error" } });
+				});
+		});
+	}
+
+	newGame = () => {
+		this.setState({
+			selectedGame: {
+				start: new Date(),
+				bank: 200,
+				hands: [],
+				transactions: [ 200 ],
+				statLineVertical: [{ x: 25, y: 0, color: "#565656", amount: 200 }]
+			}
+		})
+	};
+
+	saveHand = (playerCards, splitCards, dealerCards, bank) => {
+		const saveHand = { player: playerCards, split: splitCards, dealer: dealerCards, bank: bank };
+
+		this.setState(({ selectedGame }) => ({
+			selectedGame : {
+				...selectedGame,
+				hands: selectedGame.hands.concat(saveHand)
+			}
+		}),
+		() => {
+			if (this.state.selectedGame.id) {
+				fetch(`/api/savegamehand?gameid=${ this.state.selectedGame.id }`,
+					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gamehand: saveHand }) }
+					)
+					.then(response => {
+						if (response.ok) {
+							return response.json();
+						}
+						else {
+							throw Error(response.statusText);
+						}
+					})
+					.then(() => {
+					})
+					.catch(error => {
+						console.warn(error);
+						this.setState({ toast: { text: "Error saving hand", type: "error" } });
+					});
+			}
+			else {
+				fetch("/api/savegame",
+					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ game: {
+						start: this.state.selectedGame.start,
+						hands: this.state.selectedGame.hands
+					} }) }
+					)
+					.then(response => {
+						if (response.ok) {
+							return response.json();
+						}
+						else {
+							throw Error(response.statusText);
+						}
+					})
+					.then(data => {
+						this.setState(({ selectedGame }) => ({ selectedGame: { ...selectedGame, id: data.gameid } }));
+					})
+					.catch(error => {
+						console.warn(error);
+						this.setState({ toast: { text: "Error saving new game", type: "error" }});
+					});
+			}
+		});
+	};
+
+	deleteGame = gameId => {
+		fetch(`/api/deletegame?gameid=${ gameId }`, { method: "delete", headers: { "Content-Type": "application/json" } })
 			.then(response => {
 				if (response.ok) {
 					return response.json();
@@ -26,50 +124,61 @@ class BlackJack extends Component {
 				}
 			})
 			.then(data => {
-
-				this.setState({
-					isLoading: false,
-					game: {
-						start: new Date(),
-						startingAmount: 200,
-						currentAmount: 200,
-						transactions: [ 200 ],
-						playedHands: [],
-						statLine: { min: 175, max: 225, line: [{ x: 400, y: 25, color: "#565656", amount: 200 }] }
-					}
-				});
+				this.setState({ games: this.loadGames(data.games) });
 			})
 			.catch(error => {
 				console.warn(error);
-				this.setState({ isLoading: false, toast: { text: "Error loading data", type: "error" } });
+				this.setState({ toast: { text: "Error deleting game", type: "error" }});
 			});
 	};
 
-	saveTransaction = transaction => {
-		const tempMin = Math.min(...this.state.game.transactions.concat([this.state.game.currentAmount + transaction])),
-			tempMax = Math.max(...this.state.game.transactions.concat([ this.state.game.currentAmount + transaction])),
-			statMin = 200 - Math.max(...[200 - tempMin, tempMax - 200]),
-			statMax = 200 + Math.max(...[200 - tempMin, tempMax - 200]),
-			statLine = this.state.game.statLine.line
-				.slice(this.state.game.statLine.length - 20)
-				.map(point => ({ ...point, x: point.x - 20, y: 47.5 - (((point.amount - statMin) * 45) / (statMax - statMin)) }))
-				.concat({
-					x: 400,
-					y: 47.5 - ((((this.state.game.currentAmount + transaction) - statMin) * 45) / (statMax - statMin)),
-					color: this.state.game.currentAmount + transaction > this.state.game.transactions[this.state.game.transactions.length - 1] ? "#76bf86"
-						: this.state.game.currentAmount + transaction < this.state.game.transactions[this.state.game.transactions.length - 1] ? "#c54342"
-						: "#565656",
-					amount: this.state.game.currentAmount + transaction
-				});
-
-		this.setState(({ game }) => ({
-			game : {
-				...game,
-				currentAmount: game.currentAmount + transaction,
-				transactions: game.transactions.concat(game.currentAmount + transaction),
-				statLine: { min: statMin, max: statMax, line: statLine }
-			}
-		}));
+	loadGames = games => {
+		return games.map(game => {
+			const endDate = new Date(game.lastUpdate),
+				endDisplay = (Date.now() - endDate) > (1000 * 60 * 60 * 24 * 7) ? endDate.toLocaleDateString() // over a week ago
+					: (Date.now() - endDate) > (1000 * 60 * 60 * 24) ? Math.floor((Date.now() - endDate) / (1000 * 60 * 60 * 24)) + " day(s) ago"
+					: (Date.now() - endDate) > (1000 * 60 * 60) ? Math.floor((Date.now() - endDate) / (1000 * 60 * 60)) + " hour(s) ago"
+					: (Date.now() - endDate) > (1000 * 60) ? Math.floor((Date.now() - endDate) / (1000 * 60)) + " minutes ago"
+					: "less than a min ago",
+				tempMin = Math.min(...game.hands.map(hand => hand.bank)),
+				tempMax = Math.max(...game.hands.map(hand => hand.bank)),
+				statMin = 200 - Math.max(...[200 - tempMin, tempMax - 200]),
+				statMax = 200 + Math.max(...[200 - tempMin, tempMax - 200]),
+				statLineHorizontal = game.hands
+					.slice(game.hands.length - 20)
+					.map((hand, handIndex, handArray) => ({ 
+						x: handIndex * 20, 
+						y: 50 - (((hand.bank - statMin) * 50) / (statMax - statMin)),
+						color: handIndex === 0 ? "#565656"
+							: hand.bank > handArray[handIndex - 1].bank ? "#76bf86"
+							: hand.bank < handArray[handIndex - 1].bank ? "#c54342"
+							: "#565656",
+						amount: hand.bank
+					})),
+				statLineVertical = game.hands
+					.slice(game.hands.length - 20)
+					.map((hand, handIndex, handArray) => ({ 
+						x: 50 - (((hand.bank - statMin) * 50) / (statMax - statMin)),
+						y: (handArray.length - handIndex - 1) * 20,
+						color: handIndex === 0 ? "#565656"
+							: hand.bank > handArray[handIndex - 1].bank ? "#76bf86"
+							: hand.bank < handArray[handIndex - 1].bank ? "#c54342"
+							: "#565656",
+						amount: hand.bank
+					}));
+			
+			return {
+				id: game.id,
+				start: new Date(game.start),
+				end: endDate,
+				endDisplay: endDisplay,
+				bank: game.hands[game.hands.length - 1].bank,
+				hands: game.hands,
+				transactions: game.hands.map(hand => hand.bank),
+				statLineHorizontal: statLineHorizontal,
+				statLineVertical: statLineVertical
+			};
+		});
 	};
 
 	render() { return (
@@ -82,16 +191,47 @@ class BlackJack extends Component {
 			</div>
 		:
 			<>
-			<Game transactionCount={ this.state.game.transactions.length } 
-				currentAmount={ this.state.game.currentAmount } 
-				statLine={ this.state.game.statLine.line } 
-				debit={ amount => { this.setState(({ game }) => ({ game: { ...game, currentAmount: game.currentAmount - amount } }))} }
-				saveTransaction={ this.saveTransaction } />
+			{
+			!this.state.selectedGame ?
+				<div className="content">
+					{
+					this.state.games
+					.sort((gameA, gameB) => gameB.end - gameA.end)
+					.map(game => 
+						<ListGame 
+						key={ game.id } 
+						gameId={ game.id }
+						end={ game.endDisplay } 
+						hands={ game.hands } 
+						bank={ game.bank } 
+						statLine={ game.statLineHorizontal } 
+						selectGame={ () => { this.setState({ selectedGame: game }) }}
+						deleteGame={ this.deleteGame } />
+					)
+					}
+				</div>
+			:
+				<Game 
+					bank={ this.state.selectedGame.bank } 
+					transactions={ this.state.selectedGame.transactions }
+					statLine={ this.state.selectedGame.statLineVertical }
+					saveHand={ this.saveHand } />
+			}
 
 			<div className="bottomNav">
 				<div className="button">
-					{/* New */}
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path d="M31.55 9.6 24.1 17.05 22.1 15.05 26.05 11.1H24Q18.65 11.1 14.825 14.925Q11 18.75 11 24.1Q11 25.55 11.275 26.85Q11.55 28.15 11.95 29.3L9.8 31.45Q8.8 29.65 8.4 27.825Q8 26 8 24.1Q8 17.55 12.725 12.825Q17.45 8.1 24 8.1H26.15L22.15 4.1L24.1 2.15ZM16.35 38.55 23.8 31.1 25.75 33.05 21.75 37.05H24Q29.35 37.05 33.175 33.225Q37 29.4 37 24.05Q37 22.6 36.75 21.3Q36.5 20 36 18.85L38.15 16.7Q39.15 18.5 39.575 20.325Q40 22.15 40 24.05Q40 30.6 35.275 35.325Q30.55 40.05 24 40.05H21.75L25.75 44.05L23.8 46Z"/></svg>
+					{
+					this.state.selectedGame ?
+					// List
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onClick={ () => { this.viewGames() }}>
+						<path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+					</svg>
+					:
+					// New
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onClick={ this.newGame }>
+						<path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+					</svg>
+					}
 				</div>
 
 				<div className="button">

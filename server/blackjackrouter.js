@@ -18,7 +18,9 @@ router.delete("/data/game", data.gameDelete);
 // ************************* API
 
 router.get("/api/blackjackload", api.blackJackLoad);
-router.post("/api/blackjacksave", api.blackJackSave);
+router.post("/api/savegame", api.saveGame);
+router.post("/api/savegamehand", api.saveGameHand);
+router.delete("/api/deletegame", api.deleteGame);
 
 // ************************* Static
 

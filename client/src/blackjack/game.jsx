@@ -73,9 +73,9 @@ const Game = (props) => {
 
 	const [ strategyDisplay, setStrategyDisplay ] = useState("");
 	const [ strategyTableIndex, setStrategyTableIndex ] = useState([-1, -1]);
-	const [ bank, setBank ] = useState(200);
-	const [ transactions, setTransactions ] = useState([ 200 ]);
-	const [ strategyLine, setStrategyLine ] = useState([{ x: 25, y: 0, color: "#565656", amount: 200 }]);
+	const [ bank, setBank ] = useState(props.bank);
+	const [ transactions, setTransactions ] = useState(props.transactions);
+	const [ statLine, setStatLine ] = useState(props.statLine);
 	const [ betTotal, setBetTotal ] = useState(0);
 	const [ player, setPlayer ] = useState(null);
 	const [ split, setSplit ] = useState(null);
@@ -168,13 +168,13 @@ const Game = (props) => {
 		setStrategyTableIndex([ playerIndex, dealerIndex + 1]);
 	};
 
-	const saveTransaction = newBank => {
+	const saveHand = (playerHand, splitHand, dealerHand, newBank) => {
 		const tempMin = Math.min(...transactions.concat([ newBank ])),
 			tempMax = Math.max(...transactions.concat([ newBank])),
 			statMin = 200 - Math.max(...[200 - tempMin, tempMax - 200]),
 			statMax = 200 + Math.max(...[200 - tempMin, tempMax - 200]),
-			statLine = strategyLine
-				.slice(strategyLine - 20)
+			newStatLine = statLine
+				.slice(statLine - 20)
 				.map(point => ({ ...point, x: 50 - (((point.amount - statMin) * 50) / (statMax - statMin)), y: point.y + 20 }))
 				.concat({
 					x: 50 - ((((newBank) - statMin) * 50) / (statMax - statMin)),
@@ -187,7 +187,8 @@ const Game = (props) => {
 		
 		setBank(newBank);
 		setTransactions(transactions.concat(newBank));
-		setStrategyLine(statLine);
+		setStatLine(newStatLine);
+		props.saveHand(playerHand.map(card => card.card), splitHand ? splitHand.map(card => card.card) : null, dealerHand.map(card => card.card), newBank);
 	};
 
 	const newDeal = () => {
@@ -222,8 +223,7 @@ const Game = (props) => {
 		setSplit(null);
 
 		if (playerValue === 21 && dealerValue !== 21) {
-			saveTransaction(bank + (bet * 1.5));
-			props.saveTransaction(bet * 1.5);
+			saveHand(playerHand, null, dealerHand, bank + (bet * 1.5));
 			setPlayer({ 
 				cards: playerHand,
 				bet: bet,
@@ -233,8 +233,7 @@ const Game = (props) => {
 			setIsPlaying(false);
 		}
 		else if (playerValue !== 21 && dealerValue === 21) {
-			saveTransaction(bank + (-1 * bet));
-			props.saveTransaction(-1 * bet);
+			saveHand(playerHand, null, dealerHand, bank + (-1 * bet));
 			setPlayer({ 
 				cards: playerHand,
 				bet: bet,
@@ -244,7 +243,6 @@ const Game = (props) => {
 			setIsPlaying(false);
 		}
 		else {
-			props.debit(bet);
 			setBank(bank - bet);
 			setPlayer({ 
 				cards: playerHand,
@@ -396,8 +394,7 @@ const Game = (props) => {
 				}
 			}
 
-			saveTransaction(bankUpdate + transaction);
-			props.saveTransaction(transaction);
+			saveHand(playerData.cards, splitData ? splitData.cards : null, dealerData, bankUpdate + transaction);
 			setIsPlaying(false);
 		}
 		else {
@@ -457,12 +454,12 @@ const Game = (props) => {
 			</table>
 
 			{
-			strategyLine.length > 0 ?
-			<svg viewBox="-5 -5 60 400" className="statLine" preserveAspectRatio="xMidYMin">
+			statLine.length > 0 ?
+			<svg viewBox="-5 -5 60 400" className="statLine vertical" preserveAspectRatio="xMidYMin">
 				<line x1="25" x2="25" y1="0" y2="400" />
-				<path d={ `M${ strategyLine[0].x } ${ strategyLine[0].y } ${ strategyLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />
+				<path d={ `M${ statLine[0].x } ${ statLine[0].y } ${ statLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />
 
-				{ strategyLine.map((point, pointIndex) => 
+				{ statLine.map((point, pointIndex) => 
 					<circle key={ pointIndex } cx={ point.x } cy={ point.y } r="2" fill={ point.color } />
 				)}
 			</svg>

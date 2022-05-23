@@ -31,6 +31,7 @@ export default {
 		}
 
 		const gameSave = request.body.game;
+		gameSave.lastUpdate = new Date();
 
 		if (gameSave.id) {
 			data.game.findById(gameSave.id)
@@ -44,7 +45,7 @@ export default {
 						if (field != "id") {
 							gameDb[field] = gameSave[field];
 						}
-					})
+					});
 
 					return gameDb.save();
 				})
