@@ -120,6 +120,7 @@ html, body, #root {
 .actionContainer {
 	display: flex;
 	flex-direction: column;
+	justify-content: space-evenly;
 }
 
 .actionContainer .button {
@@ -127,7 +128,7 @@ html, body, #root {
 	text-align: center;
 	padding: 7px 0px;
 	color: rgb(32, 32, 32);
-	margin: 7px 15px;
+	margin: 3px 15px;
 	border-radius: 5px;
 	border: 2px solid;
 	user-select: none;
@@ -166,7 +167,7 @@ html, body, #root {
 
 .card {
 	background-color: white;
-	margin: 10px 0px;
+	margin: 5px 0px;
 	padding: 3px 3px;
 	width: 55px;
 	height: 90px;
@@ -207,13 +208,10 @@ html, body, #root {
 
 .rowContainer {
 	display: flex;
-	width: 100%;
 	justify-content: space-evenly;
-	margin: 20px 0px;
 }
 
 .bottomNav {
-	width: 100%;
 	box-shadow: rgb(67 77 83 / 35%) 0px -4px 6px 0px;
 	display: flex;
 	justify-content: space-evenly;
@@ -222,7 +220,6 @@ html, body, #root {
 
 .bottomNav .button {
 	width: 36px;
-	padding: 10px 0px;
 	fill: rgb(225 225 225);
 }
 

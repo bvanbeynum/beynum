@@ -425,130 +425,105 @@ const Game = (props) => {
 			<div className="gameStat strategyDisplay">{ strategyDisplay }</div>
 		</div>
 
-		<div className="rowContainer">
+		<div className="gameContent">
+			<div className="rowContainer">
 
-			<table className="strategy">
-			<thead>
-			<tr>
-				<th></th>
-			{
-			strategyDealer.map((column, columnIndex) =>
-				<th key={ columnIndex }>{ column }</th>
-			)
-			}
-			</tr>
-			</thead>
-			<tbody>
-			{
-			strategyTable.map((row, rowIndex) =>
-			<tr key={ rowIndex }>
+				<table className="strategy">
+				<thead>
+				<tr>
+					<th></th>
 				{
-				row.map((column, columnIndex) =>
-					<td key={ columnIndex } className={ `${ column.value } ${ rowIndex === strategyTableIndex[0] && columnIndex === strategyTableIndex[1] ? "highlight" : "" }` }>{ column.value }</td>
+				strategyDealer.map((column, columnIndex) =>
+					<th key={ columnIndex }>{ column }</th>
 				)
 				}
-			</tr>
-			)
-			}
-			</tbody>
-			</table>
+				</tr>
+				</thead>
+				<tbody>
+				{
+				strategyTable.map((row, rowIndex) =>
+				<tr key={ rowIndex }>
+					{
+					row.map((column, columnIndex) =>
+						<td key={ columnIndex } className={ `${ column.value } ${ rowIndex === strategyTableIndex[0] && columnIndex === strategyTableIndex[1] ? "highlight" : "" }` }>{ column.value }</td>
+					)
+					}
+				</tr>
+				)
+				}
+				</tbody>
+				</table>
 
-			{
-			statLine.length > 0 ?
-			<svg viewBox="-5 -5 60 400" className="statLine vertical" preserveAspectRatio="xMidYMin">
-				<line x1="25" x2="25" y1="0" y2="400" />
-				<path d={ `M${ statLine[0].x } ${ statLine[0].y } ${ statLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />
+				{
+				statLine.length > 0 ?
+				<svg viewBox="-5 -5 60 400" className="statLine vertical" preserveAspectRatio="xMidYMin">
+					<line x1="25" x2="25" y1="0" y2="400" />
+					<path d={ `M${ statLine[0].x } ${ statLine[0].y } ${ statLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />
 
-				{ statLine.map((point, pointIndex) => 
-					<circle key={ pointIndex } cx={ point.x } cy={ point.y } r="2" fill={ point.color } />
-				)}
-			</svg>
-			: ""
-			}
+					{ statLine.map((point, pointIndex) => 
+						<circle key={ pointIndex } cx={ point.x } cy={ point.y } r="2" fill={ point.color } />
+					)}
+				</svg>
+				: ""
+				}
 
-		</div>
-	
-		<div className="rowContainer">
-			
-			<div className="actionContainer">
-				<div className={ `button ${ !isPlaying ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(118 191 134)', borderColor: 'rgb(46 124 46)' }} onClick={ () => { if (isPlaying) { play("hit") }} }>Hit</div>
-				<div className={ `button ${ !isPlaying ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(197 67 66)', borderColor: 'rgb(116 50 50)' }} onClick={ () => { if (isPlaying) { play("stand") }} }>Stand</div>
-				<div className={ `button ${ !isPlaying || !canDouble ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(91 177 197)', borderColor: 'rgb(57 131 143)' }} onClick={ () => { if (isPlaying && canDouble) { play("double") }} }>Double</div>
-				<div className={ `button ${ !isPlaying || !canSplit ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(226 195 106)', borderColor: 'rgb(157 132 59)' }} onClick={ () => { if (isPlaying && canSplit) { play("split") }} }>Split</div>
-				<div className={ `button ${ isPlaying ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(91 177 197)', borderColor: 'rgb(57 131 143)' }} onClick={ () => { if (!isPlaying) { newDeal() }} }>Deal</div>
 			</div>
-			
-			<div className="cardsContainer">
-				<div className="handContainer">
-
-				{
-				!isPlaying && player ?
-					<div className="result">
-						{ player.result === -1 && (!split || (split.result === -1)) ? `${ calculateValue(dealer) } Win`
-							: player.result === 1 || (split && split.result === 1) ? `${ calculateValue(dealer) } Lose`
-							: player.result === 0 ? `${ calculateValue(dealer) } Push`
-							: ""
-						}
-					</div>
-				: ""
-				}
-
-				{
-				dealer ?
-				dealer.map((card, cardIndex) =>
-					<div className={ `card ${ (cardIndex > 0 || !isPlaying) && (card.suit === "♥" || card.suit === "♦") ? "cardRed" : "" }` } key={ cardIndex }>
-						<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.card : "?" }</div>
-						<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.suit : "" }</div>
-						<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.suit : "" }</div>
-						<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.card : "?" }</div>
-					</div>
-				)
-				: ""
-				}
-
+		
+			<div className="rowContainer">
+				
+				<div className="actionContainer">
+					<div className={ `button ${ !isPlaying ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(118 191 134)', borderColor: 'rgb(46 124 46)' }} onClick={ () => { if (isPlaying) { play("hit") }} }>Hit</div>
+					<div className={ `button ${ !isPlaying ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(197 67 66)', borderColor: 'rgb(116 50 50)' }} onClick={ () => { if (isPlaying) { play("stand") }} }>Stand</div>
+					<div className={ `button ${ !isPlaying || !canDouble ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(91 177 197)', borderColor: 'rgb(57 131 143)' }} onClick={ () => { if (isPlaying && canDouble) { play("double") }} }>Double</div>
+					<div className={ `button ${ !isPlaying || !canSplit ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(226 195 106)', borderColor: 'rgb(157 132 59)' }} onClick={ () => { if (isPlaying && canSplit) { play("split") }} }>Split</div>
+					<div className={ `button ${ isPlaying ? "inactive" : "" }` } style={{ backgroundColor: 'rgb(91 177 197)', borderColor: 'rgb(57 131 143)' }} onClick={ () => { if (!isPlaying) { newDeal() }} }>Deal</div>
 				</div>
 				
-				<div className="handContainer">
-				{
-				!isPlaying && player ?
-					<div className="result">
-						{ player.result === 1 ? `${ calculateValue(player.cards) } Win` 
-							: player.result === -1 ? `${ calculateValue(player.cards) } Lose`
-							: player.result === 0 ? `${ calculateValue(player.cards) } Push`
-							: ""
-						}
+				<div className="cardsContainer">
+					<div className="handContainer">
+
+					{
+					!isPlaying && player ?
+						<div className="result">
+							{ player.result === -1 && (!split || (split.result === -1)) ? `${ calculateValue(dealer) } Win`
+								: player.result === 1 || (split && split.result === 1) ? `${ calculateValue(dealer) } Lose`
+								: player.result === 0 ? `${ calculateValue(dealer) } Push`
+								: ""
+							}
+						</div>
+					: ""
+					}
+
+					{
+					dealer ?
+					dealer.map((card, cardIndex) =>
+						<div className={ `card ${ (cardIndex > 0 || !isPlaying) && (card.suit === "♥" || card.suit === "♦") ? "cardRed" : "" }` } key={ cardIndex }>
+							<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.card : "?" }</div>
+							<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.suit : "" }</div>
+							<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.suit : "" }</div>
+							<div className="cardText">{ cardIndex > 0 || !isPlaying ? card.card : "?" }</div>
+						</div>
+					)
+					: ""
+					}
+
 					</div>
-				: ""
-				}
-				{
-				player ? 
-				player.cards.map((card, cardIndex) => 
-					<div className={ `card ${ card.suit === "♥" || card.suit === "♦" ? "cardRed" : "" }` } key={ cardIndex }>
-						<div className="cardText">{ card.card }</div>
-						<div className="cardText">{ card.suit }</div>
-						<div className="cardText">{ card.suit }</div>
-						<div className="cardText">{ card.card }</div>
-					</div>
-				)
-				: "" }
-				</div>
-				
-				{
-				split ?
+					
 					<div className="handContainer">
 					{
-					!isPlaying ?
+					!isPlaying && player ?
 						<div className="result">
-							{ split.result === 1 ? `${ calculateValue(split.cards) } Win`
-								: split.result === -1 ? `${ calculateValue(split.cards) } Lose`
-								: split.result === 0 ? `${ calculateValue(split.cards) } Push`
+							{ player.result === 1 ? `${ calculateValue(player.cards) } Win` 
+								: player.result === -1 ? `${ calculateValue(player.cards) } Lose`
+								: player.result === 0 ? `${ calculateValue(player.cards) } Push`
 								: ""
 							}
 						</div>
 					: ""
 					}
 					{
-					split.cards.map((card, cardIndex) => 
+					player ? 
+					player.cards.map((card, cardIndex) => 
 						<div className={ `card ${ card.suit === "♥" || card.suit === "♦" ? "cardRed" : "" }` } key={ cardIndex }>
 							<div className="cardText">{ card.card }</div>
 							<div className="cardText">{ card.suit }</div>
@@ -556,9 +531,37 @@ const Game = (props) => {
 							<div className="cardText">{ card.card }</div>
 						</div>
 					)
-					}
+					: "" }
 					</div>
-				: "" }
+					
+					{
+					split ?
+						<div className="handContainer">
+						{
+						!isPlaying ?
+							<div className="result">
+								{ split.result === 1 ? `${ calculateValue(split.cards) } Win`
+									: split.result === -1 ? `${ calculateValue(split.cards) } Lose`
+									: split.result === 0 ? `${ calculateValue(split.cards) } Push`
+									: ""
+								}
+							</div>
+						: ""
+						}
+						{
+						split.cards.map((card, cardIndex) => 
+							<div className={ `card ${ card.suit === "♥" || card.suit === "♦" ? "cardRed" : "" }` } key={ cardIndex }>
+								<div className="cardText">{ card.card }</div>
+								<div className="cardText">{ card.suit }</div>
+								<div className="cardText">{ card.suit }</div>
+								<div className="cardText">{ card.card }</div>
+							</div>
+						)
+						}
+						</div>
+					: "" }
+				</div>
+			
 			</div>
 		</div>
 
