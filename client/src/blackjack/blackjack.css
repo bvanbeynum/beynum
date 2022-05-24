@@ -39,6 +39,7 @@ html, body, #root {
 	background-color: rgb(67 77 83);
 	box-shadow: rgb(67 77 83 / 35%) -2px 4px 6px 0px;
 	margin-bottom: 10px;
+	justify-content: center;
 }
 
 .gameStats {
@@ -70,9 +71,9 @@ html, body, #root {
 
 .strategyDisplay {
 	flex: 1;
-	text-align: center;
 	color: rgb(255 255 0);
 	font-weight: bold;
+	text-align: left;
 }
 
 .listItem {
@@ -221,6 +222,7 @@ html, body, #root {
 .bottomNav .button {
 	width: 36px;
 	fill: rgb(225 225 225);
+	margin: 5px 0px;
 }
 
 .button label {

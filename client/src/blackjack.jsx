@@ -205,8 +205,9 @@ class BlackJack extends Component {
 						hands={ game.hands } 
 						bank={ game.bank } 
 						statLine={ game.statLineHorizontal } 
-						selectGame={ () => { this.setState({ selectedGame: game }) }}
-						deleteGame={ this.deleteGame } />
+						selectGame={ selectedGame => { this.setState({ selectedGame: selectedGame }) }}
+						deleteGame={ this.deleteGame }
+						closeGame={ this.viewGames } />
 					)
 					}
 				</div>

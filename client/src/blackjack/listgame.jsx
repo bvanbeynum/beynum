@@ -13,7 +13,7 @@ const ListGame = props => {
 				</div>
 			</div>
 
-			<div className="listGraph" onClick={ props.selectGame }>
+			<div className="listGraph" onClick={ () => { if (props.bank >= 10) { props.selectGame(props.gameId) }}}>
 				<svg viewBox="-5 -5 400 60" className="statLine horizontal" preserveAspectRatio="xMidYMin">
 					<line x1="0" x2="400" y1="25" y2="25" />
 					<path d={ `M${ props.statLine[0].x } ${ props.statLine[0].y } ${ props.statLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />

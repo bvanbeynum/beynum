@@ -189,6 +189,10 @@ const Game = (props) => {
 		setTransactions(transactions.concat(newBank));
 		setStatLine(newStatLine);
 		props.saveHand(playerHand.map(card => card.card), splitHand ? splitHand.map(card => card.card) : null, dealerHand.map(card => card.card), newBank);
+
+		if (newBank < 10) {
+			props.closeGame();
+		}
 	};
 
 	const newDeal = () => {
@@ -222,7 +226,17 @@ const Game = (props) => {
 		setDealer(dealerHand);
 		setSplit(null);
 
-		if (playerValue === 21 && dealerValue !== 21) {
+		if (playerValue === 21 && dealerValue === 21) {
+			saveHand(playerHand, null, dealerHand, bank);
+			setPlayer({ 
+				cards: playerHand,
+				bet: bet,
+				isComplete: true,
+				result: 0
+			});
+			setIsPlaying(false);
+		}
+		else if (playerValue === 21 && dealerValue !== 21) {
 			saveHand(playerHand, null, dealerHand, bank + (bet * 1.5));
 			setPlayer({ 
 				cards: playerHand,
