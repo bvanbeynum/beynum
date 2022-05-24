@@ -344,7 +344,7 @@ const Game = (props) => {
 			bet = bet + playerData.bet;
 			bankUpdate = bankUpdate - playerData.bet;
 
-			doubleUpdate = false;
+			doubleUpdate = playerValue !== 21;
 			splitUpdate = false;
 		}
 
