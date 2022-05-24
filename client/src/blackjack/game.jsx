@@ -430,7 +430,7 @@ const Game = (props) => {
 	<div className="content">
 
 		<div className="topNav">
-			<div className="gameStat">{ transactions.length }</div>
+			<div className="gameStat">{ transactions ? transactions.length : 0 }</div>
 			<div className="gameLabel">#</div>
 			<div className="gameStat">{ bank }</div>
 			<div className="gameLabel">$</div>

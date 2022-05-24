@@ -205,7 +205,7 @@ class BlackJack extends Component {
 						hands={ game.hands } 
 						bank={ game.bank } 
 						statLine={ game.statLineHorizontal } 
-						selectGame={ selectedGame => { this.setState({ selectedGame: selectedGame }) }}
+						selectGame={ gameId => { this.setState(({ games }) => ({ selectedGame: games.find(game => game.id === gameId ) })) }}
 						deleteGame={ this.deleteGame }
 						closeGame={ this.viewGames } />
 					)
