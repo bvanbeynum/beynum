@@ -105,7 +105,7 @@ const Game = (props) => {
 		else {
 			let value = hardTotal;
 
-			for (let acesIndex = 1; acesIndex < aces.length; acesIndex++) {
+			for (let acesIndex = 1; acesIndex <= aces.length; acesIndex++) {
 				value = hardTotal + ((aces.length - acesIndex) * 11) + (acesIndex * 1);
 
 				if (value < 21) {
