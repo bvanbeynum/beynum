@@ -469,7 +469,7 @@ const Game = (props) => {
 				</table>
 
 				{
-				statLine.length > 0 ?
+				statLine.length > 0 && 1 == 0 ?
 				<svg viewBox="-5 -5 60 400" className="statLine vertical" preserveAspectRatio="xMidYMin">
 					<line x1="25" x2="25" y1="0" y2="400" />
 					<path d={ `M${ statLine[0].x } ${ statLine[0].y } ${ statLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />
@@ -480,6 +480,24 @@ const Game = (props) => {
 				</svg>
 				: ""
 				}
+
+				<div className="transactionBoard">
+					<div className="transactionHeader">
+						{ transactions.filter((trans, transIndex, transArray) => transIndex < transArray.length - 1 && transArray[transIndex + 1] > trans).length }
+						/
+						{ transactions.filter((trans, transIndex, transArray) => transIndex < transArray.length - 1 && transArray[transIndex + 1] < trans).length }
+					</div>
+
+					{
+					transactions
+					.reduceRight((array, value) => array.concat(value), [])
+					.map((trans, transIndex, transArray) => 
+					<div key={ transIndex } className={ `transactionValue ${ transIndex === transArray.length - 1 || transArray[transIndex + 1] === trans ? "push" : transArray[transIndex + 1] < trans ? "win" : "loss" }` }>
+						{ trans }
+					</div>
+					)
+					}
+				</div>
 
 			</div>
 		

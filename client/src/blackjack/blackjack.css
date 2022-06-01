@@ -70,10 +70,10 @@ html, body, #root {
 }
 
 .strategyDisplay {
-	flex: 1;
 	color: rgb(255 255 0);
 	font-weight: bold;
 	text-align: left;
+	white-space: nowrap;
 }
 
 .listItem {
@@ -100,6 +100,94 @@ html, body, #root {
 
 .listGraph {
 	cursor: pointer;
+}
+
+.strategy {
+	margin: 20px 0px;
+	background-color: rgb(233 233 233 / 50%);
+	border-collapse: collapse;
+}
+
+.strategy th, .strategy td {
+	border: 1px solid rgb(139 139 139);
+	text-align: center;
+	font-size: 8px;
+	width: 12px;
+}
+
+.strategy th {
+	font-weight: normal;
+}
+
+.strategy td.H {
+	background-color: rgb(219 176 176);
+}
+
+.strategy td.D {
+	background-color: rgb(153 193 243);
+}
+
+.strategy td.S {
+	background-color: rgb(219 208 158);
+}
+
+.strategy td.P {
+	background-color: rgb(184 207 177);
+}
+
+.strategy td.highlight {
+	border: 2px dashed rgb(228 255 0);
+	font-weight: bold;
+}
+
+.transactionBoard {
+	height: 400px;
+	width: 80px;
+	margin: 20px 20px;
+	border: 2px solid rgb(219 208 158);
+	background-color: rgb(123 128 135);
+	overflow-y: scroll;
+	font-size: 10px;
+	font-weight: bold;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.transactionBoard::-webkit-scrollbar {
+	display: none;
+}
+
+.transactionHeader {
+	text-align: center;
+	border-bottom: 2px solid rgb(221 221 221);
+	padding: 7px 0px;
+	background-color: rgb(89 92 96);
+	color: rgb(225 225 225);
+	position: fixed;
+	width: 80px;
+}
+
+.transactionValue {
+	padding: 3px 5px;
+	color: rgb(38 38 38);
+}
+
+.transactionValue:nth-child(2) {
+	margin-top: 30px;
+}
+
+.transactionValue.win {
+	text-align: left;
+	color: rgb(140 195 123);
+}
+
+.transactionValue.loss {
+	text-align: right;
+	color: rgb(205 116 116);
+}
+
+.transactionValue.push {
+	text-align: center;
 }
 
 .statLine.vertical {
@@ -227,44 +315,6 @@ html, body, #root {
 
 .button label {
 	cursor: pointer;
-}
-
-.strategy {
-	margin: auto 0px;
-	background-color: rgb(233 233 233 / 50%);
-	border-collapse: collapse;
-}
-
-.strategy th, .strategy td {
-	border: 1px solid rgb(139 139 139);
-	text-align: center;
-	font-size: 8px;
-	width: 12px;
-}
-
-.strategy th {
-	font-weight: normal;
-}
-
-.strategy td.H {
-	background-color: rgb(219 176 176);
-}
-
-.strategy td.D {
-	background-color: rgb(153 193 243);
-}
-
-.strategy td.S {
-	background-color: rgb(219 208 158);
-}
-
-.strategy td.P {
-	background-color: rgb(184 207 177);
-}
-
-.strategy td.highlight {
-	border: 2px dashed rgb(228 255 0);
-	font-weight: bold;
 }
 
 /* ****************************** Toast Section ************************* */
