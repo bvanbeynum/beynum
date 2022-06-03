@@ -145,9 +145,9 @@ class BlackJack extends Component {
 				statMin = 200 - Math.max(...[200 - tempMin, tempMax - 200]),
 				statMax = 200 + Math.max(...[200 - tempMin, tempMax - 200]),
 				statLineHorizontal = game.hands
-					.slice(game.hands.length - 20)
+					.slice(game.hands.length - 50)
 					.map((hand, handIndex, handArray) => ({ 
-						x: handIndex * 20, 
+						x: handIndex * 8, 
 						y: 50 - (((hand.bank - statMin) * 50) / (statMax - statMin)),
 						color: handIndex === 0 ? "#565656"
 							: hand.bank > handArray[handIndex - 1].bank ? "#76bf86"

@@ -468,24 +468,21 @@ const Game = (props) => {
 				</tbody>
 				</table>
 
-				{
-				statLine.length > 0 && 1 == 0 ?
-				<svg viewBox="-5 -5 60 400" className="statLine vertical" preserveAspectRatio="xMidYMin">
-					<line x1="25" x2="25" y1="0" y2="400" />
-					<path d={ `M${ statLine[0].x } ${ statLine[0].y } ${ statLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />
-
-					{ statLine.map((point, pointIndex) => 
-						<circle key={ pointIndex } cx={ point.x } cy={ point.y } r="2" fill={ point.color } />
-					)}
-				</svg>
-				: ""
-				}
-
 				<div className="transactionBoard">
 					<div className="transactionHeader">
+						<div>
 						{ transactions.filter((trans, transIndex, transArray) => transIndex < transArray.length - 1 && transArray[transIndex + 1] > trans).length }
 						/
 						{ transactions.filter((trans, transIndex, transArray) => transIndex < transArray.length - 1 && transArray[transIndex + 1] < trans).length }
+						</div>
+
+						<div>
+						{ (transactions.filter((trans, transIndex, transArray) => transIndex < transArray.length - 1 && transArray[transIndex + 1] > trans).length / (transactions.filter((trans, transIndex, transArray) => transIndex < transArray.length - 1 && transArray[transIndex + 1] < trans).length || 0)).toFixed(2) }
+						</div>
+
+						<div>
+							{ `${ Math.min(...transactions) } / ${ Math.max(...transactions) }` }
+						</div>
 					</div>
 
 					{

@@ -173,7 +173,7 @@ html, body, #root {
 }
 
 .transactionValue:nth-child(2) {
-	margin-top: 30px;
+	margin-top: 55px;
 }
 
 .transactionValue.win {

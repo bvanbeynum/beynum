@@ -19,7 +19,7 @@ const ListGame = props => {
 					<path d={ `M${ props.statLine[0].x } ${ props.statLine[0].y } ${ props.statLine.slice(1).map(point => `L${ point.x } ${ point.y }`).join(" ") }` } />
 					{
 					props.statLine.map((point, pointIndex) => 
-						<circle key={ pointIndex } cx={ point.x } cy={ point.y } r="2" fill={ point.color } />
+						<circle key={ pointIndex } cx={ point.x } cy={ point.y } r="1" fill={ point.color } />
 					)
 					}
 				</svg>
