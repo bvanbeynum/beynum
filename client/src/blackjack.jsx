@@ -4,6 +4,7 @@ import Toast from "./toast.jsx";
 import "./blackjack/blackjack.css";
 import Game from "./blackjack/game";
 import ListGame from "./blackjack/listgame.jsx";
+import Engine from "../../lib/blackjack";
 
 class BlackJack extends Component {
 
@@ -18,6 +19,12 @@ class BlackJack extends Component {
 	};
 
 	componentDidMount() {
+		// this.setState({
+		// 	engine: new Engine()
+		// }, () => {
+		// 	this.state.engine.addCompleteListener(() => console.log(`complete: ${ this.state.engine.Transactions }`));
+		// });
+
 		this.viewGames();
 	};
 
@@ -35,7 +42,8 @@ class BlackJack extends Component {
 				.then(data => {
 					this.setState({
 						isLoading: false,
-						selectedGame: null,
+						engine: null,
+						selectedGameId: null,
 						games: this.loadGames(data.games)
 					});
 				})
@@ -48,70 +56,16 @@ class BlackJack extends Component {
 
 	newGame = () => {
 		this.setState({
-			selectedGame: {
-				start: new Date(),
-				bank: 200,
-				hands: [],
-				transactions: [ 200 ],
-				statLineVertical: [{ x: 25, y: 0, color: "#565656", amount: 200 }]
-			}
+			engine: new Engine()
 		})
 	};
 
-	saveHand = (playerCards, splitCards, dealerCards, bank) => {
-		const saveHand = { player: playerCards, split: splitCards, dealer: dealerCards, bank: bank };
-
-		this.setState(({ selectedGame }) => ({
-			selectedGame : {
-				...selectedGame,
-				hands: selectedGame.hands.concat(saveHand)
-			}
-		}),
-		() => {
-			if (this.state.selectedGame.id) {
-				fetch(`/api/savegamehand?gameid=${ this.state.selectedGame.id }`,
-					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gamehand: saveHand }) }
-					)
-					.then(response => {
-						if (response.ok) {
-							return response.json();
-						}
-						else {
-							throw Error(response.statusText);
-						}
-					})
-					.then(() => {
-					})
-					.catch(error => {
-						console.warn(error);
-						this.setState({ toast: { text: "Error saving hand", type: "error" } });
-					});
-			}
-			else {
-				fetch("/api/savegame",
-					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ game: {
-						start: this.state.selectedGame.start,
-						hands: this.state.selectedGame.hands
-					} }) }
-					)
-					.then(response => {
-						if (response.ok) {
-							return response.json();
-						}
-						else {
-							throw Error(response.statusText);
-						}
-					})
-					.then(data => {
-						this.setState(({ selectedGame }) => ({ selectedGame: { ...selectedGame, id: data.gameid } }));
-					})
-					.catch(error => {
-						console.warn(error);
-						this.setState({ toast: { text: "Error saving new game", type: "error" }});
-					});
-			}
-		});
-	};
+	selectGame = gameId => {
+		this.setState(({ games }) => ({
+			selectedGameId: gameId,
+			engine: new Engine(games.find(game => game.id === gameId ).transactions)
+		}));
+	}
 
 	deleteGame = gameId => {
 		fetch(`/api/deletegame?gameid=${ gameId }`, { method: "delete", headers: { "Content-Type": "application/json" } })
@@ -154,17 +108,6 @@ class BlackJack extends Component {
 							: hand.bank < handArray[handIndex - 1].bank ? "#c54342"
 							: "#565656",
 						amount: hand.bank
-					})),
-				statLineVertical = game.hands
-					.slice(game.hands.length - 20)
-					.map((hand, handIndex, handArray) => ({ 
-						x: 50 - (((hand.bank - statMin) * 50) / (statMax - statMin)),
-						y: (handArray.length - handIndex - 1) * 20,
-						color: handIndex === 0 ? "#565656"
-							: hand.bank > handArray[handIndex - 1].bank ? "#76bf86"
-							: hand.bank < handArray[handIndex - 1].bank ? "#c54342"
-							: "#565656",
-						amount: hand.bank
 					}));
 			
 			return {
@@ -175,10 +118,85 @@ class BlackJack extends Component {
 				bank: game.hands[game.hands.length - 1].bank,
 				hands: game.hands,
 				transactions: game.hands.map(hand => hand.bank),
-				statLineHorizontal: statLineHorizontal,
-				statLineVertical: statLineVertical
+				statLineHorizontal: statLineHorizontal
 			};
 		});
+	};
+
+	gamePlay = action => {
+		const engine = this.state.engine;
+
+		switch (action) {
+			case "deal":
+				engine.Deal();
+				break;
+			case "hit":
+				engine.Play("hit");
+				break;
+			case "stand":
+				engine.Play("stand");
+				break;
+			case "double":
+				engine.Play("double");
+				break;
+			case "split":
+				engine.Play("split");
+				break;
+		}
+
+		if (!engine.Settings.isPlaying) {
+			const saveHand = { 
+				player: engine.Hands.player.cards.map(card => card.card),
+				split: engine.Hands.split ? engine.Hands.split.cards.map(card => card.card) : null,
+				dealer: engine.Hands.dealer.cards.map(card => card.card),
+				bank: engine.Settings.bank
+			};
+
+			if (this.state.selectedGameId) {
+				fetch(`/api/savegamehand?gameid=${ this.state.selectedGameId }`,
+					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gamehand: saveHand }) }
+					)
+					.then(response => {
+						if (response.ok) {
+							return response.json();
+						}
+						else {
+							throw Error(response.statusText);
+						}
+					})
+					.then(() => {
+					})
+					.catch(error => {
+						console.warn(error);
+						this.setState({ toast: { text: "Error saving hand", type: "error" } });
+					});
+			}
+			else {
+				fetch("/api/savegame",
+					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ game: {
+						start: engine.Settings.startTime,
+						hands: [ saveHand ]
+					} }) }
+					)
+					.then(response => {
+						if (response.ok) {
+							return response.json();
+						}
+						else {
+							throw Error(response.statusText);
+						}
+					})
+					.then(data => {
+						this.setState({ selectedGameId: data.gameid });
+					})
+					.catch(error => {
+						console.warn(error);
+						this.setState({ toast: { text: "Error saving new game", type: "error" }});
+					});
+			}
+		}
+
+		this.setState({ engine: engine });
 	};
 
 	render() { return (
@@ -192,7 +210,7 @@ class BlackJack extends Component {
 		:
 			<>
 			{
-			!this.state.selectedGame ?
+			!this.state.engine ?
 				<div className="content">
 					{
 					this.state.games
@@ -205,24 +223,20 @@ class BlackJack extends Component {
 						hands={ game.hands } 
 						bank={ game.bank } 
 						statLine={ game.statLineHorizontal } 
-						selectGame={ gameId => { this.setState(({ games }) => ({ selectedGame: games.find(game => game.id === gameId ) })) }}
+						selectGame={ this.selectGame }
 						deleteGame={ this.deleteGame }
 						closeGame={ this.viewGames } />
 					)
 					}
 				</div>
 			:
-				<Game 
-					bank={ this.state.selectedGame.bank } 
-					transactions={ this.state.selectedGame.transactions }
-					statLine={ this.state.selectedGame.statLineVertical }
-					saveHand={ this.saveHand } />
+				<Game engine={ this.state.engine } play={ this.gamePlay } />
 			}
 
 			<div className="bottomNav">
 				<div className="button">
 					{
-					this.state.selectedGame ?
+					this.state.engine ?
 					// List
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onClick={ () => { this.viewGames() }}>
 						<path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
