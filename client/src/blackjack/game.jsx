@@ -150,7 +150,7 @@ const Game = (props) => {
 						{
 						!props.engine.Settings.isPlaying ?
 							<div className="result">
-							{ props.engine.Hands.dealer.value + " " }
+							{ props.engine.Hands.split.value + " " }
 							{ 
 							props.engine.Hands.split.result === 1 ? "Win"
 								: props.engine.Hands.split.result === -1 ? "Lose"
