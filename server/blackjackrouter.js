@@ -22,6 +22,10 @@ router.post("/api/savegame", api.saveGame);
 router.post("/api/savegamehand", api.saveGameHand);
 router.delete("/api/deletegame", api.deleteGame);
 
+router.get("/api/bj/game/new", api.gameNew);
+router.post("/api/bj/game/deal", api.gameDeal);
+router.post("/api/bj/game/play", api.gamePlay);
+
 // ************************* Static
 
 export default router;
