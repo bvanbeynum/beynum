@@ -1,12 +1,107 @@
 import client from "superagent";
+import jwt from "jsonwebtoken";
+import config from "./config.js";
 import Engine from "../lib/blackjack.js";
 
 const global = {};
 
 export default {
 
+	authenticate: (request, response, next) => {
+		if (request.cookies.bj) {
+			try {
+				const tokenData = jwt.verify(request.cookies.bj, config.jwt);
+
+				if (tokenData.token) {
+					client.get(`${ request.serverPath }/bj/data/user?devicetoken=${ tokenData.token }`)
+						.then(clientResponse => {
+							if (clientResponse.body.users && clientResponse.body.users.length === 1) {
+								request.user = clientResponse.body.users[0];
+								request.user.devices = request.user.devices.map(device => ({
+									...device,
+									lastAccess: tokenData.token === device.token ? new Date() : device.lastAccess
+								}));
+
+								client.post(`${ request.serverPath }/bj/data/user`)
+									.send({ user: request.user })
+									.then(() => {})
+									.catch(() => {});
+								next();
+							}
+						})
+						.catch(() => {
+							next();
+						});
+				}
+				else {
+					next();
+				}
+			}
+			catch (error) {
+				next();
+			}
+		}
+		else {
+			next();
+		}
+	},
+
+	validate: (request, response) => {
+		if (request.query.token) {
+			client.get(`${ request.serverPath }/bj/data/user?usertoken=${ request.query.token }`)
+				.then(clientResponse => {
+					if (clientResponse.body.users && clientResponse.body.users.length === 1) {
+						const user = clientResponse.body.users[0];
+
+						let ipAddress = (request.headers["x-forwarded-for"] || "").split(",").pop().trim() || 
+							request.connection.remoteAddress || 
+							request.socket.remoteAddress || 
+							request.connection.socket.remoteAddress;
+						ipAddress = ipAddress.match(/[^:][\d.]+$/g).join("");
+
+						user.devices.push({
+							lastAccess: new Date(),
+							agent: request.headers["user-agent"],
+							domain: request.headers.host,
+							ip: ipAddress,
+							token: request.query.token
+						});
+
+						user.tokens = user.tokens.filter(token => token !== request.query.token);
+
+						client.post(`${ request.serverPath }/bj/data/user`)
+							.send({ user: user })
+							.then(() => {
+
+								const encryptedToken = jwt.sign({ token: request.query.token }, config.jwt);
+								response.cookie("bj", encryptedToken, { maxAge: 999999999999 });
+								response.redirect("/blackjack.html");
+								
+							})
+							.catch(() => {
+								response.redirect("/blackjack.html");
+							})
+					}
+					else {
+						response.redirect("/blackjack.html");
+					}
+				})
+				.catch(() => {
+					response.redirect("/blackjack.html");
+				});
+		}
+		else {
+			response.redirect("/blackjack.html");
+		}
+	},
+
 	blackJackLoad: (request, response) => {
-		const output = {};
+		if (!request.user) {
+			response.status(200).json({ hasAccess: false });
+			return;
+		}
+
+		const output = { hasAccess: true };
 
 		client.get(`${ request.serverPath }/data/game`)
 			.then(clientResponse => {
@@ -24,9 +119,14 @@ export default {
 	},
 
 	saveGame: (request, response) => {
+		if (!request.user) {
+			response.statusMessage = "Invalid access";
+			response.status(560).json({ error: "Invalid access" });
+			return;
+		}
 		if (!request.body.game) {
 			response.statusMessage = "Missing object to save";
-			response.status(560).json({ error: "Missing object to save" });
+			response.status(561).json({ error: "Missing object to save" });
 			return;
 		}
 
@@ -37,14 +137,19 @@ export default {
 			})
 			.catch(error => {
 				response.statusMessage = error.message;
-				response.status(561).json({ error: errorMessage });
+				response.status(562).json({ error: errorMessage });
 			})
 	},
 
 	saveGameHand: (request, response) => {
+		if (!request.user) {
+			response.statusMessage = "Invalid access";
+			response.status(560).json({ error: "Invalid access" });
+			return;
+		}
 		if (!request.query.gameid || !request.body.gamehand) {
 			response.statusMessage = "Missing object to save";
-			response.status(560).json({ error: "Missing object to save" });
+			response.status(561).json({ error: "Missing object to save" });
 			return;
 		}
 
@@ -60,19 +165,24 @@ export default {
 					})
 					.catch(error => {
 						response.statusMessage = error.message;
-						response.status(562).json({ error: error.message });
+						response.status(563).json({ error: error.message });
 					});
 			})
 			.catch(error => {
 				response.statusMessage = error.message;
-				response.status(561).json({ error: error.message });
+				response.status(562).json({ error: error.message });
 			})
 	},
 
 	deleteGame: (request, response) => {
+		if (!request.user) {
+			response.statusMessage = "Invalid access";
+			response.status(560).json({ error: "Invalid access" });
+			return;
+		}
 		if (!request.query.gameid){
 			response.statusMessage = "Missing object to delete";
-			response.status(560).json({ error: "Missing object to delete" });
+			response.status(561).json({ error: "Missing object to delete" });
 			return;
 		}
 
@@ -91,16 +201,22 @@ export default {
 					})
 					.catch(error => {
 						response.statusMessage = error.message;
-						response.status(562).json({ error: error.message });
+						response.status(563).json({ error: error.message });
 					});
 			})
 			.catch(error => {
 				response.statusMessage = error.message;
-				response.status(561).json({ error: error.message });
+				response.status(562).json({ error: error.message });
 			})
 	},
 
 	gameNew: (request, response) => {
+		if (!request.user) {
+			response.statusMessage = "Invalid access";
+			response.status(560).json({ error: "Invalid access" });
+			return;
+		}
+
 		const engine = new Engine();
 
 		const output = {
@@ -115,9 +231,15 @@ export default {
 	},
 
 	gameDeal: (request, response) => {
+		if (!request.user) {
+			response.statusMessage = "Invalid access";
+			response.status(560).json({ error: "Invalid access" });
+			return;
+		}
+
 		if (!request.body.game) {
 			response.statusMessage = "Missing existing game state";
-			response.status(560).json({ error: "Missing existing game state" });
+			response.status(561).json({ error: "Missing existing game state" });
 			return;
 		}
 
@@ -125,13 +247,13 @@ export default {
 
 		if (saveState.settings.isPlaying) {
 			response.statusMessage = "Game is still in progress";
-			response.status(561).json({ error: "Game is still in progress" });
+			response.status(562).json({ error: "Game is still in progress" });
 			return;
 		}
 
 		if (saveState.settings.bank - saveState.settings.currentBet <= 0) {
 			response.statusMessage = "Game is bankrupt";
-			response.status(562).json({ error: "Game is bankrupt" });
+			response.status(563).json({ error: "Game is bankrupt" });
 			return;
 		}
 
@@ -150,15 +272,21 @@ export default {
 	},
 
 	gamePlay: (request, response) => {
+		if (!request.user) {
+			response.statusMessage = "Invalid access";
+			response.status(560).json({ error: "Invalid access" });
+			return;
+		}
+
 		if (!request.body.game) {
 			response.statusMessage = "Missing existing game state";
-			response.status(560).json({ error: "Missing existing game state" });
+			response.status(561).json({ error: "Missing existing game state" });
 			return;
 		}
 		
 		if (!request.query.action || !/^(hit|stand|split|double)$/.test(request.query.action)) {
 			response.statusMessage = "Invalid action to play";
-			response.status(560).json({ error: "Invalid action to play" });
+			response.status(562).json({ error: "Invalid action to play" });
 			return;
 		}
 
@@ -166,7 +294,7 @@ export default {
 
 		if (!saveState.settings.isPlaying) {
 			response.statusMessage = "Game is over";
-			response.status(561).json({ error: "Game is over" });
+			response.status(563).json({ error: "Game is over" });
 			return;
 		}
 

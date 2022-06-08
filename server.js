@@ -5,6 +5,7 @@ import path, { dirname } from "path";
 import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import officeRouter from "./server/officerouter.js";
 import financeRouter from "./server/financerouter.js";
 import blackJackRouter from "./server/blackjackrouter.js";
@@ -22,6 +23,7 @@ const currentDirectory = dirname(currentFile);
 app.set("x-powered-by", false);
 app.set("root", currentDirectory);
 app.use(json());
+app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 
 // Routes =======================================================================

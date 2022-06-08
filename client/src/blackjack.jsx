@@ -19,12 +19,6 @@ class BlackJack extends Component {
 	};
 
 	componentDidMount() {
-		// this.setState({
-		// 	engine: new Engine()
-		// }, () => {
-		// 	this.state.engine.addCompleteListener(() => console.log(`complete: ${ this.state.engine.Transactions }`));
-		// });
-
 		this.viewGames();
 	};
 
@@ -40,16 +34,24 @@ class BlackJack extends Component {
 					}
 				})
 				.then(data => {
-					this.setState({
-						isLoading: false,
-						engine: null,
-						selectedGameId: null,
-						games: this.loadGames(data.games)
-					});
+					if (data.hasAccess) {
+						this.setState({
+							isLoading: false,
+							engine: null,
+							selectedGameId: null,
+							games: this.loadGames(data.games)
+						});
+					}
+					else {
+						this.setState({
+							isLoading: false,
+							isRestricted: true
+						});
+					}
 				})
 				.catch(error => {
 					console.warn(error);
-					this.setState({ isLoading: false, toast: { text: "Error loading data", type: "error" } });
+					this.setState({ toast: { text: "Error loading data", type: "error" } });
 				});
 		});
 	}
@@ -206,6 +208,23 @@ class BlackJack extends Component {
 		this.state.isLoading ?
 			<div className="loading">
 				<img alt="Loading" src="/media/blackjackloading.gif" />
+			</div>
+		
+		: this.state.isRestricted ?
+			<div className="loginPage">
+				<div className="icon">
+					<svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" viewBox="0 0 24 24" fill="black">
+						<g>
+							<path d="M12,1L3,5v6c0,5.55,3.84,10.74,9,12c5.16-1.26,9-6.45,9-12V5L12,1L12,1z M11,7h2v2h-2V7z M11,11h2v6h-2V11z"/>
+						</g>
+					</svg>
+				</div>
+					
+				<div className="loginContent">
+					<div>
+						This is a restricted site that requires pre-approval to use. If you'd like access to this site, please contact the owner.
+					</div>
+				</div>
 			</div>
 		:
 			<>

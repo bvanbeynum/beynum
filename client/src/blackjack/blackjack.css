@@ -355,3 +355,31 @@ html, body, #root {
 		width: 450px;
 	}
 }
+
+/* ****************************** Login Section ************************* */
+
+.loginPage {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.loginPage .icon {
+	width: 140px;
+	margin: 20px;
+}
+
+.loginPage .icon path {
+	fill: rgb(118 185 0);
+	stroke: rgb(40 151 40);
+	stroke-width: 0.5px;
+}
+
+.loginPage .loginContent {
+	margin: 20px;
+	color: rgb(132 133 137);
+	display: flex;
+	flex-direction: column;
+}

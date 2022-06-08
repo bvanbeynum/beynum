@@ -14,6 +14,22 @@ export default {
 			dealer: [ String ],
 			bank: Number
 		}]
+	}),
+
+	user: cnBlackJack.model("user", {
+		firstName: String,
+		lastName: String,
+		createdDate: Date,
+		email: String,
+		teams: [String],
+		devices: [{
+			lastAccess: Date,
+			agent: String,
+			ip: String,
+			domain: String,
+			token: String
+		}],
+		tokens: [ String ],
 	})
 
 };

@@ -8,14 +8,21 @@ const router = express.Router();
 // ************************* Middleware
 
 router.use(lib.loadSetup);
+router.use(api.authenticate);
 
 // ************************* Data
+
+router.get("/bj/data/user", data.userGet);
+router.post("/bj/data/user", data.userSave);
+router.delete("/bj/data/user", data.userDelete);
 
 router.get("/data/game", data.gameGet);
 router.post("/data/game", data.gameSave);
 router.delete("/data/game", data.gameDelete);
 
 // ************************* API
+
+router.get("/blackjack", api.validate);
 
 router.get("/api/blackjackload", api.blackJackLoad);
 router.post("/api/savegame", api.saveGame);
