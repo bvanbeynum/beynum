@@ -8,8 +8,6 @@ const global = {};
 export default {
 
 	authenticate: (request, response, next) => {
-		console.log(request.headers.authorization);
-		console.log(/^bearer [\S]+$/i.test(request.headers.authorization));
 		const token = request.cookies.bj ? request.cookies.bj
 			: request.headers.authorization && /^bearer [\S]+$/i.test(request.headers.authorization) ? request.headers.authorization.split(" ")[1] 
 			: null;
