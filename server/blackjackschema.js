@@ -8,6 +8,7 @@ export default {
 	game: cnBlackJack.model("game", {
 		start: Date,
 		lastUpdate: Date,
+		userId: String,
 		hands: [{
 			player: [ String ],
 			split: [ String ],

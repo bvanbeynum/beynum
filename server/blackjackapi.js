@@ -103,7 +103,7 @@ export default {
 
 		const output = { hasAccess: true };
 
-		client.get(`${ request.serverPath }/data/game`)
+		client.get(`${ request.serverPath }/bj/data/game?userid=${ request.user.id }`)
 			.then(clientResponse => {
 				output.games = clientResponse.body.games
 				.map(game => ({ ...game, start: new Date(game.start), lastUpdate: new Date(game.lastUpdate) }))
@@ -130,7 +130,11 @@ export default {
 			return;
 		}
 
-		client.post(`${ request.serverPath }/data/game`)
+		if (!request.body.game.userId) {
+			request.body.game.userId = request.user.id;
+		}
+
+		client.post(`${ request.serverPath }/bj/data/game`)
 			.send({ game: request.body.game })
 			.then(clientResponse => {
 				response.status(200).json({ gameid: clientResponse.body.id });
@@ -153,12 +157,12 @@ export default {
 			return;
 		}
 
-		client.get(`${ request.serverPath }/data/game?id=${ request.query.gameid }`)
+		client.get(`${ request.serverPath }/bj/data/game?id=${ request.query.gameid }`)
 			.then(clientResponse => {
 				const game = clientResponse.body.games[0];
 				game.hands.push(request.body.gamehand);
 				
-				client.post(`${ request.serverPath }/data/game`)
+				client.post(`${ request.serverPath }/bj/data/game`)
 					.send({ game: game })
 					.then(clientResponse => {
 						response.status(200).json({ id: clientResponse.body.id });
@@ -186,11 +190,11 @@ export default {
 			return;
 		}
 
-		client.delete(`${ request.serverPath }/data/game?id=${ request.query.gameid }`)
+		client.delete(`${ request.serverPath }/bj/data/game?id=${ request.query.gameid }`)
 			.then(() => {
 				const output = {};
 				
-				client.get(`${ request.serverPath }/data/game`)
+				client.get(`${ request.serverPath }/bj/data/game`)
 					.then(clientResponse => {
 						output.games = clientResponse.body.games
 							.map(game => ({ ...game, start: new Date(game.start), lastUpdate: new Date(game.lastUpdate) }))

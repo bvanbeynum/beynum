@@ -24,7 +24,7 @@ class BlackJack extends Component {
 
 	viewGames = () => {
 		this.setState({ isLoading: true }, () => {
-			fetch("/api/blackjackload")
+			fetch("/bj/api/blackjackload")
 				.then(response => {
 					if (response.ok) {
 						return response.json();
@@ -70,7 +70,7 @@ class BlackJack extends Component {
 	}
 
 	deleteGame = gameId => {
-		fetch(`/api/deletegame?gameid=${ gameId }`, { method: "delete", headers: { "Content-Type": "application/json" } })
+		fetch(`/bj/api/deletegame?gameid=${ gameId }`, { method: "delete", headers: { "Content-Type": "application/json" } })
 			.then(response => {
 				if (response.ok) {
 					return response.json();
@@ -155,7 +155,7 @@ class BlackJack extends Component {
 			};
 
 			if (this.state.selectedGameId) {
-				fetch(`/api/savegamehand?gameid=${ this.state.selectedGameId }`,
+				fetch(`/bj/api/savegamehand?gameid=${ this.state.selectedGameId }`,
 					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gamehand: saveHand }) }
 					)
 					.then(response => {
@@ -174,7 +174,7 @@ class BlackJack extends Component {
 					});
 			}
 			else {
-				fetch("/api/savegame",
+				fetch("/bj/api/savegame",
 					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ game: {
 						start: engine.Settings.startTime,
 						hands: [ saveHand ]

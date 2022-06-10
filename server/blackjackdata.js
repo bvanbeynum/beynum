@@ -94,6 +94,9 @@ export default {
 		if (request.query.id) {
 			filter._id = request.query.id;
 		}
+		if (request.query.userid) {
+			filter.userId = request.query.userid;
+		}
 
 		data.game.find(filter)
 			.lean()
