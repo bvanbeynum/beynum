@@ -22,7 +22,6 @@ export default {
 		lastName: String,
 		createdDate: Date,
 		email: String,
-		teams: [String],
 		devices: [{
 			lastAccess: Date,
 			agent: String,
