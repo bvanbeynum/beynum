@@ -8,9 +8,11 @@ const global = {};
 export default {
 
 	authenticate: (request, response, next) => {
-		if (request.cookies.bj) {
+		const token = request.cookies.bj || /^bearer [\S]+$/i.test(request.headers.authorization) ? request.headers.authorization.split(" ")[1] : null;
+
+		if (token) {
 			try {
-				const tokenData = jwt.verify(request.cookies.bj, config.jwt);
+				const tokenData = jwt.verify(token, config.jwt);
 
 				if (tokenData.token) {
 					client.get(`${ request.serverPath }/bj/data/user?devicetoken=${ tokenData.token }`)
