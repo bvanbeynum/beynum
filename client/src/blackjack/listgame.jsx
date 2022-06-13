@@ -5,7 +5,7 @@ const ListGame = props => {
 		<div className="listItem">
 			<div className="listHeader">
 				<div>
-					{ props.end } / { props.hands.length } hands / ${ props.bank }
+					{ props.end } / { props.transactions.length } hands / ${ props.bank }
 				</div>
 
 				<div>

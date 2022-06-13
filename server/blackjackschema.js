@@ -9,12 +9,7 @@ export default {
 		start: Date,
 		lastUpdate: Date,
 		userId: String,
-		hands: [{
-			player: [ String ],
-			split: [ String ],
-			dealer: [ String ],
-			bank: Number
-		}]
+		transactions: [ Number ]
 	}),
 
 	user: cnBlackJack.model("user", {

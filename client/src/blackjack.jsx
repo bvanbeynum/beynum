@@ -96,20 +96,20 @@ class BlackJack extends Component {
 					: (Date.now() - endDate) > (1000 * 60 * 60) ? Math.floor((Date.now() - endDate) / (1000 * 60 * 60)) + " hour(s) ago"
 					: (Date.now() - endDate) > (1000 * 60) ? Math.floor((Date.now() - endDate) / (1000 * 60)) + " minutes ago"
 					: "less than a min ago",
-				tempMin = Math.min(...game.hands.map(hand => hand.bank)),
-				tempMax = Math.max(...game.hands.map(hand => hand.bank)),
+				tempMin = Math.min(...game.transactions),
+				tempMax = Math.max(...game.transactions),
 				statMin = 200 - Math.max(...[200 - tempMin, tempMax - 200]),
 				statMax = 200 + Math.max(...[200 - tempMin, tempMax - 200]),
-				statLineHorizontal = game.hands
-					.slice(game.hands.length - 50)
-					.map((hand, handIndex, handArray) => ({ 
-						x: handIndex * 8, 
-						y: 50 - (((hand.bank - statMin) * 50) / (statMax - statMin)),
-						color: handIndex === 0 ? "#565656"
-							: hand.bank > handArray[handIndex - 1].bank ? "#76bf86"
-							: hand.bank < handArray[handIndex - 1].bank ? "#c54342"
+				statLineHorizontal = game.transactions
+					.slice(game.transactions.length - 50)
+					.map((transaction, transactionIndex, transactionArray) => ({ 
+						x: transactionIndex * 8, 
+						y: 50 - (((transaction - statMin) * 50) / (statMax - statMin)),
+						color: transactionIndex === 0 ? "#565656"
+							: transaction > transactionArray[transactionIndex - 1] ? "#76bf86"
+							: transaction < transactionArray[transactionIndex - 1] ? "#c54342"
 							: "#565656",
-						amount: hand.bank
+						amount: transaction
 					}));
 			
 			return {
@@ -117,9 +117,8 @@ class BlackJack extends Component {
 				start: new Date(game.start),
 				end: endDate,
 				endDisplay: endDisplay,
-				bank: game.hands[game.hands.length - 1].bank,
-				hands: game.hands,
-				transactions: game.hands.map(hand => hand.bank),
+				bank: game.transactions[game.transactions.length - 1],
+				transactions: game.transactions,
 				statLineHorizontal: statLineHorizontal
 			};
 		});
@@ -147,16 +146,9 @@ class BlackJack extends Component {
 		}
 
 		if (!engine.Settings.isPlaying) {
-			const saveHand = { 
-				player: engine.Hands.player.cards.map(card => card.card),
-				split: engine.Hands.split ? engine.Hands.split.cards.map(card => card.card) : null,
-				dealer: engine.Hands.dealer.cards.map(card => card.card),
-				bank: engine.Settings.bank
-			};
-
 			if (this.state.selectedGameId) {
-				fetch(`/bj/api/savegamehand?gameid=${ this.state.selectedGameId }`,
-					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gamehand: saveHand }) }
+				fetch(`/bj/api/savegametransaction?gameid=${ this.state.selectedGameId }`,
+					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ transaction: engine.Settings.bank }) }
 					)
 					.then(response => {
 						if (response.ok) {
@@ -177,7 +169,7 @@ class BlackJack extends Component {
 				fetch("/bj/api/savegame",
 					{ method: "post", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ game: {
 						start: engine.Settings.startTime,
-						hands: [ saveHand ]
+						transactions: [ engine.Settings.bank ]
 					} }) }
 					)
 					.then(response => {
@@ -239,8 +231,8 @@ class BlackJack extends Component {
 						key={ game.id } 
 						gameId={ game.id }
 						end={ game.endDisplay } 
-						hands={ game.hands } 
 						bank={ game.bank } 
+						transactions={ game.transactions }
 						statLine={ game.statLineHorizontal } 
 						selectGame={ this.selectGame }
 						deleteGame={ this.deleteGame }

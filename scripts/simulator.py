@@ -52,17 +52,10 @@ while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game
 
 	print(f"{ len(game['transactions']) - 1 }: { result } b: { game['settings']['bank'] } d: { game['hands']['dealer']['value'] }, p: { game['hands']['player']['value'] }")
 
-	saveHand = {
-		"player": [ card["card"] for card in game["hands"]["player"]["cards"] ],
-		"split": [ card["card"] for card in game["hands"]["split"]["cards"] ] if game["hands"]["split"] else None,
-		"dealer": [ card["card"] for card in game["hands"]["dealer"]["cards"] ],
-		"bank": game["settings"]["bank"]
-	}
-
 	if gameId:
-		response = requests.post(f"{ gameDomain }/bj/api/savegamehand?gameid={ gameId }", headers = headers, json = { "gamehand": saveHand })
+		response = requests.post(f"{ gameDomain }/bj/api/savegametransaction?gameid={ gameId }", headers = headers, json = { "transaction": game["settings"]["bank"] })
 	else:
-		response = loadResponse(requests.post(f"{ gameDomain }/bj/api/savegame", headers = headers, json = { "game": { "start": game["settings"]["startTime"], "hands": [ saveHand ] } }))
+		response = loadResponse(requests.post(f"{ gameDomain }/bj/api/savegame", headers = headers, json = { "game": { "start": game["settings"]["startTime"], "transactions": [ game["settings"]["bank"] ] } }))
 		gameId = response["gameid"]
 	
 print(f"That's enough. { len(game['transactions']) } hands. { game['settings']['bank'] } left")

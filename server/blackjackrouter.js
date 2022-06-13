@@ -26,7 +26,7 @@ router.get("/blackjack", api.validate);
 
 router.get("/bj/api/blackjackload", api.blackJackLoad);
 router.post("/bj/api/savegame", api.saveGame);
-router.post("/bj/api/savegamehand", api.saveGameHand);
+router.post("/bj/api/savegametransaction", api.saveGameTransaction);
 router.delete("/bj/api/deletegame", api.deleteGame);
 
 router.get("/bj/api/game/new", api.gameNew);

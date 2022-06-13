@@ -149,13 +149,13 @@ export default {
 			})
 	},
 
-	saveGameHand: (request, response) => {
+	saveGameTransaction: (request, response) => {
 		if (!request.user) {
 			response.statusMessage = "Invalid access";
 			response.status(560).json({ error: "Invalid access" });
 			return;
 		}
-		if (!request.query.gameid || !request.body.gamehand) {
+		if (!request.query.gameid || !request.body.transaction) {
 			response.statusMessage = "Missing object to save";
 			response.status(561).json({ error: "Missing object to save" });
 			return;
@@ -164,7 +164,7 @@ export default {
 		client.get(`${ request.serverPath }/bj/data/game?id=${ request.query.gameid }`)
 			.then(clientResponse => {
 				const game = clientResponse.body.games[0];
-				game.hands.push(request.body.gamehand);
+				game.transactions.push(request.body.transaction);
 				
 				client.post(`${ request.serverPath }/bj/data/game`)
 					.send({ game: game })
