@@ -5,6 +5,23 @@ const Simulator = props => {
 		<div className="content">
 
 			<div className="simulatorScreen">
+				<div className="simulatorHeader">
+					<div>
+						ratio:&nbsp;
+						{ (props.transactions.filter(transaction => transaction.resultDisplay).filter((trans, transIndex, transArray) => (transIndex === transArray.length - 1 ? 200 : transArray[transIndex + 1].bank) < trans.bank).length / (props.transactions.filter(transaction => transaction.resultDisplay).filter((trans, transIndex, transArray) => (transIndex === transArray.length - 1 ? 200 : transArray[transIndex + 1].bank) > trans.bank).length || 0)).toFixed(2) }
+						&nbsp;(
+						{ props.transactions.filter(transaction => transaction.resultDisplay).filter((trans, transIndex, transArray) => (transIndex === transArray.length - 1 ? 200 : transArray[transIndex + 1].bank) < trans.bank).length }
+						&nbsp;/&nbsp;
+						{ props.transactions.filter(transaction => transaction.resultDisplay).filter((trans, transIndex, transArray) => (transIndex === transArray.length - 1 ? 200 : transArray[transIndex + 1].bank) > trans.bank).length }
+						)
+					</div>
+
+					<div>
+						min / max:&nbsp;
+						{ `${ Math.min(...props.transactions.filter(transaction => transaction.resultDisplay).map(transaction => transaction.bank)) } / ${ Math.max(...props.transactions.filter(transaction => transaction.resultDisplay).map(transaction => transaction.bank)) }` }
+					</div>
+				</div>
+
 				<table className="simulatorLog">
 				<thead>
 				<tr>

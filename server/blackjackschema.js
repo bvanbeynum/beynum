@@ -49,7 +49,8 @@ export default {
 			startTime: Date,
 			bank: Number,
 			currentBet: Number,
-			isPlaying: Boolean
+			isPlaying: Boolean,
+			blackjackPayout: Number
 		}
 	})
 

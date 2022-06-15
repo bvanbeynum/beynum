@@ -225,7 +225,11 @@ export default {
 			return;
 		}
 
-		const engine = new Engine();
+		const engine = new Engine({
+			settings: {
+				blackjackPayout: 1.2
+			}
+		});
 		const saveState = {
 			hands: engine.Hands,
 			settings: engine.Settings,
@@ -278,7 +282,7 @@ export default {
 		}
 
 		const saveState = clientResponse.body.gameStates[0];
-		const engine = new Engine(null, saveState);
+		const engine = new Engine(saveState);
 
 		if (engine.Settings.isPlaying) {
 			response.statusMessage = "Game is still in progress";
@@ -351,7 +355,7 @@ export default {
 		}
 
 		const saveState = clientResponse.body.gameStates[0];
-		const engine = new Engine(null, saveState);
+		const engine = new Engine(saveState);
 		
 		if (!engine.Settings.isPlaying) {
 			response.statusMessage = "Game is over";

@@ -68,14 +68,14 @@ class BlackJack extends Component {
 
 		this.setState({
 			simulator: null,
-			engine: new Engine()
+			engine: new Engine({ settings: { blackjackPayout: 1.5 }})
 		})
 	};
 
 	selectGame = gameId => {
 		this.setState(({ games }) => ({
 			selectedGameId: gameId,
-			engine: new Engine(games.find(game => game.id === gameId ).transactions)
+			engine: new Engine({ transactions: games.find(game => game.id === gameId ).transactions, settings: { blackjackPayout: 1.5 } })
 		}));
 	}
 
@@ -219,8 +219,8 @@ class BlackJack extends Component {
 
 		const simError = error => { 
 			console.warn(error);
-			this.setState(({ simulator }) => ({ toast: { text: "Error creating a new game", type: "error" }, simulator: { ...simulator, isRunning: false, interval: null } }));
 			clearInterval(this.state.simulator.interval);
+			this.setState(({ simulator }) => ({ toast: { text: "Error creating a new game", type: "error" }, simulator: { ...simulator, isRunning: false, interval: null } }));
 		}
 
 		if (!game) {
