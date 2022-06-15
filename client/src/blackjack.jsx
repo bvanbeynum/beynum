@@ -265,12 +265,12 @@ class BlackJack extends Component {
 				player: game.hands.player.value + " [" + game.hands.player.cards.map(card => card.card).join(", ") + "]",
 				split: game.hands.split ? game.hands.split.value + " [" + game.hands.split.cards.map(card => card.card).join(", ") + "]" : "—",
 				result: game.settings.isPlaying ? game.strategy.display 
-					: game.transactions.slice(-1) > game.transactions.slice(-2, -1) ? "— Win —"
-					: game.transactions.slice(-1) < game.transactions.slice(-2, -1) ? "— Lose —"
+					: +game.transactions.slice(-1) > +game.transactions.slice(-2, -1) ? "— Win —"
+					: +game.transactions.slice(-1) < +game.transactions.slice(-2, -1) ? "— Lose —"
 					: "— Push —",
 				resultDisplay: game.settings.isPlaying ? null
-					: game.transactions.slice(-1) > game.transactions.slice(-2, -1) ? "win"
-					: game.transactions.slice(-1) < game.transactions.slice(-2, -1) ? "lose"
+					: +game.transactions.slice(-1) > +game.transactions.slice(-2, -1) ? "win"
+					: +game.transactions.slice(-1) < +game.transactions.slice(-2, -1) ? "lose"
 					: "push",
 				bank: game.settings.bank
 			});
@@ -286,7 +286,7 @@ class BlackJack extends Component {
 			});
 		}
 		
-		if (game.settings.bank - game.settings.currentBet < 0 || game.transactions.length >= 1000) {
+		if (+game.settings.bank - +game.settings.currentBet < 0 || game.transactions.length >= 1000) {
 			clearInterval(this.state.simulator.interval);
 			transactions.unshift({
 				hand: "",
