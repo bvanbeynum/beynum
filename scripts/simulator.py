@@ -20,7 +20,7 @@ def loadResponse(response):
 
 startTime = time.time()
 gameId = ""
-gameDomain = "http://www.beynum.com"
+gameDomain = "http://www.beynum.com"  # "http://dev.beynum.com:9201"
 gameUrl = f"{ gameDomain }/bj/api/game"
 headers = { "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IktaT01HQUtKQ1VTRzg3MFdVNkE2IiwiaWF0IjoxNjU0OTUxNTU0fQ.TBSE9zzw-T3lYO8vwxLSCeJg9k3hoC12No1RvBEmGpk" }
 
@@ -28,11 +28,11 @@ print("Starting new game")
 game = loadResponse(requests.get(f"{ gameUrl }/new", headers = headers))
 
 while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game["transactions"]) < 1000:
-	game = loadResponse(requests.post(f"{ gameUrl }/deal", headers = headers, json = { "game": game }))
+	game = loadResponse(requests.get(f"{ gameUrl }/deal?state={ game['id'] }", headers = headers))
 
 	while game['settings']['isPlaying']:
 		playerDisplay = f"{ game['hands']['player']['value']} [{ ', '.join([ card['card'] for card in game['hands']['player']['cards'] ]) }]"
-		dealerCards = game["hands"]["dealer"]["cards"][1]["card"]
+		dealerCards = game["hands"]["dealer"]["cards"][0]["card"]
 
 		if game["hands"]["split"]:
 			splitDisplay = f"{ game['hands']['split']['value'] } [{ ', '.join([ card['card'] for card in game['hands']['split']['cards'] ]) }]"
@@ -41,7 +41,7 @@ while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game
 
 		print(f"{ len(game['transactions']) }: 	{ game['strategy']['display'] } - d: { dealerCards }, p: { playerDisplay }, s: { splitDisplay }")
 		
-		game = loadResponse(requests.post(f"{ gameUrl }/play?action={ game['strategy']['display'].lower() }", headers = headers, json = { "game": game }))
+		game = loadResponse(requests.get(f"{ gameUrl }/play?state={ game['id'] }&action={ game['strategy']['display'].lower() }", headers = headers))
 
 	if game["transactions"][-1] > game["transactions"][-2]:
 		result = "win"

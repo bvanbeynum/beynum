@@ -317,6 +317,79 @@ html, body, #root {
 	cursor: pointer;
 }
 
+/* ****************************** Simulator Section ************************* */
+
+.simulatorScreen {
+	border: solid 2px rgb(191 191 191);
+	background-color: rgb(54 54 54);
+	color: rgb(191 191 191);
+	font-size: 10px;
+	padding-top: 5px;
+	overflow-y: scroll;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+	position: fixed;
+	top: 30px;
+	bottom: 70px;
+}
+
+.simulatorScreen::-webkit-scrollbar {
+	display: none;
+}
+
+table.simulatorLog {
+	border-collapse: collapse;
+	width: 100%;
+	font-size: 10px;
+}
+
+.simulatorLog th {
+	border-bottom: 1px solid;
+	color: white;
+}
+
+.simulatorLog th, .simulatorLog td {
+	padding: 3px 5px;
+	text-align: left;
+	height: 13px;
+}
+
+.simulatorLog td {
+	color: rgb(129 129 129);
+}
+
+.simulatorLog .complete td:last-child {
+	display: flex;
+	justify-content: space-between;
+}
+
+.simulatorLog .complete td {
+	color: white;
+}
+
+.simulatorLog .lose td {
+	color: rgb(205 116 116);
+}
+
+.simulatorLog .win td {
+	color: rgb(140 195 123);
+}
+
+.floatingButton {
+	position: fixed;
+	bottom: 5%;
+	right: 5%;
+	margin: 20px 0px;
+	cursor: pointer;
+	display: block;
+	width: 24px;
+	background-color: rgb(91, 177, 197);
+	padding: 10px;
+	border: 3px solid rgb(57, 131, 143);
+	border-radius: 30px;
+	box-shadow: 0px 0px 5px rgb(100 100 100 / 48%);
+}
+
 /* ****************************** Toast Section ************************* */
 
 .toast {
@@ -352,6 +425,10 @@ html, body, #root {
 	}
 
 	.rowContainer {
+		width: 450px;
+	}
+
+	.simulatorScreen {
 		width: 450px;
 	}
 }

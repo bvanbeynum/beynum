@@ -218,7 +218,7 @@ export default {
 			})
 	},
 
-	gameNew: (request, response) => {
+	gameNew: async (request, response) => {
 		if (!request.user) {
 			response.statusMessage = "Invalid access";
 			response.status(560).json({ error: "Invalid access" });
@@ -226,95 +226,165 @@ export default {
 		}
 
 		const engine = new Engine();
-
-		const output = {
+		const saveState = {
 			hands: engine.Hands,
-			strategy: (({ display, selectedIndex }) => ({ display, selectedIndex }))(engine.Strategy),
 			settings: engine.Settings,
 			transactions: engine.Transactions,
 			deck: engine.Deck
 		};
 
+		let clientResponse = null;
+		try {
+			clientResponse = await client.post(`${ request.serverPath }/bj/data/gamestate`).send({ gamestate: saveState });
+		}
+		catch (error) {
+			response.status(561).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
+		}
+
+		const output = {
+			id: clientResponse.body.id,
+			hands: {
+				player: {},
+				split: null,
+				dealer: {}
+			},
+			settings: engine.Settings,
+			strategy: (({ display, selectedIndex }) => ({ display, selectedIndex }))(engine.Strategy),
+			transactions: engine.Transactions
+		};
+
 		response.status(200).json(output);
 	},
 
-	gameDeal: (request, response) => {
+	gameDeal: async (request, response) => {
 		if (!request.user) {
 			response.statusMessage = "Invalid access";
 			response.status(560).json({ error: "Invalid access" });
 			return;
 		}
 
-		if (!request.body.game) {
+		if (!request.query.state) {
 			response.statusMessage = "Missing existing game state";
 			response.status(561).json({ error: "Missing existing game state" });
 			return;
 		}
 
-		const saveState = request.body.game;
+		let clientResponse = null;
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/bj/data/gamestate?id=${ request.query.state }`)
+		}
+		catch (error) {
+			response.status(562).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
+		}
 
-		if (saveState.settings.isPlaying) {
+		const saveState = clientResponse.body.gameStates[0];
+		const engine = new Engine(null, saveState);
+
+		if (engine.Settings.isPlaying) {
 			response.statusMessage = "Game is still in progress";
-			response.status(562).json({ error: "Game is still in progress" });
+			response.status(563).json({ error: "Game is still in progress" });
 			return;
 		}
 
-		if (saveState.settings.bank - saveState.settings.currentBet <= 0) {
+		if (engine.Settings.bank - engine.Settings.currentBet <= 0) {
 			response.statusMessage = "Game is bankrupt";
-			response.status(563).json({ error: "Game is bankrupt" });
+			response.status(564).json({ error: "Game is bankrupt" });
 			return;
 		}
 
-		const engine = new Engine(null, request.body.game);
 		engine.Deal();
 
+		saveState.hands = engine.Hands;
+		saveState.settings = engine.Settings;
+		saveState.transactions = engine.Transactions;
+		saveState.deck = engine.Deck;
+
+		try {
+			clientResponse = await client.post(`${ request.serverPath }/bj/data/gamestate`)
+				.send({ gamestate: saveState });
+		}
+		catch (error) {
+			response.status(565).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
+		}
+		
 		const output = {
-			hands: engine.Hands,
-			strategy: (({ display, selectedIndex }) => ({ display, selectedIndex }))(engine.Strategy),
+			id: saveState.id,
+			hands: {
+				player: engine.Hands.player,
+				split: engine.Hands.split,
+				dealer: engine.Settings.isPlaying ? { cards: [ engine.Hands.dealer.cards[1] ], value: null } : engine.Hands.dealer
+			},
 			settings: engine.Settings,
-			transactions: engine.Transactions,
-			deck: engine.Deck
+			strategy: (({ display, selectedIndex }) => ({ display, selectedIndex }))(engine.Strategy),
+			transactions: engine.Transactions
 		};
 
 		response.status(200).json(output);
 	},
 
-	gamePlay: (request, response) => {
+	gamePlay: async (request, response) => {
 		if (!request.user) {
 			response.statusMessage = "Invalid access";
 			response.status(560).json({ error: "Invalid access" });
 			return;
 		}
 
-		if (!request.body.game) {
+		if (!request.query.state) {
 			response.statusMessage = "Missing existing game state";
 			response.status(561).json({ error: "Missing existing game state" });
 			return;
 		}
 		
-		if (!request.query.action || !/^(hit|stand|split|double)$/.test(request.query.action)) {
+		if (!request.query.action || !/^(hit|stand|split|double)$/i.test(request.query.action)) {
 			response.statusMessage = "Invalid action to play";
 			response.status(562).json({ error: "Invalid action to play" });
 			return;
 		}
 
-		const saveState = request.body.game;
-
-		if (!saveState.settings.isPlaying) {
-			response.statusMessage = "Game is over";
-			response.status(563).json({ error: "Game is over" });
+		let clientResponse = null;
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/bj/data/gamestate?id=${ request.query.state }`);
+		}
+		catch (error) {
+			response.status(563).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
 			return;
 		}
 
-		const engine = new Engine(null, request.body.game);
-		engine.Play(request.query.action);
+		const saveState = clientResponse.body.gameStates[0];
+		const engine = new Engine(null, saveState);
+		
+		if (!engine.Settings.isPlaying) {
+			response.statusMessage = "Game is over";
+			response.status(564).json({ error: "Game is over" });
+			return;
+		}
+		
+		engine.Play(request.query.action.toLowerCase());
+		
+		saveState.hands = engine.Hands;
+		saveState.settings = engine.Settings;
+		saveState.transactions = engine.Transactions;
+		saveState.deck = engine.Deck;
 
+		try {
+			clientResponse = await client.post(`${ request.serverPath }/bj/data/gamestate`)
+				.send({ gamestate: saveState });
+		}
+		catch (error) {
+			response.status(565).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
+			return;
+		}
+		
 		const output = {
-			hands: engine.Hands,
-			strategy: (({ display, selectedIndex }) => ({ display, selectedIndex }))(engine.Strategy),
+			id: saveState.id,
+			hands: {
+				player: engine.Hands.player,
+				split: engine.Hands.split,
+				dealer: engine.Settings.isPlaying ? { cards: [ engine.Hands.dealer.cards[1] ], value: null } : engine.Hands.dealer
+			},
 			settings: engine.Settings,
-			transactions: engine.Transactions,
-			deck: engine.Deck
+			strategy: (({ display, selectedIndex }) => ({ display, selectedIndex }))(engine.Strategy),
+			transactions: engine.Transactions
 		};
 
 		response.status(200).json(output);

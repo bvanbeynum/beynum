@@ -170,6 +170,86 @@ export default {
 			.catch(error => {
 				response.status(560).json({ error: error.message });
 			});
+	},
+
+	gameStateGet: (request, response) => {
+		const filter = {};
+
+		if (request.query.id) {
+			filter._id = request.query.id;
+		}
+
+		data.gameState.find(filter)
+			.lean()
+			.exec()
+			.then(gameStatesDb => {
+				const output = {
+					gameStates: gameStatesDb.map(({ _id, __v, ...data }) => ({ id: _id, ...data }))
+				};
+
+				response.status(200).json(output);
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			})
+	},
+
+	gameStateSave: (request, response) => {
+		if (!request.body.gamestate) {
+			response.status(550).json({ error: "Missing object to save" });
+			return;
+		}
+
+		const gameStateSave = request.body.gamestate;
+
+		if (gameStateSave.id) {
+			data.gameState.findById(gameStateSave.id)
+				.exec()
+				.then(gameStateDb => {
+					if (!gameStateDb) {
+						throw new Error("Not found in database");
+					}
+
+					Object.keys(gameStateSave).forEach(field => {
+						if (field != "id") {
+							gameStateDb[field] = gameStateSave[field];
+						}
+					});
+
+					return gameStateDb.save();
+				})
+				.then(gameStateDb => {
+					response.status(200).json({ id: gameStateDb["_id"] });
+				})
+				.catch(error => {
+					response.status(561).json({ error: error.message });
+				});
+		}
+		else {
+			new data.gameState(gameStateSave)
+				.save()
+				.then(gameStateDb => {
+					response.status(200).json({ id: gameStateDb["_id"] });
+				})
+				.catch(error => {
+					response.status(562).json({ error: error.message });
+				})
+		}
+	},
+
+	gameStateDelete: (request, response) => {
+		if (!request.query.id) {
+			response.status(550).json({ error: "Missing ID to delete" });
+			return;
+		}
+		
+		data.gameState.deleteOne({ _id: request.query.id })
+			.then(() => {
+				response.status(200).json({ status: "ok" });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
 	}
 
 };
