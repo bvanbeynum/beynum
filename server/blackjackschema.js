@@ -19,6 +19,7 @@ export default {
 		start: Date,
 		lastUpdate: Date,
 		userId: String,
+		deviceId: String,
 		transactions: [ Number ]
 	}),
 
@@ -47,6 +48,7 @@ export default {
 		transactions: [ Number ],
 		settings: {
 			startTime: Date,
+			lastUpdate: Date,
 			bank: Number,
 			currentBet: Number,
 			isPlaying: Boolean,

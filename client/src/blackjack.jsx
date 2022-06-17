@@ -203,44 +203,42 @@ class BlackJack extends Component {
 		this.setState({ engine: engine });
 	};
 
-	setSimulator = () => {
+	setSimulator = async () => {
 		if (this.state.simulator.isRunning) {
 			clearInterval(this.state.simulator.interval);
 			this.setState(({ simulator }) => ({ simulator: { ...simulator, isRunning: false, interval: null } }));
 		}
 		else {
-			const simulatorInterval = setInterval(this.runSimulator, 3000);
-			this.setState(({ simulator }) => ({ simulator: { ...simulator, isRunning: true, interval: simulatorInterval } }));
+			const response = await fetch(`/bj/api/game/new`);
+
+			if (!response.ok) {
+				const error = response.json();
+				console.warn(error);
+				this.setState(({ simulator }) => ({ toast: { text: "Error starting game", type: "error" } }));
+				return;
+			}
+
+			const game = await response.json();
+			this.setState(({ simulator }) => ({ simulator: { ...simulator, game: game, isRunning: true } }),
+				() => {
+					const simulatorInterval = setInterval(this.runSimulator, 3000);
+					this.setState(({ simulator }) => ({ simulator: { ...simulator, interval: simulatorInterval }}))
+				}
+			);
 		}
 	};
 
 	runSimulator = async () => {
 		let game = this.state.simulator.game;
 
-		const simError = error => { 
-			console.warn(error);
-			clearInterval(this.state.simulator.interval);
-			this.setState(({ simulator }) => ({ toast: { text: "Error creating a new game", type: "error" }, simulator: { ...simulator, isRunning: false, interval: null } }));
-		}
-
-		if (!game) {
-			let response = await fetch(`/bj/api/game/new`);
-
-			if (!response.ok) {
-				const error = response.json();
-				simError(error);
-				return false;
-			}
-
-			game = await response.json();
-		}
-		
 		if (game.settings.isPlaying) {
 			let response = await fetch(`/bj/api/game/play?state=${ game.id }&action=${ game.strategy.display }`);
 
 			if (!response.ok) {
 				const error = response.json();
-				simError(error);
+				console.warn(error);
+				clearInterval(this.state.simulator.interval);
+				this.setState(({ simulator }) => ({ toast: { text: "Error playing game", type: "error" }, simulator: { ...simulator, game: null, isRunning: false, interval: null } }));
 				return false;
 			}
 
@@ -251,7 +249,9 @@ class BlackJack extends Component {
 
 			if (!response.ok) {
 				const error = response.json();
-				simError(error);
+				console.warn(error);
+				clearInterval(this.state.simulator.interval);
+				this.setState(({ simulator }) => ({ toast: { text: "Error playing game", type: "error" }, simulator: { ...simulator, game: null, isRunning: false, interval: null } }));
 				return false;
 			}
 

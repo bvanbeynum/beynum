@@ -21,6 +21,7 @@ export default {
 						.then(clientResponse => {
 							if (clientResponse.body.users && clientResponse.body.users.length === 1) {
 								request.user = clientResponse.body.users[0];
+								request.device = (({ _id, ...device }) => ({ ...device, id: _id }))(request.user.devices.find(device => device.token === tokenData.token));
 								request.user.devices = request.user.devices.map(device => ({
 									...device,
 									lastAccess: tokenData.token === device.token ? new Date() : device.lastAccess
@@ -137,6 +138,9 @@ export default {
 		if (!request.body.game.userId) {
 			request.body.game.userId = request.user.id;
 		}
+		if (!request.body.game.deviceId) {
+			request.body.game.deviceId = request.device.id;
+		}
 
 		client.post(`${ request.serverPath }/bj/data/game`)
 			.send({ game: request.body.game })
@@ -232,7 +236,11 @@ export default {
 		});
 		const saveState = {
 			hands: engine.Hands,
-			settings: engine.Settings,
+			settings: {
+				...engine.Settings,
+				startTime: new Date(),
+				lastUpdate: new Date()
+			},
 			transactions: engine.Transactions,
 			deck: engine.Deck
 		};
@@ -256,6 +264,17 @@ export default {
 			strategy: (({ display, selectedIndex }) => ({ display, selectedIndex }))(engine.Strategy),
 			transactions: engine.Transactions
 		};
+
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/bj/data/gamestate`);
+
+			let today = new Date();
+			today.setHours(0,0,0,0);
+
+			const oldGames = clientResponse.body.gameStates.filter(gameState => !gameState.settings.lastUpdate || gameState.settings.lastUpdate < today);
+			oldGames.forEach(gameState => client.delete(`${ request.serverPath }/bj/data/gamestate?id=${ gameState.id }`));
+		}
+		catch {}
 
 		response.status(200).json(output);
 	},
@@ -299,7 +318,10 @@ export default {
 		engine.Deal();
 
 		saveState.hands = engine.Hands;
-		saveState.settings = engine.Settings;
+		saveState.settings = {
+			...engine.Settings,
+			lastUpdate: new Date()
+		};
 		saveState.transactions = engine.Transactions;
 		saveState.deck = engine.Deck;
 
@@ -366,7 +388,10 @@ export default {
 		engine.Play(request.query.action.toLowerCase());
 		
 		saveState.hands = engine.Hands;
-		saveState.settings = engine.Settings;
+		saveState.settings = {
+			...engine.Settings,
+			lastUpdate: new Date()
+		};
 		saveState.transactions = engine.Transactions;
 		saveState.deck = engine.Deck;
 
