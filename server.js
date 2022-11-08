@@ -6,9 +6,11 @@ import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import beynumRouter from "./server/beynum.router.js";
 import officeRouter from "./server/officerouter.js";
-import financeRouter from "./server/financerouter.js";
 import blackJackRouter from "./server/blackjackrouter.js";
+import footballVidRouter from "./server/footballvid.router.js";
+import busboy from "connect-busboy";
 
 // Declarations =======================================================================
 
@@ -22,15 +24,17 @@ const currentDirectory = dirname(currentFile);
 
 app.set("x-powered-by", false);
 app.set("root", currentDirectory);
-app.use(json());
-app.use(cookieParser());
+app.use(json({ limit: "50mb" }));
 app.use(urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(busboy()); 
 
 // Routes =======================================================================
 
+app.use(beynumRouter);
 app.use(officeRouter);
-app.use(financeRouter);
 app.use(blackJackRouter);
+app.use(footballVidRouter);
 
 app.use("/media", express.static(path.join(currentDirectory, "/client/src/media")));
 

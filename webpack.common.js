@@ -30,6 +30,13 @@ export default {
 			},
 			chunks: [ "blackjack" ],
 			templateContent: "<html><body><div id='root'></div></body></html>"
+		}),
+		new HtmlWebpackPlugin({ 
+			filename: "working.html",
+			title: "Working",
+			favicon: "./client/src/media/favicon.ico",
+			chunks: [ ],
+			template: "./client/src/working.html"
 		})
 	],
 	module: {
