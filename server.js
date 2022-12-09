@@ -10,6 +10,7 @@ import beynumRouter from "./server/beynum.router.js";
 import officeRouter from "./server/officerouter.js";
 import blackJackRouter from "./server/blackjackrouter.js";
 import footballVidRouter from "./server/footballvid.router.js";
+import wrestlingRouter from "./server/wrestling.router.js";
 import busboy from "connect-busboy";
 
 // Declarations =======================================================================
@@ -35,6 +36,7 @@ app.use(beynumRouter);
 app.use(officeRouter);
 app.use(blackJackRouter);
 app.use(footballVidRouter);
+app.use(wrestlingRouter);
 
 app.use("/media", express.static(path.join(currentDirectory, "/client/src/media")));
 

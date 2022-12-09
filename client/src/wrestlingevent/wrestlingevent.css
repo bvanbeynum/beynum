@@ -1,0 +1,273 @@
+html, body, #root {
+	font-family: verdana, sans-serif;
+	font-size: 12px;
+	color: rgb(32, 32, 32);
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex: 1;
+}
+
+h2 {
+	font-size: 28px;
+	color: rgb(87 87 219);
+}
+
+input:focus, select:focus, div:focus {
+	outline: none;
+}
+
+.pageContainer {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.button {
+	cursor: pointer;
+}
+
+.loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+}
+
+.content {
+	padding: 0px 10px 150px 10px;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	max-width: 600px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.header select {
+	border: none;
+	border-bottom: solid 1px rgb(199 199 199);
+	padding: 5px 20px 5px 5px;
+	font-size: 16px;
+	color: rgb(100 100 100);
+}
+
+.row {
+	display: flex;
+}
+
+.column {
+	display: flex;
+	flex-direction: column;
+}
+
+.disabled {
+	color: rgb(177 177 177);
+	cursor: not-allowed !important;
+}
+
+.actions {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 20px;
+}
+
+.actions input[type="text"] {
+	border: none;
+	border-bottom: solid 1px rgb(199 199 199);
+	color: rgb(100 100 100);
+	width: 150px;
+}
+
+.listItem {
+	margin: 10px 0px;
+	color: rgb(87 87 219);
+	box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+	border-bottom-right-radius: 5px;
+	border-top-right-radius: 5px;
+	background-color: rgb(239 230 179);
+}
+
+.listItem .sidebar {
+	width: 5px;
+	background-color: rgb(87 87 219);
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
+
+.listItemContent {
+	padding: 8px 6px;
+	flex: 1;
+}
+
+.listItem.disabled {
+	color: rgb(151 149 149);
+}
+
+.listItem.disabled .sidebar {
+	background-color: rgb(151 149 149);
+}
+
+.listItem.disabled .listItemContent {
+	background-color: rgb(231 231 231);
+}
+
+.listItemDate {
+	margin-bottom: 3px;
+	font-size: 10px;
+}
+
+.listItemHeader {
+	font-size: 15px;
+	margin-bottom: 3px;
+	font-weight: bold;
+}
+
+.listItemSubHeader {
+	font-size: 11px;
+}
+
+.selectable {
+	cursor: pointer;
+}
+
+.crumbs {
+	margin: 10px 0px 10px 0px;
+	font-size: 10px;
+}
+
+.crumbs span {
+	cursor: pointer;
+	color: blue;
+	text-decoration: underline;
+}
+
+.round {
+	text-align: center;
+	font-size: 15px;
+	color: rgb(78 69 177);
+	font-weight: bold;
+	margin: -10px 0px 20px 0px;
+}
+
+.round span {
+	background: rgb(255 255 255);
+	padding: 0px 10px;
+}
+
+.roundLine {
+	border-bottom: 2px solid rgb(78 69 177);
+	margin-top: 20px;
+}
+
+.listItem.complete {
+	color: rgb(151 149 149);
+}
+
+.complete .sidebar {
+	background-color: rgb(151 149 149);
+}
+
+.complete .listItemContent {
+	background-color: rgb(231 231 231);
+}
+
+.listItem.next {
+	color: rgb(241 102 102);
+}
+
+.next .sidebar {
+	background-color: rgb(241 102 102);
+}
+
+.next .listItemContent {
+	background-color: rgb(255 225 225);
+}
+
+.listItem.upcoming {
+	color: rgb(102 175 102);
+}
+
+.upcoming .sidebar {
+	background-color: rgb(102 175 102);
+}
+
+.upcoming .listItemContent {
+	background-color: rgb(221 251 221);
+}
+
+.matchWrestlers {
+	display: grid;
+	grid-template-columns: 150px auto 150px;
+	text-align: center;
+	align-items: center;
+	margin-top: 10px;
+}
+
+.winner {
+	color: rgb(65 177 65);
+}
+
+.bottomNav {
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	height: 40px;
+	box-shadow: rgb(0 0 0 / 15%) 1.95px -1.95px 2.6px;
+	display: flex;
+	padding: 5px 10px;
+	justify-content: space-around;
+	align-items: center;
+	background-color: white;
+}
+
+.navButton svg {
+	height: 36px;
+}
+
+.navContent {
+	font-size: 11px;
+	width: 26px;
+	text-align: center;
+	padding: 3px 10px;
+}
+
+.navContent.refresh {
+	width: 22px;
+	color: rgb(229 88 88);
+	border: 2px solid rgb(235 156 156);
+	background-color: rgb(249 232 232);
+}
+
+/* ****************************** Login Section ************************* */
+
+.loginPage {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.loginPage .icon {
+	width: 140px;
+	margin: 20px;
+}
+
+.loginPage .icon path {
+	fill: rgb(118 185 0);
+	stroke: rgb(40 151 40);
+	stroke-width: 0.5px;
+}
+
+.loginPage .loginContent {
+	margin: 20px;
+	color: rgb(132 133 137);
+	display: flex;
+	flex-direction: column;
+}
