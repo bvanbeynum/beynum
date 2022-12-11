@@ -97,6 +97,13 @@ export default {
 			isWin: Boolean,
 			winType: String
 		}]
+	}),
+
+	image: cnBeynum.model("wrestlingImage", {
+		imageName: String,
+		categories: [String],
+		created: Date,
+		modified: Date
 	})
 
 };

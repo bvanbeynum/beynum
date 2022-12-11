@@ -5,7 +5,8 @@ export default {
 		commandcenter: "./client/src/commandcenter.jsx",
 		finance: "./client/src/finance.jsx",
 		blackjack: "./client/src/blackjack.jsx",
-		wrestlingevent: "./client/src/wrestlingevent.jsx"
+		wrestlingevent: "./client/src/wrestlingevent.jsx",
+		wrestlingimage: "./client/src/wrestlingimage.jsx"
 	},
 	plugins: [
 		new HtmlWebpackPlugin({ 
@@ -40,6 +41,16 @@ export default {
 				viewport: "width=device-width, initial-scale=1"
 			},
 			chunks: [ "wrestlingevent" ],
+			templateContent: "<html><body><div id='root'></div></body></html>"
+		}),
+		new HtmlWebpackPlugin({ 
+			filename: "wrestlingimage.html",
+			title: "Wrestling Image Categories",
+			favicon: "./client/src/media/favicon.ico",
+			meta: {
+				viewport: "width=device-width, initial-scale=1"
+			},
+			chunks: [ "wrestlingimage" ],
 			templateContent: "<html><body><div id='root'></div></body></html>"
 		}),
 		new HtmlWebpackPlugin({ 

@@ -1,4 +1,6 @@
 import client from "superagent";
+import fs from "fs";
+import path from "path";
 
 export default {
 
@@ -295,6 +297,93 @@ export default {
 				return division;
 			})
 		}
+
+		response.status(200).json(output);
+	},
+
+	uploadImage: (request, response) => {
+		let tempPath = path.join(request.app.get("root"), "client/media/wrestling"),
+			tempName = tempPath + "/" + Date.now() + ".jpg",
+			imageId = null;
+
+		const complete = () => {
+			if (imageId && imageId !== "error" && fs.existsSync(tempName)) {
+				fs.renameSync(tempName, tempPath + "/" + imageId + ".jpg");
+				response.status(200).json({ imageId: imageId, fileName: imageId + ".jpg" });
+			}
+			else if (imageId === "error" && fs.existsSync(tempName)) {
+				fs.unlinkSync(tempName);
+			}
+		};
+
+		request.busboy.on("field", (fieldName, value) => {
+			if (fieldName = "imagedata") {
+				const saveImage = { ...JSON.parse(value), created: Date.now(), modified: Date.now() };
+
+				client.post(`${ request.serverPath }/wrestling/data/image`)
+					.send({ image: saveImage })
+					.set("isinternal", "true")
+					.then(clientResponse => {
+						imageId = clientResponse.body.id;
+						complete();
+					})
+					.catch(error => {
+						imageId = "error";
+						response.statusMessage = error.message;
+						response.status(561).json({ error: error.message });
+						complete();
+					});
+			}
+		});
+
+		request.busboy.on("file", (fieldName, file, upload) => {
+			if (!/.jpg$/i.test(upload.filename)) {
+				response.status(562).json({ error: "File is not an jpg file" });
+				return;
+			}
+			file.pipe(fs.createWriteStream(tempName));
+		});
+
+		request.busboy.on("finish", () => {
+			complete();
+		});
+		
+		request.pipe(request.busboy);
+	},
+
+	getImage: async (request, response) => {
+		let clientResponse = null;
+
+		if (request.body.image) {
+			try {
+				clientResponse = await client.post(`${ request.serverPath }/wrestling/data/image`)
+					.send({ image: request.body.image })
+					.set("isinternal", "true")
+			}
+			catch(error) {
+				response.statusMessage = error.response && error.response.body ? error.response.body.error : error.message;
+				response.status(561).json({ location: "Save image", error: error.response && error.response.body ? error.response.body.error : error.message });
+				return;
+			}
+		}
+
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/wrestling/data/image`)
+		}
+		catch(error) {
+			response.statusMessage = error.response && error.response.body ? error.response.body.error : error.message;
+			response.status(562).json({ location: "Get images", error: error.response && error.response.body ? error.response.body.error : error.message });
+			return;
+		}
+
+		const output = {},
+			images = clientResponse.body.images
+				.sort((imageA, imageB) => imageA.created - imageB.created)
+				.map(image => ({ ...image, url: `/media/wrestling/${ image.id }.jpg`}));
+		
+		output.index = request.body.index !== undefined && request.body.index >= 0 && request.body.index + 1 < images.length ? request.body.index + 1 : 0;
+		output.image = images[output.index];
+		output.categories = [ ...new Set(images.filter(image => image.categories && image.categories.length > 0).flatMap(image => image.categories)) ];
 
 		response.status(200).json(output);
 	}
