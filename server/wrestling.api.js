@@ -302,7 +302,7 @@ export default {
 	},
 
 	uploadImage: (request, response) => {
-		let tempPath = path.join(request.app.get("root"), "client/media/wrestling"),
+		let tempPath = path.join(request.app.get("root"), "client/src/media/wrestling"),
 			tempName = tempPath + "/" + Date.now() + ".jpg",
 			imageId = null;
 
