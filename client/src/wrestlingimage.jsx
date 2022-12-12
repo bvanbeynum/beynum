@@ -28,7 +28,6 @@ class WrestlingImage extends Component {
 			.then(data => {
 				this.setState({
 					isLoading: false,
-					imageIndex: data.index,
 					categories: data.categories,
 					image: { ...data.image, categories: data.image.categories || [] }
 				});
@@ -50,7 +49,7 @@ class WrestlingImage extends Component {
 
 	nextImage = () => {
 		this.setState(({ isLoading: true }), () => {
-			fetch("/wrestling/api/getimage", { method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ image: this.state.image, index: this.state.imageIndex }) })
+			fetch("/wrestling/api/getimage", { method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ image: this.state.image }) })
 				.then(response => {
 					if (response.ok) {
 						return response.json();
@@ -63,7 +62,6 @@ class WrestlingImage extends Component {
 					this.setState({
 						isLoading: false,
 						categories: data.categories,
-						imageIndex: data.index,
 						image: { ...data.image, categories: data.image.categories || [] }
 					});
 				})

@@ -378,12 +378,10 @@ export default {
 
 		const output = {},
 			images = clientResponse.body.images
-				.filter(image => !image.categories || image.categories.length === 0)
 				.sort((imageA, imageB) => imageA.created - imageB.created)
 				.map(image => ({ ...image, url: `/media/wrestling/${ image.id }.jpg`}));
 		
-		output.index = request.body.index !== undefined && request.body.index >= 0 && request.body.index + 1 < images.length ? request.body.index + 1 : 0;
-		output.image = images[output.index];
+		output.image = images.filter(image => !image.categories || image.categories.length === 0)[0];
 		output.categories = [ ...new Set(images.filter(image => image.categories && image.categories.length > 0).flatMap(image => image.categories)) ];
 
 		response.status(200).json(output);
