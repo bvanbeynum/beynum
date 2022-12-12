@@ -378,6 +378,7 @@ export default {
 
 		const output = {},
 			images = clientResponse.body.images
+				.filter(image => !image.categories || image.categories.length === 0)
 				.sort((imageA, imageB) => imageA.created - imageB.created)
 				.map(image => ({ ...image, url: `/media/wrestling/${ image.id }.jpg`}));
 		
