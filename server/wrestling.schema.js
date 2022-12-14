@@ -9,6 +9,8 @@ export default {
 		flowId: String,
 		name: String,
 		location: String,
+		city: String,
+		state: String,
 		startDate: Date,
 		endDate: Date,
 		isLoaded: Boolean,
