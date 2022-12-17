@@ -260,6 +260,97 @@ export default {
 			.catch(error => {
 				response.status(560).json({ error: error.message });
 			});
+	},
+
+	wrestlerGet: (request, response) => {
+		let	filter = {},
+			select = {};
+
+		if (request.query.id) {
+			filter["_id"] = request.query.id;
+		}
+		if (request.query.flowid) {
+			filter["flowId"] = request.query.flowid;
+		}
+		if (request.query.name) {
+			filter.$or = [
+				{ firstName: { $regex: new RegExp(request.query.name, "i") } },
+				{ lastName: { $regex: new RegExp(request.query.name, "i") } }
+			];
+		}
+		if (request.query.team) {
+			filter.team = { $regex: new RegExp(request.query.team, "i") }
+		}
+
+		data.wrestler.find(filter)
+			.select(select)
+			.lean()
+			.exec()
+			.then(wrestlersData => {
+				const wrestlers = wrestlersData.map(({ _id, __v, ...data }) => ({ id: _id, ...data }));
+				response.status(200).json({ wrestlers: wrestlers });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
+	},
+
+	wrestlerSave: (request, response) => {
+		if (!request.body.wrestler) {
+			response.status(550).json({ error: "Missing object to save" });
+			return;
+		}
+		
+		const wrestlerSave = request.body.wrestler;
+
+		if (wrestlerSave.id) {
+			data.wrestler.findById(wrestlerSave.id)
+				.exec()
+				.then(wrestlerData => {
+					if (!wrestlerData) {
+						throw new Error("Wrestler not found");
+					}
+
+					Object.keys(wrestlerSave).forEach(field => {
+						if (field != "id") {
+							wrestlerData[field] = wrestlerSave[field];
+						}
+					})
+
+					return wrestlerData.save();
+				})
+				.then(wrestlerData => {
+					response.status(200).json({ id: wrestlerData._id });
+				})
+				.catch(error => {
+					response.status(570).json({ error: error.message });
+				});
+		}
+		else {
+			new data.wrestler({ ...wrestlerSave })
+				.save()
+				.then(wrestlerData => {
+					response.status(200).json({ id: wrestlerData._id });
+				})
+				.catch(error => {
+					response.status(571).json({ error: error.message });
+				});
+		}
+	},
+
+	wrestlerDelete: (request, response) => {
+		if (!request.query.id) {
+			response.status(550).json({ error: "Missing ID to delete" });
+			return;
+		}
+
+		data.wrestler.deleteOne({ _id: request.query.id })
+			.then(() => {
+				response.status(200).json({ status: "ok" });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
 	}
 
 }

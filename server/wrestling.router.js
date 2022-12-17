@@ -18,12 +18,18 @@ router.delete("/wrestling/data/athlete", data.athleteDelete);
 router.get("/wrestling/data/image", data.imageGet);
 router.post("/wrestling/data/image", data.imageSave);
 router.delete("/wrestling/data/image", data.imageDelete);
+router.get("/wrestling/data/wrestler", data.wrestlerGet);
+router.post("/wrestling/data/wrestler", data.wrestlerSave);
+router.delete("/wrestling/data/wrestler", data.wrestlerDelete);
 
 // ************************* API
 
 router.get("/wrestling/api/eventload", api.eventLoad);
 router.post("/wrestling/api/eventdetails", api.eventDetails);
+
 router.post("/wrestling/api/uploadimage", api.uploadImage);
 router.post("/wrestling/api/getimage", api.getImage);
+
+router.post("/wrestling/api/getwrestler", api.getWrestler);
 
 export default router;

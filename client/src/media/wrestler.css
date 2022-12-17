@@ -1,0 +1,252 @@
+html, body, #root {
+	font-family: verdana, sans-serif;
+	font-size: 12px;
+	color: rgb(32, 32, 32);
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex: 1;
+}
+
+h2 {
+	font-size: 28px;
+	color: rgb(87 87 219);
+}
+
+input:focus, select:focus, div:focus {
+	outline: none;
+}
+
+.pageContainer {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.button {
+	cursor: pointer;
+}
+
+.loading {
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+}
+
+.content {
+	padding: 0px 10px 150px 10px;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	max-width: 600px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.row {
+	display: flex;
+}
+
+.column {
+	display: flex;
+	flex-direction: column;
+}
+
+.spread {
+	justify-content: space-between;
+}
+
+.disabled {
+	color: rgb(177 177 177);
+	cursor: not-allowed !important;
+}
+
+.toast {
+	border: solid 1px rgb(245 81 28);
+	background-color: rgb(239 176 156);
+	color: rgb(87, 87, 97);
+	position: absolute;
+	font-weight: bold;
+	font-size: 14px;
+	bottom: 90px;
+	left: 3%;
+	padding: 8px 15px;
+	display: none;
+}
+.toast.isActive {
+	display: flex;
+}
+
+.toast.info {
+	border: solid 2px rgb(79, 116, 128);
+	background-color: rgb(152, 188, 255);
+	color: rgb(79, 116, 128);
+}
+.toast.error {
+	border: solid 2px rgb(220, 80, 80);
+	background-color: rgb(244, 174, 174);
+	color: rgb(222, 23, 23);
+}
+
+.search {
+	display: flex;
+	justify-content: space-around;
+	margin: 20px 0px;
+}
+
+.search input[type="text"] {
+	border: none;
+	border-bottom: solid 1px rgb(199 199 199);
+	color: rgb(100 100 100);
+	width: 200px;
+}
+
+.listItem {
+	margin: 20px 0px;
+	border-radius: 15px;
+	padding: 10px 20px;
+	display: flex;
+	box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+	cursor: pointer;
+	outline: none;
+}
+
+.listIcon {
+	margin-right: 20px;
+	width: 50px;
+	height: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 1.4em;
+	font-weight: bold;
+	background-color: rgb(4 95 232);
+	color: rgb(255,255,255);
+	border-radius: 25px;
+}
+
+.listIcon.GA, .icon.GA {
+	background-color: rgb(68 80 185);
+}
+
+.listIcon.SC, .icon.SC {
+	background-color: rgb(8 213 119);
+}
+
+.listIcon.NC, .icon.NC {
+	background-color: rgb(44 197 248);
+}
+
+.listContent {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.listHeader {
+	font-size: 1.4em;
+	margin-bottom: 5px;
+}
+
+.listOther {
+	background-color: rgb(235 235 235);
+	height: 26px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0px 10px;
+	border-radius: 8px;
+	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+	color: rgb(156 39 176);
+}
+
+.crumbs {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 10px 0px;
+}
+
+.crumb {
+	background-color: rgb(33 150 243);
+	padding: 3px 10px;
+	border-radius: 10px;
+	color: white;
+	cursor: pointer;
+	outline: none;
+}
+
+.card {
+	box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+	border-radius: 15px;
+	padding: 10px 20px;
+	margin-top: 10px;
+}
+
+.separator {
+	margin: 10px 0px;
+	height: 1px;
+	background-color: rgb(223 223 223);
+	border-radius: 10px;
+}
+
+.cardContent {
+	display: flex;
+	overflow-x: scroll;
+	margin: 20px 0px 5px 0px;
+}
+
+.subCard {
+	box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+	padding: 10px 10px;
+	margin-bottom: 10px;
+	width: 200px;
+}
+
+.icon {
+	width: 25px;
+	height: 25px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: .8em;
+	background-color: rgb(68 80 185);
+	color: rgb(255,255,255);
+	border-radius: 25px;
+}
+
+.meet {
+	margin: 10px 0px;
+	text-align: center;
+}
+
+.match {
+	font-size: .9em;
+	margin-bottom: 5px;
+}
+
+.round {
+	border-top: solid 1px black;
+	border-left: solid 1px black;
+	border-right: solid 1px black;
+	background-color: rgb(255 87 34);
+	padding: 2px 3px;
+	color: rgb(229 229 229);
+}
+
+.matchContent {
+	border-right: solid 1px black;
+	border-left: solid 1px black;
+	border-bottom: solid 1px black;
+	padding: 2px 3px;
+	align-items: center;
+}
+
+.matchWin {
+	font-weight: bold;
+	color: rgb(33 150 243);
+}

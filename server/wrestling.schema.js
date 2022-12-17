@@ -106,6 +106,29 @@ export default {
 		categories: [String],
 		created: Date,
 		modified: Date
+	}),
+
+	wrestler: cnBeynum.model("wrestlingWrestler", {
+		flowId: String,
+		firstName: String,
+		lastName: String,
+		team: String,
+		meets: [{
+			flowId: String,
+			name: String,
+			location: { name: String, city: String, state: String },
+			startDate: Date,
+			endDate: Date,
+			division: String,
+			weightClass: String,
+			matches: [{
+				round: String,
+				vs: { name: String, team: String, flowId: String },
+				isWin: Boolean,
+				winType: String,
+				sort: Number
+			}]
+		}],
 	})
 
 };

@@ -385,6 +385,30 @@ export default {
 		output.categories = [ ...new Set(images.filter(image => image.categories && image.categories.length > 0).flatMap(image => image.categories)) ];
 
 		response.status(200).json(output);
+	},
+
+	getWrestler: async (request, response) => {
+		if (!request.query.name && !request.query.team) {
+			response.statusMessage = "Missing search";
+			response.status(560).json({ location: "Initialization", error: "Missing search" });
+			return;
+		}
+
+		let clientResponse = null;
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/wrestling/data/wrestler?${ request.query.name ? "name=" + request.query.name : "team=" + request.query.team }`)
+		}
+		catch(error) {
+			response.statusMessage = error.response && error.response.body ? error.response.body.error : error.message;
+			response.status(562).json({ location: "Get wrestlers", error: error.response && error.response.body ? error.response.body.error : error.message });
+			return;
+		}
+
+		const output = {
+			wrestlers: clientResponse.body.wrestlers
+		};
+
+		response.status(200).json(output);
 	}
 
 }
