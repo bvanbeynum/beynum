@@ -114,6 +114,9 @@ export default {
 		firstName: String,
 		lastName: String,
 		team: String,
+		state: String,
+		division: String,
+		weightClass: String,
 		meets: [{
 			flowId: String,
 			name: String,
