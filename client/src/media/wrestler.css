@@ -34,11 +34,13 @@ input:focus, select:focus, div:focus {
 }
 
 .content {
-	padding: 0px 10px 150px 10px;
+	padding: 0px 10px 75px 10px;
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	max-width: 400px;
+	position: absolute;
+	left: 0px;
+	right: 0px;
 }
 
 .header {
@@ -161,8 +163,20 @@ input:focus, select:focus, div:focus {
 	align-items: center;
 	padding: 0px 10px;
 	border-radius: 8px;
-	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-	color: rgb(156 39 176);
+	color: rgb(4 95 232);
+	box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+.listOther.GA {
+	color: rgb(68 80 185);
+}
+
+.listOther.SC {
+	color: rgb(8 213 119);
+}
+
+.listOther.NC {
+	color: rgb(44 197 248);
 }
 
 .crumbs {
@@ -197,15 +211,15 @@ input:focus, select:focus, div:focus {
 .cardContent {
 	display: flex;
 	overflow-x: scroll;
-	margin: 20px 0px 5px 0px;
 }
 
 .subCard {
 	box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 	padding: 10px 10px;
-	margin-bottom: 10px;
 	width: 200px;
 	min-width: 200px;
+	border-radius: 15px;
+	margin: 10px 20px 10px 10px;
 }
 
 .icon {
@@ -226,7 +240,7 @@ input:focus, select:focus, div:focus {
 }
 
 .match {
-	font-size: .9em;
+	font-size: .8em;
 	margin-bottom: 5px;
 }
 
@@ -235,19 +249,33 @@ input:focus, select:focus, div:focus {
 	border-left: solid 1px black;
 	border-right: solid 1px black;
 	background-color: rgb(255 87 34);
-	padding: 2px 3px;
+	padding: 4px 5px;
 	color: rgb(229 229 229);
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
 }
 
 .matchContent {
 	border-right: solid 1px black;
 	border-left: solid 1px black;
 	border-bottom: solid 1px black;
-	padding: 2px 3px;
+	padding: 4px 5px;
 	align-items: center;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+.matchWrestler {
+	margin: 2px 0px;
 }
 
 .matchWin {
 	font-weight: bold;
 	color: rgb(33 150 243);
+}
+
+@media screen and (min-width: 600px) {
+	.content {
+		max-width: 600px;
+	}
 }

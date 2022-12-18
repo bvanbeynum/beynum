@@ -18,9 +18,6 @@ class Wrestler extends Component {
 		};
 	};
 
-	componentDidMount() {
-	};
-
 	searchWrestler = event => {
 		this.setState({ searchWrestler: event.target.value, searchTeam: "", }, () => {
 			if (this.state.searchWrestler && this.state.searchWrestler.length >=3 ) {
@@ -37,22 +34,7 @@ class Wrestler extends Component {
 						.then(data => {
 							this.setState({
 								isLoading: false,
-								wrestlers: data.wrestlers
-									.sort((wrestlerA, wrestlerB) => wrestlerA.lastName > wrestlerB.lastName ? 1 : -1)
-									.map(wrestler => ({
-										...wrestler,
-										lastMeet: wrestler.meets
-											.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())[0],
-										meets: wrestler.meets
-											.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())
-											.map(meet => ({
-												...meet,
-												startDate: new Date(meet.startDate),
-												endDate: new Date(meet.endDate),
-												matches: meet.matches
-													.sort((matchA, matchB) => matchA.sort - matchB.sort)
-											}))
-								}))
+								wrestlers: this.loadWrestlers(data.wrestlers)
 							});
 						})
 						.catch(error => {
@@ -80,22 +62,12 @@ class Wrestler extends Component {
 						.then(data => {
 							this.setState({
 								isLoading: false,
-								wrestlers: data.wrestlers
-									.sort((wrestlerA, wrestlerB) => wrestlerA.lastName > wrestlerB.lastName ? 1 : -1)
-									.map(wrestler => ({
-										...wrestler,
-										lastMeet: wrestler.meets
-											.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())[0],
-										meets: wrestler.meets
-											.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())
-											.map(meet => ({
-												...meet,
-												startDate: new Date(meet.startDate),
-												endDate: new Date(meet.endDate),
-												matches: meet.matches
-													.sort((matchA, matchB) => matchA.sort - matchB.sort)
-											}))
-								}))
+								wrestlers: this.loadWrestlers(data.wrestlers)
+									.sort((wrestlerA, wrestlerB) => wrestlerA.lastMeet.division < wrestlerB.lastMeet.division ? -1
+										: wrestlerA.lastMeet.division > wrestlerB.lastMeet.division ? 1
+										: wrestlerA.lastMeet.weightClass < wrestlerB.lastMeet.weightClass ? -1 
+										: 1
+									)
 							});
 						})
 						.catch(error => {
@@ -107,6 +79,25 @@ class Wrestler extends Component {
 		});
 	};
 
+	loadWrestlers = wrestlers => {
+		return wrestlers
+			.sort((wrestlerA, wrestlerB) => wrestlerA.lastName > wrestlerB.lastName ? 1 : -1)
+			.map(wrestler => ({
+				...wrestler,
+				lastMeet: wrestler.meets
+					.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())[0],
+				meets: wrestler.meets
+					.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())
+					.map(meet => ({
+						...meet,
+						startDate: new Date(meet.startDate),
+						endDate: new Date(meet.endDate),
+						matches: meet.matches
+							.sort((matchA, matchB) => matchA.sort - matchB.sort)
+					}))
+			}));
+	};
+	
 	render() { return (
 		<div className="pageContainer">
 		
@@ -169,7 +160,7 @@ class Wrestler extends Component {
 				<div key={meetIndex} className="subCard">
 					<div className="row spread">
 						<div className={ `icon ${ this.state.wrestler.lastMeet ? this.state.wrestler.lastMeet.location.state : "" }` }>{ meet.location.state }</div>
-						<div>{ meet.startDate ? ((meet.startDate.getMonth() + 1) + "").padStart(2, "0") + "/" + (meet.startDate.getDate() + "").padStart(2, "0") : "" }</div>
+						<div>{ meet.startDate ? ((meet.startDate.getMonth() + 1) + "").padStart(2, "0") + "/" + (meet.startDate.getDate() + "").padStart(2, "0") + "/" + (meet.startDate.getFullYear() - 2000) : "" }</div>
 					</div>
 
 					<div className="meet">{meet.name}</div>
@@ -187,8 +178,12 @@ class Wrestler extends Component {
 							<div className="round">{ match.round}</div>
 							<div className="matchContent row spread">
 								<div className="column">
-									<div className={ match.isWin ? "matchWin" : "" }>{ match.isWin ? "*" : "" }{ this.state.wrestler.firstName + " " + this.state.wrestler.lastName }</div>
-									<div className={ !match.isWin ? "matchWin" : "" }>{ !match.isWin ? "*" : "" }{ match.vs.name }</div>
+									<div className={ `matchWrestler ${ match.isWin ? "matchWin" : "" }` }>
+										{ match.isWin ? "*" : "" }{ this.state.wrestler.firstName + " " + this.state.wrestler.lastName + " (" + this.state.wrestler.team + ")" }
+									</div>
+									<div className={ `matchWrestler ${ !match.isWin ? "matchWin" : "" }` }>
+										{ !match.isWin ? "*" : "" }{ match.vs.name + " (" + match.vs.team + ")" }
+									</div>
 								</div>
 
 								<div>{ match.winType }</div>
