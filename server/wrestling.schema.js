@@ -109,6 +109,7 @@ export default {
 	}),
 
 	wrestler: cnBeynum.model("wrestlingWrestler", {
+		dbId: Number,
 		flowId: String,
 		firstName: String,
 		lastName: String,
@@ -123,7 +124,7 @@ export default {
 			weightClass: String,
 			matches: [{
 				round: String,
-				vs: { name: String, team: String, flowId: String },
+				vs: { name: String, team: String, dbId: Number, flowId: String },
 				isWin: Boolean,
 				winType: String,
 				sort: Number
