@@ -113,7 +113,7 @@ class Wrestler extends Component {
 			{
 			this.state.wrestlers.map((wrestler, wrestlerIndex) => 
 			<div key={wrestlerIndex} className="listItem" onClick={ () => { this.setState({ wrestler: wrestler }) }}>
-				<div className={ `listIcon ${ wrestler.lastMeet ? wrestler.lastMeet.location.state : "" }` }>{ wrestler.lastMeet ? wrestler.lastMeet.location.state : "-" }</div>
+				<div className={ `listIcon ${ wrestler.state }` }>{ wrestler.state }</div>
 
 				<div className="listContent">
 					<div className="listHeader">{wrestler.firstName} {wrestler.lastName}</div>
@@ -121,7 +121,7 @@ class Wrestler extends Component {
 				</div>
 
 				<div className="listOther">
-					{ wrestler.lastMeet ? wrestler.lastMeet.division + " / " + wrestler.lastMeet.weightClass : "" }
+					{ wrestler.division + " • " + wrestler.weightClass }
 				</div>
 			</div>
 			)
@@ -140,7 +140,7 @@ class Wrestler extends Component {
 
 			<div className="card">
 				<div className="row">
-					<div className={ `listIcon ${ this.state.wrestler.lastMeet ? this.state.wrestler.lastMeet.location.state : "" }` }>{ this.state.wrestler.lastMeet ? this.state.wrestler.lastMeet.location.state : "-" }</div>
+					<div className={ `listIcon ${ this.state.wrestler.location.state }` }>{ this.state.wrestler.location.state }</div>
 
 					<div className="listContent">
 						<div className="listHeader">{this.state.wrestler.firstName} {this.state.wrestler.lastName}</div>
@@ -148,7 +148,7 @@ class Wrestler extends Component {
 					</div>
 
 					<div className="listOther">
-						{ this.state.wrestler.lastMeet ? this.state.wrestler.lastMeet.division + " / " + this.state.wrestler.lastMeet.weightClass : "" }
+						{ this.state.wrestler.division + " • " + this.state.wrestler.weightClass }
 					</div>
 				</div>
 
