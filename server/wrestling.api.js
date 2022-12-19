@@ -423,14 +423,14 @@ export default {
 			status = 200,
 			output = { ids: [], errors: [] };
 
-		for (let saveIndex = 0; saveIndex < save; save++) {
+		for (let saveIndex = 0; saveIndex < save.length; saveIndex++) {
 			try {
-				clientResponse = await client.post(`${ request.serverPath }/wrestling/data/wrestler`).send({ wrestler : wrestler })
+				clientResponse = await client.post(`${ request.serverPath }/wrestling/data/wrestler`).send({ wrestler : save[saveIndex] })
 				output.ids.push(clientResponse.body.id);
 			}
 			catch(error) {
 				status = 562;
-				output.errors.push({ location: "Get wrestlers", error: error.response && error.response.body ? error.response.body.error : error.message });
+				output.errors.push({ location: "Save wrestlers", error: error.response && error.response.body ? error.response.body.error : error.message });
 			}
 		}
 
