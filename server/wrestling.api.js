@@ -419,10 +419,11 @@ export default {
 		}
 
 		let clientResponse = null,
+			save = request.body.wrestlers,
 			status = 200,
 			output = { ids: [], errors: [] };
 
-		request.body.wrestlers.forEach(async wrestler => {
+		for (let saveIndex = 0; saveIndex < save; save++) {
 			try {
 				clientResponse = await client.post(`${ request.serverPath }/wrestling/data/wrestler`).send({ wrestler : wrestler })
 				output.ids.push(clientResponse.body.id);
@@ -431,7 +432,7 @@ export default {
 				status = 562;
 				output.errors.push({ location: "Get wrestlers", error: error.response && error.response.body ? error.response.body.error : error.message });
 			}
-		});
+		}
 
 		response.status(status).json(output);
 	}
