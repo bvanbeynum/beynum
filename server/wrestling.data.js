@@ -269,6 +269,9 @@ export default {
 		if (request.query.id) {
 			filter["_id"] = request.query.id;
 		}
+		if (request.query.dbid) {
+			filter["dbId"] = request.query.dbid;
+		}
 		if (request.query.flowid) {
 			filter["flowId"] = request.query.flowid;
 		}

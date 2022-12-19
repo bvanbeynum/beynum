@@ -62,6 +62,11 @@ input:focus, select:focus, div:focus {
 	justify-content: space-between;
 }
 
+.selectable {
+	cursor: pointer;
+	outline: none;
+}
+
 .disabled {
 	color: rgb(177 177 177);
 	cursor: not-allowed !important;
@@ -101,6 +106,13 @@ input:focus, select:focus, div:focus {
 }
 
 .search input[type="text"] {
+	border: none;
+	border-bottom: solid 1px rgb(199 199 199);
+	color: rgb(100 100 100);
+	width: 200px;
+}
+
+.search select {
 	border: none;
 	border-bottom: solid 1px rgb(199 199 199);
 	color: rgb(100 100 100);
@@ -150,33 +162,15 @@ input:focus, select:focus, div:focus {
 	justify-content: center;
 }
 
+.listCrumbs {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+}
+
 .listHeader {
 	font-size: 1.4em;
 	margin-bottom: 5px;
-}
-
-.listOther {
-	background-color: rgb(235 235 235);
-	height: 26px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 0px 10px;
-	border-radius: 8px;
-	color: rgb(4 95 232);
-	box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-}
-
-.listOther.GA {
-	color: rgb(68 80 185);
-}
-
-.listOther.SC {
-	color: rgb(8 213 119);
-}
-
-.listOther.NC {
-	color: rgb(44 197 248);
 }
 
 .crumbs {
@@ -190,8 +184,9 @@ input:focus, select:focus, div:focus {
 	padding: 3px 10px;
 	border-radius: 10px;
 	color: white;
-	cursor: pointer;
-	outline: none;
+	text-align: center;
+	margin-right: 10px;
+	margin-bottom: 5px;
 }
 
 .card {

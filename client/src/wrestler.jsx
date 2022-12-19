@@ -13,6 +13,8 @@ class Wrestler extends Component {
 			wrestlers: [],
 			searchWrestler: "",
 			searchTeam: "",
+			filterDivision: "",
+			filterWeight: "",
 			history: [],
 			toast: { message: "", type: "info" }
 		};
@@ -32,9 +34,13 @@ class Wrestler extends Component {
 							}
 						})
 						.then(data => {
+							const wrestlers = this.loadWrestlers(data.wrestlers);
+
 							this.setState({
 								isLoading: false,
-								wrestlers: this.loadWrestlers(data.wrestlers)
+								wrestlers: wrestlers,
+								divisions: [... new Set(wrestlers.map(wrestler => wrestler.division))].sort(),
+								weightClasses: [... new Set(wrestlers.map(wrestler => wrestler.weightClass))].sort()
 							});
 						})
 						.catch(error => {
@@ -60,14 +66,20 @@ class Wrestler extends Component {
 							}
 						})
 						.then(data => {
+							const wrestlers = this.loadWrestlers(data.wrestlers);
+
 							this.setState({
 								isLoading: false,
-								wrestlers: this.loadWrestlers(data.wrestlers)
-									.sort((wrestlerA, wrestlerB) => wrestlerA.lastMeet.division < wrestlerB.lastMeet.division ? -1
+								wrestlers: wrestlers
+									.sort((wrestlerA, wrestlerB) => wrestlerA.isActive && !wrestlerB.isActive ? -1
+										: !wrestlerA.isActive && wrestlerB.isActive ? 1
+										: wrestlerA.lastMeet.division < wrestlerB.lastMeet.division ? -1
 										: wrestlerA.lastMeet.division > wrestlerB.lastMeet.division ? 1
 										: wrestlerA.lastMeet.weightClass < wrestlerB.lastMeet.weightClass ? -1 
 										: 1
-									)
+									),
+								divisions: [... new Set(wrestlers.map(wrestler => wrestler.division))].sort(),
+								weightClasses: [... new Set(wrestlers.map(wrestler => wrestler.weightClass))].sort()
 							});
 						})
 						.catch(error => {
@@ -81,11 +93,16 @@ class Wrestler extends Component {
 
 	loadWrestlers = wrestlers => {
 		return wrestlers
-			.sort((wrestlerA, wrestlerB) => wrestlerA.lastName > wrestlerB.lastName ? 1 : -1)
 			.map(wrestler => ({
 				...wrestler,
 				lastMeet: wrestler.meets
-					.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())[0],
+					.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())
+					.map(meet => ({
+						...meet,
+						startDate: new Date(meet.startDate),
+						endDate: new Date(meet.endDate)
+					}))[0],
+				isActive: wrestler.meets.some(meet => new Date(meet.startDate) > (Date.now() - (1000 * 60 * 60 * 24 * 120))),
 				meets: wrestler.meets
 					.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())
 					.map(meet => ({
@@ -95,8 +112,39 @@ class Wrestler extends Component {
 						matches: meet.matches
 							.sort((matchA, matchB) => matchA.sort - matchB.sort)
 					}))
-			}));
+			}))
+			.sort((wrestlerA, wrestlerB) => wrestlerA.isActive && !wrestlerB.isActive ? -1
+				: !wrestlerA.isActive && wrestlerB.isActive ? 1
+				: wrestlerA.lastName < wrestlerB.lastName ? -1
+				: 1);
 	};
+
+	selectWrestler = wrestlerDBId => {
+		this.setState(({ isLoading: true }), () => {
+			fetch(`/wrestling/api/getwrestler?dbid=${ wrestlerDBId }`, { method: "post", headers: {"Content-Type": "application/json"} })
+				.then(response => {
+					if (response.ok) {
+						return response.json();
+					}
+					else {
+						throw Error(response.statusText);
+					}
+				})
+				.then(data => {
+					const wrestlers = this.loadWrestlers(data.wrestlers);
+
+					this.setState(({ history, wrestler }) => ({
+						isLoading: false,
+						history: history.concat(wrestlers[0]),
+						wrestler: wrestlers[0]
+					}));
+				})
+				.catch(error => {
+					console.warn(error);
+					this.setState({ toast: { text: "Error loading data", type: "error" } });
+				});
+		});	
+	}
 	
 	render() { return (
 		<div className="pageContainer">
@@ -111,17 +159,43 @@ class Wrestler extends Component {
 			</div>
 			
 			{
-			this.state.wrestlers.map((wrestler, wrestlerIndex) => 
-			<div key={wrestlerIndex} className="listItem" onClick={ () => { this.setState({ wrestler: wrestler }) }}>
+			this.state.divisions && this.state.weightClasses ?
+			<div className="search">
+				<select value={ this.state.filterDivision } onChange={ event => this.setState({ filterDivision: event.target.value }) }>
+					<option value="">- Division -</option>
+					{
+					this.state.divisions.map((division, divisionIndex) =>
+					<option key={divisionIndex}>{ division }</option>
+					)
+					}
+				</select>
+				<select value={ this.state.filterWeight } onChange={ event => this.setState({ filterWeight: event.target.value }) }>
+					<option value="">- Weigh Class -</option>
+					{
+					this.state.weightClasses.map((weight, weightIndex) =>
+					<option key={weightIndex}>{ weight }</option>
+					)
+					}
+				</select>
+			</div>
+			: ""
+			}
+
+			{
+			this.state.wrestlers
+			.filter(wrestler => (!this.state.filterDivision || this.state.filterDivision == wrestler.division) && (!this.state.filterWeight || this.state.filterWeight == wrestler.weightClass))
+			.map((wrestler, wrestlerIndex) => 
+			<div key={wrestlerIndex} className="listItem" onClick={ () => { this.setState({ history: [wrestler], wrestler: wrestler }) }}>
 				<div className={ `listIcon ${ wrestler.state }` }>{ wrestler.state }</div>
 
 				<div className="listContent">
 					<div className="listHeader">{wrestler.firstName} {wrestler.lastName}</div>
 					<div className="listSubHeader">{ wrestler.team }</div>
+					<div className="listSubHeader">{ wrestler.division + " • " + wrestler.weightClass }</div>
 				</div>
 
-				<div className="listOther">
-					{ wrestler.division + " • " + wrestler.weightClass }
+				<div className="listCrumbs">
+					<div className={`crumb ${ !wrestler.isActive ? "inactive" : "" }`}>{ wrestler.isActive ? "Active" : "Inactive" }</div>
 				</div>
 			</div>
 			)
@@ -130,10 +204,12 @@ class Wrestler extends Component {
 			:
 			<>
 			<div className="crumbs">
-				<div className="crumb" onClick={ () => this.setState({ wrestler: null })}>X</div>
+				<div className="crumb selectable" onClick={ () => this.setState({ wrestler: null })}>X</div>
 				{
 				this.state.history.map((wrestler, wrestlerIndex) =>
-				<div key={wrestlerIndex} className="crumb" onClick={ () => this.setState({ wrestler: null })}>{ wrestler.firstName } { wrestler.lastName }</div>
+				<div key={wrestlerIndex} className="crumb" onClick={ () => { if (this.state.wrestler && this.state.wrestler.id !== wrestler.id) this.setState({ wrestler: wrestler }) }}>
+					{ wrestler.firstName } { wrestler.lastName }
+				</div>
 				)
 				}
 			</div>
@@ -181,7 +257,7 @@ class Wrestler extends Component {
 									<div className={ `matchWrestler ${ match.isWin ? "matchWin" : "" }` }>
 										{ match.isWin ? "*" : "" }{ this.state.wrestler.firstName + " " + this.state.wrestler.lastName + " (" + this.state.wrestler.team + ")" }
 									</div>
-									<div className={ `matchWrestler ${ !match.isWin ? "matchWin" : "" }` }>
+									<div className={ `matchWrestler ${ !match.isWin ? "matchWin" : "" }` } onClick={ () => { if (match.vs && match.vs.dbId) { this.selectWrestler(match.vs.dbId) } }}>
 										{ !match.isWin ? "*" : "" }{ match.vs.name + " (" + match.vs.team + ")" }
 									</div>
 								</div>

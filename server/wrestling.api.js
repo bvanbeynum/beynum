@@ -388,7 +388,7 @@ export default {
 	},
 
 	getWrestler: async (request, response) => {
-		if (!request.query.name && !request.query.team) {
+		if (!request.query.name && !request.query.team && !request.query.dbid) {
 			response.statusMessage = "Missing search";
 			response.status(560).json({ location: "Initialization", error: "Missing search" });
 			return;
@@ -396,7 +396,7 @@ export default {
 
 		let clientResponse = null;
 		try {
-			clientResponse = await client.get(`${ request.serverPath }/wrestling/data/wrestler?${ request.query.name ? "name=" + request.query.name : "team=" + request.query.team }`)
+			clientResponse = await client.get(`${ request.serverPath }/wrestling/data/wrestler?${ request.query.name ? "name=" + request.query.name : request.query.team ? "team=" + request.query.team : "dbid=" + request.query.dbid }`)
 		}
 		catch(error) {
 			response.statusMessage = error.response && error.response.body ? error.response.body.error : error.message;
