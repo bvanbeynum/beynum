@@ -140,7 +140,7 @@ class Wrestler extends Component {
 
 			<div className="card">
 				<div className="row">
-					<div className={ `listIcon ${ this.state.wrestler.location.state }` }>{ this.state.wrestler.location.state }</div>
+					<div className={ `listIcon ${ this.state.wrestler.state }` }>{ this.state.wrestler.state }</div>
 
 					<div className="listContent">
 						<div className="listHeader">{this.state.wrestler.firstName} {this.state.wrestler.lastName}</div>
