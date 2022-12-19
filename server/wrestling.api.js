@@ -409,6 +409,31 @@ export default {
 		};
 
 		response.status(200).json(output);
+	},
+
+	saveWrestlers: async (request, response) => {
+		if (!request.body.wrestlers) {
+			response.statusMessage = "Missing wrestlers";
+			response.status(560).json({ location: "Initialization", error: "Missing wrestlers" });
+			return;
+		}
+
+		let clientResponse = null,
+			status = 200,
+			output = { ids: [], errors: [] };
+
+		request.body.wrestlers.forEach(async wrestler => {
+			try {
+				clientResponse = await client.post(`${ request.serverPath }/wrestling/data/wrestler`).send({ wrestler : wrestler })
+				output.ids.push(clientResponse.body.id);
+			}
+			catch(error) {
+				status = 562;
+				output.errors.push({ location: "Get wrestlers", error: error.response && error.response.body ? error.response.body.error : error.message });
+			}
+		});
+
+		response.status(status).json(output);
 	}
 
 }

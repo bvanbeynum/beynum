@@ -31,5 +31,6 @@ router.post("/wrestling/api/uploadimage", api.uploadImage);
 router.post("/wrestling/api/getimage", api.getImage);
 
 router.post("/wrestling/api/getwrestler", api.getWrestler);
+router.post("/wrestling/api/savewrestlers", api.saveWrestlers);
 
 export default router;
