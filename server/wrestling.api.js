@@ -435,6 +435,32 @@ export default {
 		}
 
 		response.status(status).json(output);
+	},
+
+	deleteWrestlers: async (request, response) => {		
+		if (!request.body.wrestlerids) {
+			response.statusMessage = "Missing wrestler IDs";
+			response.status(560).json({ location: "Initialization", error: "Missing wrestler IDs" });
+			return;
+		}
+
+		let clientResponse,
+			deleteIds = request.body.wrestlerids,
+			status = 200,
+			output = { status: [], errors: [] };
+		
+		for (let deleteIndex = 0; deleteIndex < deleteIds.length; deleteIndex++) {
+			try {
+				clientResponse = await client.delete(`${ request.serverPath }/wrestling/data/wrestler?id=${ deleteIds[deleteIndex] }`);
+				output.status.push(clientResponse.body.status);
+			}
+			catch(error) {
+				status = 562;
+				output.errors.push({ location: "Delete wrestler", error: error.response && error.response.body ? error.response.body.error : error.message });
+			}
+		}
+
+		response.status(status).json(output);
 	}
 
 }
