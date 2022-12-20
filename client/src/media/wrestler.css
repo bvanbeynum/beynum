@@ -62,6 +62,10 @@ input:focus, select:focus, div:focus {
 	justify-content: space-between;
 }
 
+.center {
+	justify-content: center;
+}
+
 .selectable {
 	cursor: pointer;
 	outline: none;
@@ -211,8 +215,8 @@ input:focus, select:focus, div:focus {
 .subCard {
 	box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 	padding: 10px 10px;
-	width: 200px;
-	min-width: 200px;
+	width: 220px;
+	min-width: 220px;
 	border-radius: 15px;
 	margin: 10px 20px 10px 10px;
 }
@@ -258,6 +262,10 @@ input:focus, select:focus, div:focus {
 	align-items: center;
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
+}
+
+.matchContent div:nth-child(2) {
+	margin: 0px 7px;
 }
 
 .matchWrestler {

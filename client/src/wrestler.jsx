@@ -34,7 +34,7 @@ class Wrestler extends Component {
 							}
 						})
 						.then(data => {
-							const wrestlers = this.loadWrestlers(data.wrestlers);
+							const wrestlers = this.loadWrestlers(data.wrestlers).slice(0,200);
 
 							this.setState({
 								isLoading: false,
@@ -77,7 +77,7 @@ class Wrestler extends Component {
 										: wrestlerA.lastMeet.division > wrestlerB.lastMeet.division ? 1
 										: wrestlerA.lastMeet.weightClass < wrestlerB.lastMeet.weightClass ? -1 
 										: 1
-									),
+									).slice(0, 200),
 								divisions: [... new Set(wrestlers.map(wrestler => wrestler.division))].sort(),
 								weightClasses: [... new Set(wrestlers.map(wrestler => wrestler.weightClass))].sort()
 							});
@@ -92,9 +92,22 @@ class Wrestler extends Component {
 	};
 
 	loadWrestlers = wrestlers => {
+		const seasonStart = (new Date()).getMonth() >= 8 ? new Date((new Date()).getFullYear(), 8, 1) : new Date((new Date()).getFullYear() - 1, 8, 1)
+
 		return wrestlers
 			.map(wrestler => ({
 				...wrestler,
+				meets: wrestler.meets.length,
+				matches: wrestler.meets
+					.filter(meet => (new Date(meet.startDate)).getTime() > seasonStart.getTime())
+					.flatMap(meet => meet.matches.filter(match => match.winType)).length,
+				wins: wrestler.meets
+					.filter(meet => (new Date(meet.startDate)).getTime() > seasonStart.getTime())
+					.flatMap(meet => meet.matches.filter(match => match.isWin && match.winType)).length,
+				losses: wrestler.meets
+					.filter(meet => (new Date(meet.startDate)).getTime() > seasonStart.getTime())
+					.flatMap(meet => meet.matches.filter(match => !match.isWin && match.winType)).length,
+				isActive: wrestler.meets.some(meet => new Date(meet.startDate) > (Date.now() - (1000 * 60 * 60 * 24 * 120))),
 				lastMeet: wrestler.meets
 					.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())
 					.map(meet => ({
@@ -102,11 +115,13 @@ class Wrestler extends Component {
 						startDate: new Date(meet.startDate),
 						endDate: new Date(meet.endDate)
 					}))[0],
-				isActive: wrestler.meets.some(meet => new Date(meet.startDate) > (Date.now() - (1000 * 60 * 60 * 24 * 120))),
 				meets: wrestler.meets
 					.sort((meetA, meetB) => (new Date(meetB.startDate)).getTime() - (new Date(meetA.startDate)).getTime())
 					.map(meet => ({
 						...meet,
+						matchesCount: meet.matches.filter(match => match.winType).length,
+						wins: meet.matches.filter(match => match.isWin && match.winType).length,
+						losses: meet.matches.filter(match => !match.isWin && match.winType).length,
 						startDate: new Date(meet.startDate),
 						endDate: new Date(meet.endDate),
 						matches: meet.matches
@@ -221,6 +236,24 @@ class Wrestler extends Component {
 					<div className="listContent">
 						<div className="listHeader">{this.state.wrestler.firstName} {this.state.wrestler.lastName}</div>
 						<div className="listSubHeader">{ this.state.wrestler.team }</div>
+						
+						{
+						this.state.wrestler.ranking ?
+						<div className="listSubHeader">SCmat Ranking: { this.state.wrestler.ranking }</div>
+						: ""
+						}
+
+						{
+						this.state.wrestler.matches ? 
+						<div className="listSubHeader">
+								{
+								this.state.wrestler.wins + " Wins, " +
+								this.state.wrestler.losses + " Losses (" +
+								(this.state.wrestler.wins / this.state.wrestler.matches).toFixed(3) + ")"
+								}
+						</div>
+						: "" 
+						}
 					</div>
 
 					<div className="listOther">
@@ -235,7 +268,7 @@ class Wrestler extends Component {
 				this.state.wrestler.meets.map((meet, meetIndex) => 
 				<div key={meetIndex} className="subCard">
 					<div className="row spread">
-						<div className={ `icon ${ this.state.wrestler.lastMeet ? this.state.wrestler.lastMeet.location.state : "" }` }>{ meet.location.state }</div>
+						<div className={ `icon ${ meet.location ? meet.location.state : "" }` }>{ meet.location.state }</div>
 						<div>{ meet.startDate ? ((meet.startDate.getMonth() + 1) + "").padStart(2, "0") + "/" + (meet.startDate.getDate() + "").padStart(2, "0") + "/" + (meet.startDate.getFullYear() - 2000) : "" }</div>
 					</div>
 
@@ -244,6 +277,14 @@ class Wrestler extends Component {
 					<div className="row spread">
 						<div>Division: { meet.division }</div>
 						<div>Weight: { meet.weightClass }</div>
+					</div>
+
+					<div className="row center">
+					{
+					meet.wins + " Wins, " +
+					meet.losses + " Losses (" +
+					(meet.wins / meet.matchesCount).toFixed(3) + ")"
+					}
 					</div>
 					
 					<div className="separator"></div>
