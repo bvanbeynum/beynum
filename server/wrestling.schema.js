@@ -117,6 +117,7 @@ export default {
 		state: String,
 		division: String,
 		weightClass: String,
+		ranking: Number,
 		meets: [{
 			flowId: String,
 			name: String,
