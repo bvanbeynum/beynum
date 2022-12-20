@@ -276,10 +276,20 @@ export default {
 			filter["flowId"] = request.query.flowid;
 		}
 		if (request.query.name) {
-			filter.$or = [
-				{ firstName: { $regex: new RegExp(request.query.name, "i") } },
-				{ lastName: { $regex: new RegExp(request.query.name, "i") } }
-			];
+			let nameLookup = request.query.name.split(" ").map(word => new RegExp(word, "i"));
+			
+			if (nameLookup.length > 1) {
+				filter.$and = [
+					{ firstName: { $in: nameLookup } },
+					{ lastName: { $in: nameLookup } }
+				];
+			}
+			else {
+				filter.$or = [
+					{ firstName: { $regex: new RegExp(request.query.name, "i") } },
+					{ lastName: { $regex: new RegExp(request.query.name, "i") } }
+				];
+			}
 		}
 		if (request.query.team) {
 			filter.team = { $regex: new RegExp(request.query.team, "i") }
