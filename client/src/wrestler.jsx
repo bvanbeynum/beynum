@@ -3,6 +3,18 @@ import ReactDOM from "react-dom";
 import Toast from "./toast.jsx";
 import "./media/wrestler.css";
 
+const winTypes = [
+	{ code: "F", points: 6 },
+	{ code: "DEC", points: 3 },
+	{ code: "MD", points: 4 },
+	{ code: "TF", points: 5 },
+	{ code: "VSU", points: 5 },
+	{ code: "VFA", points: 3 },
+	{ code: "VSU1", points: 5 },
+	{ code: "VPO1", points: 3 },
+	{ code: "VPO", points: 3 }
+];
+
 class Wrestler extends Component {
 
 	constructor(props) {
@@ -97,7 +109,24 @@ class Wrestler extends Component {
 		return wrestlers
 			.map(wrestler => ({
 				...wrestler,
-				meets: wrestler.meets.length,
+				meetCount: wrestler.meets.length,
+				seasonAverageMeetPoints: wrestler.meets.some(meet => new Date(meet.startDate) > (Date.now() - (1000 * 60 * 60 * 24 * 120))) ?
+					wrestler.meets
+						.filter(meet => new Date(meet.startDate) > (Date.now() - (1000 * 60 * 60 * 24 * 120)))
+						.reduce((meetTotal, meet) => meetTotal + 
+							meet.matches
+								.filter(match => winTypes.some(winType => winType.code == match.winType))
+								.reduce((matchTotal,match) => matchTotal + (winTypes.filter(winType => winType.code == match.winType).map(winType => winType.points) * (match.isWin ? 1 : -1)), 0)
+						, 0) / wrestler.meets.filter(meet => new Date(meet.startDate) > (Date.now() - (1000 * 60 * 60 * 24 * 120))).length
+					: null,
+				careerAverageMeetPoints: wrestler.meets && wrestler.meets.length > 0 ?
+					wrestler.meets
+						.reduce((meetTotal, meet) => meetTotal + 
+							meet.matches
+								.filter(match => winTypes.some(winType => winType.code == match.winType))
+								.reduce((matchTotal,match) => matchTotal + (winTypes.filter(winType => winType.code == match.winType).map(winType => winType.points) * (match.isWin ? 1 : -1)), 0)
+						, 0) / wrestler.meets.length
+					: null,
 				matches: wrestler.meets
 					.filter(meet => (new Date(meet.startDate)).getTime() > seasonStart.getTime())
 					.flatMap(meet => meet.matches.filter(match => match.winType)).length,
@@ -122,6 +151,9 @@ class Wrestler extends Component {
 						matchesCount: meet.matches.filter(match => match.winType).length,
 						wins: meet.matches.filter(match => match.isWin && match.winType).length,
 						losses: meet.matches.filter(match => !match.isWin && match.winType).length,
+						points: meet.matches
+							.filter(match => winTypes.some(winType => winType.code == match.winType))
+							.reduce((matchTotal,match) => matchTotal + (winTypes.filter(winType => winType.code == match.winType).map(winType => winType.points) * (match.isWin ? 1 : -1)), 0),
 						startDate: new Date(meet.startDate),
 						endDate: new Date(meet.endDate),
 						matches: meet.matches
@@ -254,6 +286,18 @@ class Wrestler extends Component {
 						</div>
 						: "" 
 						}
+
+						{
+						this.state.wrestler.seasonAverageMeetPoints !== null ? 
+						<div className="listSubHeader">Season avg points: { this.state.wrestler.seasonAverageMeetPoints.toFixed(3) }</div>
+						: "" 
+						}
+						
+						{
+						this.state.wrestler.careerAverageMeetPoints !== null ? 
+						<div className="listSubHeader">Career avg points: { this.state.wrestler.careerAverageMeetPoints.toFixed(3) }</div>
+						: "" 
+						}
 					</div>
 
 					<div className="listOther">
@@ -279,7 +323,9 @@ class Wrestler extends Component {
 						<div>Weight: { meet.weightClass }</div>
 					</div>
 
-					<div className="row center">
+					<div className="separator"></div>
+
+					<div className="row">
 					{
 					meet.wins + " Wins, " +
 					meet.losses + " Losses (" +
@@ -287,6 +333,10 @@ class Wrestler extends Component {
 					}
 					</div>
 					
+					<div className="row">
+						<div>Points: { meet.points }</div>
+					</div>
+
 					<div className="separator"></div>
 
 					{

@@ -131,7 +131,8 @@ export default {
 				vs: { name: String, team: String, dbId: Number, flowId: String },
 				isWin: Boolean,
 				winType: String,
-				sort: Number
+				sort: Number,
+				points: Number
 			}]
 		}],
 	})
