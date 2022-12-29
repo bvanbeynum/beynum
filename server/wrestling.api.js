@@ -238,7 +238,7 @@ export default {
 										weightClass: weight.name,
 										matches: match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0,
 										wins: match.wrestler1.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0,
-										losses: match.wrestler1.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 0 : 1
+										losses: match.wrestler2 && match.wrestler2.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0
 									});
 								}
 								else {
@@ -246,7 +246,7 @@ export default {
 										...searchWrestler,
 										matches: wrestler.flowId === searchWrestler.flowId && match.winType && match.winType.toLowerCase() !== "bye" ? searchWrestler.matches + 1 : searchWrestler.matches,
 										wins: wrestler.flowId === searchWrestler.flowId ? (searchWrestler.wins + (match.wrestler1.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0)) : searchWrestler.wins,
-										losses: wrestler.flowId === searchWrestler.flowId ? (searchWrestler.losses + (match.wrestler1.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 0 : 1)) : searchWrestler.losses
+										losses: wrestler.flowId === searchWrestler.flowId ? (searchWrestler.losses + (match.wrestler2 && match.wrestler2.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0)) : searchWrestler.losses
 									}));
 								}
 							}
@@ -268,7 +268,7 @@ export default {
 										weightClass: weight.name,
 										matches: match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0,
 										wins: match.wrestler2.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0,
-										losses: match.wrestler2.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 0 : 1
+										losses: match.wrestler1 && match.wrestler1.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0
 									});
 								}
 								else {
@@ -276,7 +276,7 @@ export default {
 										...searchWrestler,
 										matches: wrestler.flowId === searchWrestler.flowId && match.winType && match.winType.toLowerCase() !== "bye" ? searchWrestler.matches + 1 : searchWrestler.matches,
 										wins: wrestler.flowId === searchWrestler.flowId ? (searchWrestler.wins + (match.wrestler2.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0)) : searchWrestler.wins,
-										losses: wrestler.flowId === searchWrestler.flowId ? (searchWrestler.losses + (match.wrestler2.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 0 : 1)) : searchWrestler.losses
+										losses: wrestler.flowId === searchWrestler.flowId ? (searchWrestler.losses + (match.wrestler1 && match.wrestler1.isWinner && match.winType && match.winType.toLowerCase() !== "bye" ? 1 : 0)) : searchWrestler.losses
 									}));
 								}
 							}
