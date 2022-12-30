@@ -379,7 +379,7 @@ class WrestlingEvent extends Component {
 				.map((batch, batchIndex) => 
 				<div key={batchIndex}>
 					<div className="roundLine"></div>
-					<div className="round"><span>{ ((batch.time.getHours() % 12 || 12) + "").padStart("0", 2) + ":" + (batch.time.getMinutes() + "").padStart("0", 2) + " " + (batch.time.getHours() < 12 ? "am": "pm" ) }</span></div>
+					<div className="round"><span>{ ((batch.time.getHours() % 12 || 12) + "").padStart(2, "0") + ":" + (batch.time.getMinutes() + "").padStart(2, "0") + " " + (batch.time.getHours() < 12 ? "am": "pm" ) }</span></div>
 
 					{
 					batch.batch
