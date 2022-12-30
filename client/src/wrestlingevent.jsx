@@ -16,6 +16,8 @@ class WrestlingEvent extends Component {
 			selectedPool: null,
 			nameSearch: "",
 			locationSearch: "",
+			updateTeamSearch: "",
+			updateTypeFilter: "",
 			refreshInterval: null,
 			timeInterval: null,
 			activeSearch: true,
@@ -377,7 +379,7 @@ class WrestlingEvent extends Component {
 				.map((batch, batchIndex) => 
 				<div key={batchIndex}>
 					<div className="roundLine"></div>
-					<div className="round"><span>{ (batch.time.getHours() + "").padStart("0", 2) + ":" + (batch.time.getMinutes() + "").padStart("0", 2) }</span></div>
+					<div className="round"><span>{ ((batch.time.getHours() % 12 || 12) + "").padStart("0", 2) + ":" + (batch.time.getMinutes() + "").padStart("0", 2) + " " + (batch.time.getHours() < 12 ? "am": "pm" ) }</span></div>
 
 					{
 					batch.batch
@@ -397,7 +399,7 @@ class WrestlingEvent extends Component {
 							<div className="listItemHeader">{ update.type }</div>
 							
 							<div className="listItemSubHeader">
-								{ update.division + " • " + update.weightClass }
+								{ update.division + " • " + update.weightClass + " • " + update.match.round }
 							</div>
 
 							<div className="listItemSubHeader">
