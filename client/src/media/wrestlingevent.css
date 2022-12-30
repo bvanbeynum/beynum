@@ -76,7 +76,8 @@ input:focus, select:focus, div:focus {
 	margin-bottom: 20px;
 }
 
-.actions input[type="text"] {
+.actions input[type="text"],
+.actions select {
 	border: none;
 	border-bottom: solid 1px rgb(199 199 199);
 	color: rgb(100 100 100);

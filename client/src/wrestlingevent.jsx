@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import Toast from "./toast.jsx";
-import "./wrestlingevent/wrestlingevent.css";
+import "./media/wrestlingevent.css";
 
 class WrestlingEvent extends Component {
 
@@ -144,45 +144,56 @@ class WrestlingEvent extends Component {
 					this.setState(({ event }) => ({ prevMatches: [ ...event.divisions.flatMap(division => division.weightClasses.flatMap(weight => weight.pools.flatMap(pool => pool.matches))) ] }), () => {
 						this.loadData(data, () => {
 
-							const updates = this.state.updates;
+							const updates = this.state.updates,
+								batchUpdates = [],
+								updateTime = new Date();
 
 							this.state.event.divisions
-								.flatMap(division => division.weightClasses.flatMap(weight => weight.pools.flatMap(pool => pool.matches )))
+								.flatMap(division => division.weightClasses.flatMap(weight => weight.pools.flatMap(pool => pool.matches.map(match => ({...match, division: division.name, weightClass: weight.name })) )))
 								.forEach(match => {
 									const prevMatch = this.state.prevMatches.find(prevMatch => match.flowId === prevMatch.flowId);
 
 									if (!prevMatch) {
-										updates.push({ type: "New Match", match: match, time: new Date() });
+										batchUpdates.push({ type: "New Match", division: match.division, weightClass: match.weightClass, match: match, time: new Date() });
 									}
 									else {
 										if (!prevMatch.wrestler1 && match.wrestler1) {
-											updates.push({ type: "Wrestler Assigned", wrestler: match.wrestler1, prev: prevMatch, match: match, time: new Date() });
+											batchUpdates.push({ type: "Wrestler Assigned", division: match.division, weightClass: match.weightClass, wrestler: match.wrestler1, prev: prevMatch, match: match, time: updateTime });
 										}
 										if (!prevMatch.wrestler2 && match.wrestler2) {
-											updates.push({ type: "Wrestler Assigned", wrestler: match.wrestler2, prev: prevMatch, match: match, time: new Date() });
+											batchUpdates.push({ type: "Wrestler Assigned", division: match.division, weightClass: match.weightClass, wrestler: match.wrestler2, prev: prevMatch, match: match, time: updateTime });
 										}
 										if (!prevMatch.mat && match.mat) {
-											updates.push({ type: "Mat Assigned", wrestler1: match.wrestler1, wrestler2: match.wrestler2, mat: match.mat, prev: prevMatch, match: match, time: new Date() });
+											batchUpdates.push({ type: "Mat Assigned", division: match.division, weightClass: match.weightClass, wrestler1: match.wrestler1, wrestler2: match.wrestler2, mat: match.mat, prev: prevMatch, match: match, time: updateTime });
 										}
 										if (prevMatch.wrestler2 && match.wrestler2 && !prevMatch.winType && match.winType) {
-											updates.push({
+											batchUpdates.push({
 												type: "Match Completed",
+												division: match.division, 
+												weightClass: match.weightClass, 
 												winner: match.wrestler1.isWinner ? match.wrestler1 : match.wrestler2,
 												loser: match.wrestler1.isWinner ? match.wrestler2 : match.wrestler1,
 												winType: match.winType,
 												prev: prevMatch,
 												match: match,
-												time: new Date()
+												time: updateTime
 											});
 										}
 									}
 
 								});
-
-							this.setState({
-								updates: updates,
-								isRefresh: false
-							});
+							
+							if (batchUpdates.length > 0) {
+								updates.push({
+									time: updateTime,
+									batch: batchUpdates
+								});
+								
+								this.setState({
+									updates: updates,
+									isRefresh: false
+								});
+							}
 						});
 					});
 				})
@@ -342,28 +353,72 @@ class WrestlingEvent extends Component {
 					No Updates
 				</h2>
 				: this.state.view === "updates" ?
+				<>
+				<div className="actions">
+					<input type="text" value={ this.state.updateTeamSearch } placeholder="-- Team Search --" onChange={ event => this.setState({ updateTeamSearch: event.target.value }) } />
+					<select value={ this.state.updateTypeFilter } onChange={ event => { this.setState({ updateTypeFilter: event.target.value }) }}>
+						<option value="">Update Type</option>
+						<option value="Match Completed">Match Completed</option>
+						<option value="Wrestler Assigned">Wrestler Assigned</option>
+						<option value="Mat Assigned">Mat Assigned</option>
+					</select>
+				</div>
+				{
 				this.state.updates
-				.sort((updateA, updateB) => updateB.time - updateA.time)
-				.map((update, updateIndex) => 
+				.filter(batch => batch.batch.some(update => 
+					(!this.state.updateTypeFilter || update.type === this.state.updateTypeFilter) &&
+					(!this.state.updateTeamSearch ||
+						(update.type === "Match Completed" && ((new RegExp(this.state.updateTeamSearch, "i")).test(update.winner.team) || (new RegExp(this.state.updateTeamSearch, "i")).test(update.loser.team))) ||
+						(update.type === "Wrestler Assigned" && ((new RegExp(this.state.updateTeamSearch, "i")).test(update.wrestler.team))) ||
+						(update.type === "Mat Assigned" && ((new RegExp(this.state.updateTeamSearch, "i")).test(update.wrestler1.team) || (new RegExp(this.state.updateTeamSearch, "i")).test(update.wrestler2.team)))
+					)
+					))
+				.sort((batchA, batchB) => batchB.time - batchA.time)
+				.map((batch, batchIndex) => 
+				<div key={batchIndex}>
+					<div className="roundLine"></div>
+					<div className="round"><span>{ (batch.time.getHours() + "").padStart("0", 2) + ":" + (batch.time.getMinutes() + "").padStart("0", 2) }</span></div>
 
-				<div key={updateIndex} className="listItem row selectable">
-					<div className="sidebar"></div>
+					{
+					batch.batch
+					.filter(update => 
+						(!this.state.updateTypeFilter || update.type === this.state.updateTypeFilter) &&
+						(!this.state.updateTeamSearch ||
+							(update.type === "Match Completed" && ((new RegExp(this.state.updateTeamSearch, "i")).test(update.winner.team) || (new RegExp(this.state.updateTeamSearch, "i")).test(update.loser.team))) ||
+							(update.type === "Wrestler Assigned" && ((new RegExp(this.state.updateTeamSearch, "i")).test(update.wrestler.team))) ||
+							(update.type === "Mat Assigned" && ((new RegExp(this.state.updateTeamSearch, "i")).test(update.wrestler1.team) || (new RegExp(this.state.updateTeamSearch, "i")).test(update.wrestler2.team)))
+						)
+					)
+					.map((update, updateIndex) => 
+					<div key={updateIndex} className="listItem row selectable">
+						<div className="sidebar"></div>
+	
+						<div className="listItemContent column">
+							<div className="listItemHeader">{ update.type }</div>
+							
+							<div className="listItemSubHeader">
+								{ update.division + " • " + update.weightClass }
+							</div>
 
-					<div className="listItemContent column">
-						<div className="listItemHeader">{`${ update.time.toLocaleTimeString() } ${update.type}`}</div>
-						
-						<div className="listItemSubHeader">
-							{
-							update.type === "Match Completed" ? `${ update.winner.firstName } ${ update.winner.lastName } (${ update.winner.team}) beat ${ update.loser.firstName } ${ update.loser.lastName } (${ update.loser.team}) by ${ update.winType}`
-							: update.type === "Wrestler Assigned" ? `${ update.wrestler.firstName } ${ update.wrestler.lastName } (${ update.wrestler.team}) assigned to match ${ update.match.matchNumber } (${ update.match.round })`
-							: update.type === "Mat Assigned" ? `${ update.wrestler1.firstName } ${ update.wrestler1.lastName } (${ update.wrestler1.team}) and ${ update.wrestler2.firstName } ${ update.wrestler2.lastName } (${ update.wrestler2.team}) assigned to mat ${ update.mat.name }`
-							: ""
-							}
+							<div className="listItemSubHeader">
+								{
+								update.type === "Match Completed" ? 
+									`${ update.winner.firstName } ${ update.winner.lastName } (${ update.winner.team}) beat ${ update.loser.firstName } ${ update.loser.lastName } (${ update.loser.team}) by ${ update.winType}`
+								: update.type === "Wrestler Assigned" ? 
+									`${ update.wrestler.firstName } ${ update.wrestler.lastName } (${ update.wrestler.team}) assigned to match ${ update.match.matchNumber } (${ update.match.round })`
+								: update.type === "Mat Assigned" ? 
+									`${ update.wrestler1.firstName } ${ update.wrestler1.lastName } (${ update.wrestler1.team}) and ${ update.wrestler2.firstName } ${ update.wrestler2.lastName } (${ update.wrestler2.team}) assigned to mat ${ update.mat.name }`
+								: ""
+								}
+							</div>
 						</div>
 					</div>
+					)
+					}
 				</div>
-
 				)
+				}
+				</>
 				:
 				// Match view
 				<>
