@@ -91,8 +91,12 @@ export default {
 			// Event is in the future (more than 1 day) and the last refresh is more than 1 hour old
 			isRefresh = true;
 		}
-		else if ((new Date()) < (new Date(event.endDate)) && (new Date()) > ((new Date(event.startDate)).getTime() - 86400000) && (new Date()) > ((new Date(event.lastRefresh)).getTime() + 60000)) {
-			// Event is current and last refresh is older than 1 min
+		else if ((new Date()) < (new Date(event.endDate)) && (new Date()) > ((new Date(event.startDate)).getTime() - 86400000) && request.query.initial == 1) {
+			// Event is current and this is the initial load (not a refresh)
+			isRefresh = false;
+		}
+		else if ((new Date()) < (new Date(event.endDate)) && (new Date()) > ((new Date(event.startDate)).getTime() - 86400000) && (new Date()) > ((new Date(event.lastRefresh)).getTime() + 120000)) {
+			// Event is current and last refresh is older than 1:30 min
 			isRefresh = true;
 		}
 

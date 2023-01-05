@@ -89,7 +89,7 @@ class WrestlingEvent extends Component {
 
 	selectEvent = event => {
 		this.setState({ isLoading: true, event: event }, () => {
-			fetch(`/wrestling/api/eventdetails?eventid=${ event.flowId }`, { method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ event: event }) })
+			fetch(`/wrestling/api/eventdetails?initial=1`, { method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ event: event }) })
 				.then(response => {
 					if (response.ok) {
 						return response.json();
@@ -108,7 +108,7 @@ class WrestlingEvent extends Component {
 
 							if ((new Date()) > (this.state.event.startDate.getTime() - 86400000)) {
 								// Event is current
-								interval = 60000; // one min
+								interval = 30000; // one min - give time for server to refresh
 							}
 
 							timeInterval = setInterval(() => this.setState(({ timeDisplay: Math.floor(((new Date()) - this.state.event.lastRefresh) / 1000 / 60) + "m " + Math.floor(((new Date()) - this.state.event.lastRefresh) / 1000 % 60) + "s" })), 1000);
@@ -133,7 +133,7 @@ class WrestlingEvent extends Component {
 
 	refreshData = () => {
 		this.setState(({ isRefresh: true }), () => {
-			fetch(`/wrestling/api/eventdetails?eventid=${ this.state.event.flowId }`, { method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ event: this.state.event }) })
+			fetch(`/wrestling/api/eventdetails`, { method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ event: this.state.event }) })
 				.then(response => {
 					if (response.ok) {
 						return response.json();
@@ -256,7 +256,26 @@ class WrestlingEvent extends Component {
 					onDeck: mat.matches.filter(match => !match.winType).sort((matchA, matchB) => matchA.sort - matchB.sort).slice(1,2)[0],
 					hole: mat.matches.filter(match => !match.winType).sort((matchA, matchB) => matchA.sort - matchB.sort).slice(2,3)[0]
 				})),
-			teams: data.teams
+			teams: data.teams.map(team => ({ 
+					...team,
+					divisions: [...new Set(team.wrestlers.map(wrestler => wrestler.division))]
+						.map(division => ({ 
+							name: division, 
+							wrestlers: team.wrestlers
+								.filter(wrestler => wrestler.division == division)
+								.sort((wrestlerA, wrestlerB) => wrestlerA.weightClass < wrestlerB.weightClass ? -1 
+									: wrestlerA.weightClass > wrestlerB.weightClass ? 1
+									: wrestlerA.firstName < wrestlerB.firstName ? -1 
+									: 1) 
+						}))
+						.sort((divisionA, divisionB) => divisionA.name < divisionB.name ? -1 : 1)
+				}))
+				.sort((teamA, teamB) => 
+					/fort mill/i.test(teamA.name) ? -1
+					: /fort mill/i.test(teamB.name) ? 1
+					: teamA.name < teamB.name ? -1
+					: 1
+					)
 		}), () => {
 			complete();
 		});
@@ -335,17 +354,22 @@ class WrestlingEvent extends Component {
 					<div className="sidebar"></div>
 
 					<div className="listItemContent column">
-						<div className="listItemHeader">{team.name}</div>
+						<div className="listItemHeader">{ team.name }</div>
 
-						<div className="listItemSubHeader">
+						{
+						team.divisions.map((division, divisionIndex) =>
+						<div key={divisionIndex} className="listItemSubHeader">
+							<div>{ division.name }</div>
 							{
-							team.wrestlers.map((wrestler, wrestlerIndex) => 
+							division.wrestlers.map((wrestler, wrestlerIndex) => 
 							<div key={wrestlerIndex}>
-								{ `${wrestler.firstName} ${wrestler.lastName}, record: ${wrestler.wins}:${wrestler.losses}`}
+								{ `${ wrestler.weightClass }: ${wrestler.firstName} ${wrestler.lastName}, record: ${wrestler.wins}:${wrestler.losses}`}
 							</div>
 							)
 							}
 						</div>
+						)
+						}
 					</div>
 				</div>
 
