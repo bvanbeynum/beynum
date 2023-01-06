@@ -113,6 +113,7 @@ class WrestlingEvent extends Component {
 
 							timeInterval = setInterval(() => this.setState(({ timeDisplay: Math.floor(((new Date()) - this.state.event.lastRefresh) / 1000 / 60) + "m " + Math.floor(((new Date()) - this.state.event.lastRefresh) / 1000 % 60) + "s" })), 1000);
 							refreshInterval = setInterval(this.refreshData, interval);
+							this.refreshData();
 						}
 
 						this.setState({
