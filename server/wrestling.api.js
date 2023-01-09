@@ -471,7 +471,7 @@ export default {
 		client.get(`${ request. serverPath }/wrestling/data/wrestler`)
 			.then(clientResponse => {
 				const output = {};
-				output.wrestlers = clientResponse.body.wrestlers.map(wrestler => ({ id: wrestler.id }));
+				output.wrestlers = clientResponse.body.wrestlers.map(wrestler => ({ id: wrestler.id, dbId: wrestler.dbId }));
 				response.status(200).json(output);
 			})
 			.catch(error => {
