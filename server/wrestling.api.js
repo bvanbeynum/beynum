@@ -468,7 +468,7 @@ export default {
 	},
 
 	getAllWrestlers: (request, response) => {
-		client.get(`${ request. serverPath }/wrestling/data//wrestler`)
+		client.get(`${ request. serverPath }/wrestling/data/wrestler`)
 			.then(clientResponse => {
 				const output = {};
 				output.wrestlers = clientResponse.body.wrestlers.map(wrestler => ({ id: wrestler.id }));
