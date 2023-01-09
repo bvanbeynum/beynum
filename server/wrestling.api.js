@@ -465,6 +465,19 @@ export default {
 		}
 
 		response.status(status).json(output);
+	},
+
+	getAllWrestlers: (request, response) => {
+		client.get(`${ request. serverPath }/wrestling/data//wrestler`)
+			.then(clientResponse => {
+				const output = {};
+				output.wrestlers = clientResponse.body.wrestlers.map(wrestler => ({ id: wrestler.id }));
+				response.status(200).json(output);
+			})
+			.catch(error => {
+				response.statusMessage = error.message;
+				response.status(561).json({ error: error.message });
+			})
 	}
 
 }

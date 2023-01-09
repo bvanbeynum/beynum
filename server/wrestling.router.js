@@ -26,6 +26,7 @@ router.delete("/wrestling/data/wrestler", data.wrestlerDelete);
 
 router.get("/wrestling/api/eventload", api.eventLoad);
 router.post("/wrestling/api/eventdetails", api.eventDetails);
+router.post("/wrestling/api/getallwrestlers", api.getAllWrestlers);
 
 router.post("/wrestling/api/uploadimage", api.uploadImage);
 router.post("/wrestling/api/getimage", api.getImage);
