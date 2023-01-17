@@ -140,7 +140,7 @@ export default {
 				});
 		}
 		else {
-			new data.job({ ...jobSave, modified: new Date() })
+			new data.job({ ...jobSave, created: new Date(), modified: new Date() })
 				.save()
 				.then(jobData => {
 					response.status(200).json({ id: jobData._id });
