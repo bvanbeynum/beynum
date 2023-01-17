@@ -94,8 +94,17 @@ export default {
 			return;
 		}
 
-		const job = clientResponse.body.jobs[0];
-		job.runs.push(response.body.jobrun);
+		const job = clientResponse.body.jobs[0],
+			saveRun = response.body.jobrun;
+
+		if (job.runs.some(run => run["_id"] === saveRun["_id"])) {
+			job.runs = job.runs.map(run => {
+				return run["_id"] == saveRun["_id"] ? saveRun : run
+			});
+		}
+		else {
+			job.runs.push(response.body.jobrun);
+		}
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/data/job`).send({ job: job });
