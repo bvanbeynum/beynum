@@ -23,5 +23,6 @@ router.delete("/data/job", data.jobDelete);
 
 router.get("/api/getjobs", api.getJobs);
 router.post("/api/savejobrun", api.saveJobRun);
+router.get("/api/getrun", api.getRun);
 
 export default router;

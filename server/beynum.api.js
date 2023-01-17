@@ -133,6 +133,26 @@ export default {
 		}
 
 		response.status(200).json({ run: run });
+	},
+
+	getRun: (request, response) => {
+		if (!request.query.jobid && !request.query.runid) {
+			response.statusMessage = "Missing required information";
+			response.status(561).json({ error: "Missing required information" });
+			return;
+		}
+
+		client.get(`${ request.serverPath }/data/job?id=${ request.query.jobid }`)
+			.then(clientResponse => {
+				const output = {
+					run: clientResponse.body.jobs.find(run => run["_id"] == request.query.runid)
+				};
+				response.status(200).json(output)
+			})
+			.catch(error => {
+				response.statusMessage = error.message;
+				response.status(562).json({ error: error.message });
+			});
 	}
 
 }
