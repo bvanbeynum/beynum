@@ -97,7 +97,7 @@ export default {
 		const job = clientResponse.body.jobs[0],
 			saveRun = request.body.jobrun;
 
-		if (job.runs.some(run => run["_id"] === saveRun["_id"])) {
+		if (saveRun["_id"]) {
 			job.runs = job.runs.map(run => {
 				return run["_id"] == saveRun["_id"] ? saveRun : run
 			});
@@ -115,7 +115,24 @@ export default {
 			return;
 		}
 
-		response.status(200).json({ id: job.id });
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/data/job?id=${ job.id }`);
+		}
+		catch (error) {
+			response.statusMessage = "Error loading job";
+			response.status(563).json({ location: "Pull saved job", error: error.message });
+			return;
+		}
+
+		let run = null;
+		if (saveRun["_id"]) {
+			run = clientResponse.body.jobs[0].runs.find(run => run["_id"] == saveRun["_id"]);
+		}
+		else {
+			run = clientResponse.body.jobs[0].runs[clientResponse.body.jobs[0].runs.length - 1];
+		}
+
+		response.status(200).json({ run: run });
 	}
 
 }
