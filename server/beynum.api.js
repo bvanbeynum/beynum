@@ -65,7 +65,7 @@ export default {
 	getJobs: (request, response) => {
 		client.get(`${ request.serverPath }/data/job`)
 			.then(clientResponse => {
-				output = {
+				const output = {
 					jobs: clientResponse.body.jobs
 				};
 
