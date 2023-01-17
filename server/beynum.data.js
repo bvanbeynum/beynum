@@ -86,6 +86,84 @@ export default {
 			.catch(error => {
 				response.status(560).json({ error: error.message });
 			});
+	},
+
+	jobGet: (request, response) => {
+		const filter = {};
+
+		if (request.query.id) {
+			filter["_id"] = request.query.id
+		}
+
+		data.job.find(filter)
+			.lean()
+			.exec()
+			.then(jobsData => {
+				const jobs = jobsData.map(({ _id, __v, ...job }) => ({ id: _id, ...job }));
+				response.status(200).json({ jobs: jobs });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
+	},
+
+	jobSave: (request, response) => {
+		if (!request.body.job) {
+			response.status(550).json({ error: "Missing object to save" });
+			return;
+		}
+		
+		const jobSave = request.body.job;
+
+		if (jobSave.id) {
+			data.job.findById(userSave.id)
+				.exec()
+				.then(jobData => {
+					if (!jobData) {
+						throw new Error("Record not found");
+					}
+
+					Object.keys(jobSave).forEach(field => {
+						if (field != "id") {
+							jobData[field] = jobSave[field];
+						}
+					});
+					jobData.modified = new Date();
+
+					return jobData.save();
+				})
+				.then(jobData => {
+					response.status(200).json({ id: jobData._id });
+				})
+				.catch(error => {
+					response.status(570).json({ error: error.message });
+				});
+		}
+		else {
+			new data.job({ ...jobSave, modified: new Date() })
+				.save()
+				.then(jobData => {
+					response.status(200).json({ id: jobData._id });
+				})
+				.catch(error => {
+					response.status(571).json({ error: error.message });
+				});
+		}
+	},
+
+	jobDelete: (request, response) => {
+		if (!request.query.id) {
+			response.status(550).json({ error: "Missing ID to delete" });
+			return;
+		}
+
+		data.job.deleteOne({ _id: request.query.id })
+			.then(() => {
+				response.status(200).json({ status: "ok" });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
 	}
 
 }

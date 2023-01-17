@@ -477,7 +477,7 @@ export default {
 			.catch(error => {
 				response.statusMessage = error.message;
 				response.status(561).json({ error: error.message });
-			})
+			});
 	}
 
 }

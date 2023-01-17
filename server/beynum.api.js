@@ -60,6 +60,53 @@ export default {
 		else {
 			next();
 		}
+	},
+
+	getJobs: (request, response) => {
+		client.get(`${ request.serverPath }/data/job`)
+			.then(clientResponse => {
+				output = {
+					jobs: clientResponse.body.jobs
+				};
+
+				response.status(200).json(output);
+			})
+			.catch(error => {
+				response.statusMessage = error.message;
+				response.status(561).json({ error: error.message });
+			});
+	},
+
+	saveJobRun: async (request, response) => {
+		if (!request.query.jobid || !request.body.jobrun) {
+			response.statusMessage = "Missing object to save";
+			response.status(561).json({ error: "Missing object to save" });
+			return;
+		}
+
+		let clientResponse = null;
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/data/job?id=${ request.query.jobid }`);
+		}
+		catch (error) {
+			response.statusMessage = "Error pulling job details";
+			response.status(562).json({ location: "Pull job details", error: error.message });
+			return;
+		}
+
+		const job = clientResponse.body.jobs[0];
+		job.runs.push(response.body.jobrun);
+
+		try {
+			clientResponse = await client.post(`${ request.serverPath }/data/job`).send({ job: job });
+		}
+		catch (error) {
+			response.statusMessage = "Error saving job";
+			response.status(563).json({ location: "Save job", error: error.message });
+			return;
+		}
+
+		response.status(200).json({ id: job.id });
 	}
 
 }
