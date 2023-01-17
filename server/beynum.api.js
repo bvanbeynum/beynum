@@ -144,6 +144,7 @@ export default {
 
 		client.get(`${ request.serverPath }/data/job?id=${ request.query.jobid }`)
 			.then(clientResponse => {
+				console.log(clientResponse.body.jobs);
 				const output = {
 					run: clientResponse.body.jobs.find(run => run["_id"] == request.query.runid)
 				};
