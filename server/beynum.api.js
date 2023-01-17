@@ -95,7 +95,7 @@ export default {
 		}
 
 		const job = clientResponse.body.jobs[0],
-			saveRun = response.body.jobrun;
+			saveRun = request.body.jobrun;
 
 		if (job.runs.some(run => run["_id"] === saveRun["_id"])) {
 			job.runs = job.runs.map(run => {
@@ -103,7 +103,7 @@ export default {
 			});
 		}
 		else {
-			job.runs.push(response.body.jobrun);
+			job.runs.push(saveRun);
 		}
 
 		try {
