@@ -328,7 +328,8 @@ export default {
 						if (field != "id") {
 							wrestlerData[field] = wrestlerSave[field];
 						}
-					})
+					});
+					wrestlerData.lastModified = new Date();
 
 					return wrestlerData.save();
 				})
@@ -340,7 +341,7 @@ export default {
 				});
 		}
 		else {
-			new data.wrestler({ ...wrestlerSave })
+			new data.wrestler({ ...wrestlerSave, lastModified: new Date() })
 				.save()
 				.then(wrestlerData => {
 					response.status(200).json({ id: wrestlerData._id });

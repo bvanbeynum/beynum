@@ -135,6 +135,7 @@ export default {
 				points: Number
 			}]
 		}],
+		lastModified: Date
 	})
 
 };
