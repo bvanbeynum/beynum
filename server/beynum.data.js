@@ -116,7 +116,7 @@ export default {
 		const jobSave = request.body.job;
 
 		if (jobSave.id) {
-			data.job.findById(userSave.id)
+			data.job.findById(jobSave.id)
 				.exec()
 				.then(jobData => {
 					if (!jobData) {
