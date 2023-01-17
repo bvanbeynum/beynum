@@ -29,6 +29,7 @@ export default {
 		runs: [{
 			startTime: Date,
 			completeTime: Date,
+			isKill: Boolean,
 			messages: [{ severity: Number, message: String, time: Date }]
 		}]
 	})
