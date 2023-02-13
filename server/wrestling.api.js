@@ -43,8 +43,7 @@ export default {
 				endDate: new Date(event.endDate),
 				divisionCount: event.divisions ? event.divisions.length : 0
 			}))
-			.sort((eventA, eventB) => eventSort === 1 ? eventA.startDate - eventB.startDate : eventB.startDate - eventA.startDate)
-			.slice(0, 500);
+			.sort((eventA, eventB) => eventSort === 1 ? eventA.startDate - eventB.startDate : eventB.startDate - eventA.startDate);
 		output.events = events;
 
 		response.status(200).json(output);
