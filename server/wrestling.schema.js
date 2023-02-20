@@ -15,6 +15,7 @@ export default {
 		endDate: Date,
 		isLoaded: Boolean,
 		lastRefresh: Date,
+		isFlagged: Boolean,
 		divisions: [{
 			flowId: String,
 			name: String,
@@ -72,6 +73,17 @@ export default {
 				}]
 			}]
 		}]
+	}),
+
+	eventUpdate: cnBeynum.model("wrestlingEventUpdate", {
+		eventFlowId: String,
+		type: String,
+		time: Date,
+		division: String,
+		weightClass: String,
+		round: String,
+		teams: [String],
+		message: String
 	}),
 
 	athlete: cnBeynum.model("wrestlingAthlete", {

@@ -38,6 +38,7 @@ export default {
 				flowId: event.guid,
 				name: event.name,
 				location: event.locationName,
+				isFlagged: event.isFlagged,
 				hasBrackets: event.isPublishBrackets,
 				startDate: new Date(event.startDate),
 				endDate: new Date(event.endDate),
@@ -82,7 +83,7 @@ export default {
 		else if (!event.lastRefresh) {
 			isRefresh = true;
 		}
-		else if ((new Date(event.endDate)) > (new Date()) && (new Date(event.lastRefresh)) > (new Date(event.endDate))) {
+		else if ((new Date(event.endDate)).getTime() + 86400000 > (new Date()) && (new Date(event.lastRefresh)) > (new Date(event.endDate)).getTime() + 86400000) {
 			// Event is in the past and last refresh is older than end date
 			isRefresh = true;
 		}
@@ -100,11 +101,6 @@ export default {
 		}
 
 		if (isRefresh) {
-			try {
-				clientResponse = await client.delete(`${ request.serverPath }/wrestling/data/event?flowid=${ request.body.event.flowId }`);
-			}
-			catch {}
-
 			try {
 				clientResponse = await client.get(`https://arena.flowrestling.org/bracket/${ request.body.event.flowId }`);
 			}
@@ -203,6 +199,136 @@ export default {
 				return;
 			}
 
+			// Get the updates
+			try {
+				clientResponse = await client.get(`${ request.serverPath }/wrestling/data/event?flowid=${ request.body.event.flowId }`);
+
+				if (clientResponse.body.events && clientResponse.body.events.length === 1) {
+					const updates = [],
+						eventId = clientResponse.body.events[0].id,
+						eventFlowId = clientResponse.body.events[0].flowId,
+						updateTime = new Date(),
+						prevMatches = clientResponse.body.events[0].divisions
+							.flatMap(division => division.weightClasses.flatMap(weight => weight.pools.flatMap(pool => pool.matches.map(match => ({...match, division: division.name, weightClass: weight.name }) ))));
+					
+					event.divisions
+						.flatMap(division => division.weightClasses.flatMap(weight => weight.pools.flatMap(pool => pool.matches.map(match => ({...match, division: division.name, weightClass: weight.name }) ))))
+						.forEach(match => {
+							const prevMatch = prevMatches.find(prev => match.flowId === prev.flowId),
+								teams = [];
+
+							if (!prevMatch) {
+								if (match.wrestler1 && match.wrestler1.team) {
+									teams.push(match.wrestler1.team);
+								}
+								if (match.wrestler2 && match.wrestler2.team) {
+									teams.push(match.wrestler2.team);
+								}
+
+								updates.push({
+									eventFlowId: eventFlowId,
+									type: "New Match",
+									time: updateTime,
+									division: match.division,
+									weightClass: match.weightClass,
+									round: match.round,
+									teams: teams,
+									message: (match.matchNumber ? `Match: ${ match.matchNumber }, ` : "") +
+										(match.wrestler1 ? `${ match.wrestler1.firstName } ${ match.wrestler1.lastName } (${ match.wrestler1.team })` : "BYE") +
+										" vs " +
+										(match.wrestler2 ? `${ match.wrestler2.firstName } ${ match.wrestler2.lastName } (${ match.wrestler2.team })` : "BYE")
+								});
+							}
+							else {
+								if (!prevMatch.wrestler1 && match.wrestler1) {
+									if (match.wrestler1 && match.wrestler1.team) {
+										teams.push(match.wrestler1.team);
+									}
+	
+									updates.push({
+										eventFlowId: eventFlowId,
+										type: "Wrestler Assigned",
+										time: updateTime,
+										division: match.division,
+										weightClass: match.weightClass,
+										round: match.round,
+										teams: teams,
+										message: `${ match.wrestler1.firstName } ${ match.wrestler1.lastName } (${ match.wrestler1.team }) assigned to match ${ match.matchNumber } (${ match.round })`
+									});
+								}
+								if (!prevMatch.wrestler2 && match.wrestler2) {
+									if (match.wrestler2 && match.wrestler2.team) {
+										teams.push(match.wrestler2.team);
+									}
+	
+									updates.push({
+										eventFlowId: eventFlowId,
+										type: "Wrestler Assigned",
+										time: updateTime,
+										division: match.division,
+										weightClass: match.weightClass,
+										round: match.round,
+										teams: teams,
+										message: `${ match.wrestler2.firstName } ${ match.wrestler2.lastName } (${ match.wrestler2.team }) assigned to match ${ match.matchNumber } (${ match.round })`
+									});
+								}
+								if (!prevMatch.mat && match.mat) {
+									if (match.wrestler1 && match.wrestler1.team) {
+										teams.push(match.wrestler1.team);
+									}
+									if (match.wrestler2 && match.wrestler2.team) {
+										teams.push(match.wrestler2.team);
+									}
+	
+									updates.push({
+										eventFlowId: eventFlowId,
+										type: "Mat Assigned",
+										time: updateTime,
+										division: match.division,
+										weightClass: match.weightClass,
+										round: match.round,
+										teams: teams,
+										message: `${ match.wrestler1.firstName } ${ match.wrestler1.lastName } (${ match.wrestler1.team}) and ${ match.wrestler2.firstName } ${ match.wrestler2.lastName } (${ match.wrestler2.team}) assigned to mat ${ match.mat.name }`
+									});
+								}
+								if (prevMatch.wrestler2 && match.wrestler2 && !prevMatch.winType && match.winType) {
+									if (match.wrestler1 && match.wrestler1.team) {
+										teams.push(match.wrestler1.team);
+									}
+									if (match.wrestler2 && match.wrestler2.team) {
+										teams.push(match.wrestler2.team);
+									}
+
+									const winner = match.wrestler1.isWinner ? match.wrestler1 : match.wrestler2.isWinner ? match.wrestler2 : null,
+										loser = match.wrestler1.isWinner ? match.wrestler2 : match.wrestler2.isWinner ? match.wrestler1 : null
+	
+									updates.push({
+										eventFlowId: eventFlowId,
+										type: "Match Completed",
+										time: updateTime,
+										division: match.division,
+										weightClass: match.weightClass,
+										round: match.round,
+										teams: teams,
+										message: `${ winner.firstName } ${ winner.lastName } (${ winner.team}) beat ${ loser.firstName } ${ loser.lastName } (${ loser.team}) by ${ match.winType }`
+									});
+								}
+							}
+						});
+					
+					if (updates.length > 0) {
+						clientResponse = await client.post(`${ request.serverPath }/wrestling/data/eventupdate`).send({ eventupdates: updates });
+					}
+				}
+			}
+			catch {}
+			
+			// Delete the existing event before saving
+			try {
+				clientResponse = await client.delete(`${ request.serverPath }/wrestling/data/event?flowid=${ request.body.event.flowId }`);
+			}
+			catch {}
+
 			try {
 				clientResponse = await client.post(`${ request.serverPath }/wrestling/data/event`).send({ event: event });
 			}
@@ -212,6 +338,12 @@ export default {
 				return;
 			}
 		}
+
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/wrestling/data/eventupdate?flowid=${ event.flowId }`);
+			output.updates = clientResponse.body.updates;
+		}
+		catch {}
 		
 		let team = null,
 			mat = null,

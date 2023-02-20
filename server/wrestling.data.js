@@ -101,6 +101,112 @@ export default {
 		}
 	},
 
+	eventUpdateGet: (request, response) => {
+		let	filter = {};
+
+		if (request.query.id) {
+			filter["_id"] = request.query.id;
+		}
+		if (request.query.eventid) {
+			filter["eventId"] = request.query.eventid;
+		}
+		if (request.query.flowid) {
+			filter["eventFlowId"] = request.query.flowid;
+		}
+
+		data.eventUpdate.find(filter)
+			.lean()
+			.exec()
+			.then(eventUpdatesData => {
+				const eventUpdates = eventUpdatesData.map(({ _id, __v, ...data }) => ({ id: _id, ...data }));
+				response.status(200).json({ updates: eventUpdates });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
+	},
+
+	eventUpdateSave: (request, response) => {
+		if (!request.body.eventupdate && !request.body.eventupdates) {
+			response.status(550).json({ error: "Missing object to save" });
+			return;
+		}
+
+		if (request.body.eventupdates) {
+			data.eventUpdate.insertMany(request.body.eventupdates)
+				.then(updatesData => {
+					const ids = updatesData.map(update => update._id);
+					response.status(200).json({ ids: ids });
+				})
+				.catch(error => {
+					response.status(572).json({ error: error.message });
+				})
+		}
+		else {
+			const eventUpdateSave = request.body.eventupdate;
+
+			if (eventUpdateSave.id) {
+				data.eventUpdate.findById(eventUpdateSave.id)
+					.exec()
+					.then(eventUpdateData => {
+						if (!eventUpdateData) {
+							throw new Error("Not found in database");
+						}
+
+						Object.keys(eventUpdateSave).forEach(field => {
+							if (field != "id") {
+								eventUpdateData[field] = eventUpdateSave[field];
+							}
+						})
+
+						return eventUpdateData.save();
+					})
+					.then(eventUpdateData => {
+						response.status(200).json({ id: eventUpdateData._id });
+					})
+					.catch(error => {
+						response.status(570).json({ error: error.message });
+					});
+			}
+			else {
+				new data.eventUpdate({ ...eventUpdateSave })
+					.save()
+					.then(eventUpdateData => {
+						response.status(200).json({ id: eventUpdateData._id });
+					})
+					.catch(error => {
+						response.status(571).json({ error: error.message });
+					});
+			}
+		}
+	},
+
+	eventUpdateDelete: (request, response) => {
+		if (!request.query.id && !request.query.eventid) {
+			response.status(550).json({ error: "Missing ID to delete" });
+			return;
+		}
+
+		if (request.query.eventid) {
+			data.eventUpdate.deleteMany({ eventId: request.query.eventid })
+				.then(() => {
+					response.status(200).json({ status: "ok" });
+				})
+				.catch(error => {
+					response.status(560).json({ error: error.message });
+				});
+		}
+		else {
+			data.event.deleteOne({ _id: request.query.id })
+				.then(() => {
+					response.status(200).json({ status: "ok" });
+				})
+				.catch(error => {
+					response.status(560).json({ error: error.message });
+				});
+		}
+	},
+
 	athleteGet: (request, response) => {
 		let	filter = {},
 			select = {};
