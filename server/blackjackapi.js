@@ -53,7 +53,6 @@ export default {
 
 	validate: (request, response) => {
 		if (request.query.token) {
-			console.log(`${ request.serverPath }/bj/data/user?usertoken=${ request.query.token }`);
 			client.get(`${ request.serverPath }/bj/data/user?usertoken=${ request.query.token }`)
 				.then(clientResponse => {
 					if (clientResponse.body.users && clientResponse.body.users.length === 1) {
@@ -84,20 +83,20 @@ export default {
 								response.redirect("/blackjack.html");
 								
 							})
-							.catch(error => {
-								response.redirect(`/blackjack.html?error=${ error.message }`);
+							.catch(() => {
+								response.redirect("/blackjack.html");
 							})
 					}
 					else {
-						response.redirect("/blackjack.html?invalid1=true");
+						response.redirect("/blackjack.html");
 					}
 				})
-				.catch(error => {
-					response.redirect(`/blackjack.html?geterror=${ error.message }`);
+				.catch(() => {
+					response.redirect("/blackjack.html");
 				});
 		}
 		else {
-			response.redirect("/blackjack.html?invalid2=true");
+			response.redirect("/blackjack.html");
 		}
 	},
 
