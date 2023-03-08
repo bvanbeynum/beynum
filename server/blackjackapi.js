@@ -84,19 +84,19 @@ export default {
 								
 							})
 							.catch(() => {
-								response.redirect("/blackjack.html");
+								response.redirect("/blackjack.html?invalid=true");
 							})
 					}
 					else {
-						response.redirect("/blackjack.html");
+						response.redirect("/blackjack.html?invalid=true");
 					}
 				})
 				.catch(() => {
-					response.redirect("/blackjack.html");
+					response.redirect("/blackjack.html?invalid=true");
 				});
 		}
 		else {
-			response.redirect("/blackjack.html");
+			response.redirect("/blackjack.html?invalid=true");
 		}
 	},
 
