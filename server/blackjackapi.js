@@ -88,15 +88,15 @@ export default {
 							})
 					}
 					else {
-						response.redirect("/blackjack.html?invalid=true");
+						response.redirect("/blackjack.html?invalid1=true");
 					}
 				})
-				.catch(() => {
-					response.redirect("/blackjack.html?invalid=true");
+				.catch(error => {
+					response.redirect(`/blackjack.html?geterror=${ error.message }`);
 				});
 		}
 		else {
-			response.redirect("/blackjack.html?invalid=true");
+			response.redirect("/blackjack.html?invalid2=true");
 		}
 	},
 
