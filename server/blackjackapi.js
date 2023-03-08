@@ -83,8 +83,8 @@ export default {
 								response.redirect("/blackjack.html");
 								
 							})
-							.catch(() => {
-								response.redirect("/blackjack.html?invalid=true");
+							.catch(error => {
+								response.redirect(`/blackjack.html?error=${ error.message }`);
 							})
 					}
 					else {
