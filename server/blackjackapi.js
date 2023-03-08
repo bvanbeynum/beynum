@@ -53,6 +53,7 @@ export default {
 
 	validate: (request, response) => {
 		if (request.query.token) {
+			console.log(`${ request.serverPath }/bj/data/user?usertoken=${ request.query.token }`);
 			client.get(`${ request.serverPath }/bj/data/user?usertoken=${ request.query.token }`)
 				.then(clientResponse => {
 					if (clientResponse.body.users && clientResponse.body.users.length === 1) {
