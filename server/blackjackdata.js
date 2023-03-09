@@ -26,6 +26,7 @@ export default {
 				response.status(200).json({ users: users });
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409df67a94a664c619ef501", message: `560: ${error.message}` }});
 				response.status(560).json({ error: error.message });
 			});
 	},
@@ -50,7 +51,7 @@ export default {
 						if (field != "id") {
 							userData[field] = userSave[field];
 						}
-					})
+					});
 
 					return userData.save();
 				})
@@ -58,6 +59,7 @@ export default {
 					response.status(200).json({ id: userData._id });
 				})
 				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409df8da94a664c619ef503", message: `570: ${error.message}` }});
 					response.status(570).json({ error: error.message });
 				});
 		}
@@ -68,8 +70,9 @@ export default {
 					response.status(200).json({ id: userData._id });
 				})
 				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409df8da94a664c619ef503", message: `571: ${error.message}` }});
 					response.status(571).json({ error: error.message });
-				})
+				});
 		}
 	},
 
@@ -84,6 +87,7 @@ export default {
 				response.status(200).json({ status: "ok" });
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409dfb9a94a664c619ef505", message: `560: ${error.message}` }});
 				response.status(560).json({ error: error.message });
 			});
 	},
@@ -109,8 +113,9 @@ export default {
 				response.status(200).json(output);
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409dfd7a94a664c619ef507", message: `560: ${error.message}` }});
 				response.status(560).json({ error: error.message });
-			})
+			});
 	},
 
 	gameSave: (request, response) => {
@@ -142,6 +147,7 @@ export default {
 					response.status(200).json({ id: gameDb["_id"] });
 				})
 				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409dff7a94a664c619ef509", message: `561: ${error.message}` }});
 					response.status(561).json({ error: error.message });
 				});
 		}
@@ -152,6 +158,7 @@ export default {
 					response.status(200).json({ id: gameDb["_id"] });
 				})
 				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409dff7a94a664c619ef509", message: `562: ${error.message}` }});
 					response.status(562).json({ error: error.message });
 				})
 		}
@@ -168,6 +175,7 @@ export default {
 				response.status(200).json({ status: "ok" });
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409e016a94a664c619ef50b", message: `560: ${error.message}` }});
 				response.status(560).json({ error: error.message });
 			});
 	},
@@ -190,8 +198,9 @@ export default {
 				response.status(200).json(output);
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409e037a94a664c619ef50d", message: `560: ${error.message}` }});
 				response.status(560).json({ error: error.message });
-			})
+			});
 	},
 
 	gameStateSave: (request, response) => {
@@ -222,6 +231,7 @@ export default {
 					response.status(200).json({ id: gameStateDb["_id"] });
 				})
 				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409e054a94a664c619ef50f", message: `561: ${error.message}` }});
 					response.status(561).json({ error: error.message });
 				});
 		}
@@ -232,6 +242,7 @@ export default {
 					response.status(200).json({ id: gameStateDb["_id"] });
 				})
 				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409e054a94a664c619ef50f", message: `562: ${error.message}` }});
 					response.status(562).json({ error: error.message });
 				})
 		}
@@ -248,6 +259,7 @@ export default {
 				response.status(200).json({ status: "ok" });
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409e078a94a664c619ef511", message: `560: ${error.message}` }});
 				response.status(560).json({ error: error.message });
 			});
 	}

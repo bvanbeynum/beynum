@@ -6,6 +6,7 @@ import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import sysRouter from "./server/sys.router.js";
 import beynumRouter from "./server/beynum.router.js";
 import officeRouter from "./server/officerouter.js";
 import blackJackRouter from "./server/blackjackrouter.js";
@@ -32,6 +33,7 @@ app.use(busboy());
 
 // Routes =======================================================================
 
+app.use(sysRouter);
 app.use(beynumRouter);
 app.use(officeRouter);
 app.use(blackJackRouter);

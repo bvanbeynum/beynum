@@ -83,7 +83,8 @@ export default {
 								response.redirect("/blackjack.html");
 								
 							})
-							.catch(() => {
+							.catch(error => {
+								client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409dc835edbeb52004eb549", message: `560: ${error.message}` }});
 								response.redirect("/blackjack.html");
 							})
 					}
@@ -92,6 +93,7 @@ export default {
 					}
 				})
 				.catch(() => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409dc835edbeb52004eb549", message: `561: ${error.message}` }});
 					response.redirect("/blackjack.html");
 				});
 		}
@@ -118,6 +120,7 @@ export default {
 				response.status(200).json(output);
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409ddf45edbeb52004eb54c", message: `561: ${error.message}` }});
 				response.statusMessage = error.message;
 				response.status(561).json({ error: error.message });
 			});
@@ -148,6 +151,7 @@ export default {
 				response.status(200).json({ gameid: clientResponse.body.id });
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409de2f5edbeb52004eb54e", message: `562: ${error.message}` }});
 				response.statusMessage = error.message;
 				response.status(562).json({ error: errorMessage });
 			})
@@ -176,11 +180,13 @@ export default {
 						response.status(200).json({ id: clientResponse.body.id });
 					})
 					.catch(error => {
+						client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409de5d5edbeb52004eb550", message: `563: ${error.message}` }});
 						response.statusMessage = error.message;
 						response.status(563).json({ error: error.message });
 					});
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409de5d5edbeb52004eb550", message: `562: ${error.message}` }});
 				response.statusMessage = error.message;
 				response.status(562).json({ error: error.message });
 			})
@@ -212,11 +218,13 @@ export default {
 						response.status(200).json(output);
 					})
 					.catch(error => {
+						client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409de865edbeb52004eb552", message: `563: ${error.message}` }});
 						response.statusMessage = error.message;
 						response.status(563).json({ error: error.message });
 					});
 			})
 			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409de865edbeb52004eb552", message: `562: ${error.message}` }});
 				response.statusMessage = error.message;
 				response.status(562).json({ error: error.message });
 			})
@@ -250,7 +258,9 @@ export default {
 			clientResponse = await client.post(`${ request.serverPath }/bj/data/gamestate`).send({ gamestate: saveState });
 		}
 		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409dec55edbeb52004eb554", message: `561: ${error.message}` }});
 			response.status(561).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
+			return;
 		}
 
 		const output = {
@@ -297,6 +307,7 @@ export default {
 			clientResponse = await client.get(`${ request.serverPath }/bj/data/gamestate?id=${ request.query.state }`)
 		}
 		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409deeb5edbeb52004eb556", message: `562: ${error.message}` }});
 			response.status(562).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
 		}
 
@@ -330,7 +341,9 @@ export default {
 				.send({ gamestate: saveState });
 		}
 		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409deeb5edbeb52004eb556", message: `565: ${error.message}` }});
 			response.status(565).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
+			return;
 		}
 		
 		const output = {
@@ -372,6 +385,7 @@ export default {
 			clientResponse = await client.get(`${ request.serverPath }/bj/data/gamestate?id=${ request.query.state }`);
 		}
 		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409df275edbeb52004eb558", message: `563: ${error.message}` }});
 			response.status(563).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
 			return;
 		}
@@ -400,6 +414,7 @@ export default {
 				.send({ gamestate: saveState });
 		}
 		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6409df275edbeb52004eb558", message: `565: ${error.message}` }});
 			response.status(565).json({ error: error.response && error.response.body ? error.response.body.error : error.message });
 			return;
 		}
