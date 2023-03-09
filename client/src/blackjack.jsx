@@ -134,8 +134,27 @@ class BlackJack extends Component {
 		});
 	};
 
+	changeBet = change => {
+		const engine = this.state.engine;
+
+		if (engine.Settings.isPlaying) {
+			this.setState({ toast: { text: "Wait until hand completed", type: "info" } });
+		}
+		else if (engine.Settings.currentBet + change <= 0)
+			this.setState({ toast: { text: "Bet is too low", type: "info" } });
+		else {
+			engine.ChangeBet(change);
+			this.setState({ engine: engine });
+		}
+	};
+
 	gamePlay = action => {
 		const engine = this.state.engine;
+
+		if (engine.Settings.bank - engine.Settings.currentBet <= 0) {
+			this.setState({ toast: { text: "Not enough money", type: "info" } });
+			return;
+		}
 
 		switch (action) {
 			case "deal":
@@ -337,7 +356,7 @@ class BlackJack extends Component {
 			<>
 			{
 			this.state.engine ?
-				<Game engine={ this.state.engine } play={ this.gamePlay } />
+				<Game engine={ this.state.engine } play={ this.gamePlay } changeBet={ this.changeBet } />
 			: this.state.simulator ?
 				<Simulator transactions={ this.state.simulator.transactions } isRunning={ this.state.simulator.isRunning } setState={ this.setSimulator } />
 			:

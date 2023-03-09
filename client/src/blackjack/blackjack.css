@@ -59,10 +59,30 @@ html, body, #root {
 
 .gameStat {
 	padding: 10px 10px;
-	width: 50px;
+	width: 35px;
 	text-align: right;
 	background-color: rgb(67 77 83);
 	color: rgb(225 225 225);
+}
+
+.gameStat.bet {
+	text-align: center;
+	padding: 10px 3px;
+}
+
+.gameAction {
+	width: 24px;
+	margin: auto 0px;
+	fill: rgb(225 225 225);
+	cursor: pointer;
+	outline: none;
+	padding-left: 10px;
+	padding-right: 0px;
+}
+
+.gameAction:nth-child(7) {
+	padding-left: 0px;
+	padding-right: 10px;
 }
 
 .gameLabel {

@@ -10,7 +10,7 @@ const Toast = (props) => {
 
 			setTimeout(() => {
 				setIsActive(false);
-			}, 4000);
+			}, 3000);
 		}
 
 	}, [ props.message.text ]);
