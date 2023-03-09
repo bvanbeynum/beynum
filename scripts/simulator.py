@@ -20,7 +20,7 @@ def loadResponse(response):
 
 startTime = time.time()
 gameId = ""
-gameDomain = "http://www.beynum.com"  # "http://dev.beynum.com:9201"
+gameDomain = "http://beynum.com"  # "http://dev.beynum.com:9201"
 gameUrl = f"{ gameDomain }/bj/api/game"
 headers = { "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IktaT01HQUtKQ1VTRzg3MFdVNkE2IiwiaWF0IjoxNjU0OTUxNTU0fQ.TBSE9zzw-T3lYO8vwxLSCeJg9k3hoC12No1RvBEmGpk" }
 
