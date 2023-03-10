@@ -312,7 +312,7 @@ export default {
 		}
 	},
 
-	urlCheckDelete: (request, response) => {
+	urlStatusDelete: (request, response) => {
 		if (!request.query.id) {
 			response.status(550).json({ error: "Missing ID to delete" });
 			return;

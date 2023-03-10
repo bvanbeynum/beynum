@@ -20,6 +20,10 @@ router.get("/sys/data/job", data.jobGet);
 router.post("/sys/data/job", data.jobSave);
 router.delete("/sys/data/job", data.jobDelete);
 
+router.get("/sys/data/urlstatus", data.urlStatusGet);
+router.post("/sys/data/urlstatus", data.urlStatusSave);
+router.delete("/sys/data/urlstatus", data.urlStatusDelete);
+
 // ************************* API
 
 router.post("/sys/api/addlog", api.addLog);

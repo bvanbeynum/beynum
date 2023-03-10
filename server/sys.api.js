@@ -127,7 +127,7 @@ export default {
 		let clientResponse = null;
 
 		try {
-			clientResponse = await client.get(`${ request.serverPath }/sys/data/urlStatus`)
+			clientResponse = await client.get(`${ request.serverPath }/sys/data/urlstatus`)
 		}
 		catch (error) {
 			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b5b5011ba6e2962e58bba", message: `561: ${error.message}` }});
