@@ -1,4 +1,5 @@
 import data from "./sys.schema.js";
+import client from "superagent";
 
 export default {
 
@@ -161,6 +162,88 @@ export default {
             .catch(error => {
                 response.status(560).json({ error: error.message });
             });
+	},
+
+	jobGet: (request, response) => {
+		const filter = {};
+
+		if (request.query.id) {
+			filter["_id"] = request.query.id
+		}
+
+		data.job.find(filter)
+			.lean()
+			.exec()
+			.then(records => {
+				const output = { jobs: records.map(({ _id, __v, ...data }) => ({ id: _id, ...data })) };
+				response.status(200).json(output);
+			})
+			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4e4f743f6b08b4402957", message: `560: ${error.message}` }});
+				response.status(560).json({ error: error.message });
+			});
+	},
+
+	jobSave: (request, response) => {
+		if (!request.body.job) {
+			response.status(550).json({ error: "Missing object to save" });
+			return;
+		}
+		
+		const save = request.body.job;
+
+		if (save.id) {
+			data.job.findById(save.id)
+				.exec()
+				.then(data => {
+					if (!data) {
+						throw new Error("Record not found");
+					}
+
+					Object.keys(save).forEach(field => {
+						if (field != "id") {
+							data[field] = save[field];
+						}
+					});
+					data.modified = new Date();
+
+					return data.save();
+				})
+				.then(data => {
+					response.status(200).json({ id: data._id });
+				})
+				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4e69743f6b08b4402959", message: `570: ${error.message}` }});
+					response.status(570).json({ error: error.message });
+				});
+		}
+		else {
+			new data.job({ ...save, created: new Date(), modified: new Date() })
+				.save()
+				.then(data => {
+					response.status(200).json({ id: data._id });
+				})
+				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4e69743f6b08b4402959", message: `571: ${error.message}` }});
+					response.status(571).json({ error: error.message });
+				});
+		}
+	},
+
+	jobDelete: (request, response) => {
+		if (!request.query.id) {
+			response.status(550).json({ error: "Missing ID to delete" });
+			return;
+		}
+
+		data.job.deleteOne({ _id: request.query.id })
+			.then(() => {
+				response.status(200).json({ status: "ok" });
+			})
+			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4e90743f6b08b440295b", message: `560: ${error.message}` }});
+				response.status(560).json({ error: error.message });
+			});
 	}
 
 };
