@@ -244,6 +244,88 @@ export default {
 				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4e90743f6b08b440295b", message: `560: ${error.message}` }});
 				response.status(560).json({ error: error.message });
 			});
+	},
+
+	urlStatusGet: (request, response) => {
+		const filter = {};
+
+		if (request.query.id) {
+			filter["_id"] = request.query.id
+		}
+
+		data.urlStatus.find(filter)
+			.lean()
+			.exec()
+			.then(records => {
+				const output = { urlStatusList: records.map(({ _id, __v, ...data }) => ({ id: _id, ...data })) };
+				response.status(200).json(output);
+			})
+			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b5a2511ba6e2962e58baf", message: `560: ${error.message}` }});
+				response.status(560).json({ error: error.message });
+			});
+	},
+
+	urlStatusSave: (request, response) => {
+		if (!request.body.urlstatus) {
+			response.status(550).json({ error: "Missing object to save" });
+			return;
+		}
+		
+		const save = request.body.urlstatus;
+
+		if (save.id) {
+			data.job.findById(save.id)
+				.exec()
+				.then(data => {
+					if (!data) {
+						throw new Error("Record not found");
+					}
+
+					Object.keys(save).forEach(field => {
+						if (field != "id") {
+							data[field] = save[field];
+						}
+					});
+					data.modified = new Date();
+
+					return data.save();
+				})
+				.then(data => {
+					response.status(200).json({ id: data._id });
+				})
+				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b5a3d11ba6e2962e58bb2", message: `570: ${error.message}` }});
+					response.status(570).json({ error: error.message });
+				});
+		}
+		else {
+			new data.job({ ...save, created: new Date(), modified: new Date() })
+				.save()
+				.then(data => {
+					response.status(200).json({ id: data._id });
+				})
+				.catch(error => {
+					client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b5a3d11ba6e2962e58bb2", message: `571: ${error.message}` }});
+					response.status(571).json({ error: error.message });
+				});
+		}
+	},
+
+	urlCheckDelete: (request, response) => {
+		if (!request.query.id) {
+			response.status(550).json({ error: "Missing ID to delete" });
+			return;
+		}
+
+		data.job.deleteOne({ _id: request.query.id })
+			.then(() => {
+				response.status(200).json({ status: "ok" });
+			})
+			.catch(error => {
+				client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b5a9e11ba6e2962e58bb5", message: `560: ${error.message}` }});
+				response.status(560).json({ error: error.message });
+			});
 	}
 
 };

@@ -121,6 +121,25 @@ export default {
 				response.statusMessage = error.message;
 				response.status(562).json({ error: error.message });
 			});
+	},
+
+	getUrlStatusList: async (request, response) => {
+		let clientResponse = null;
+
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/sys/data/urlStatus`)
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b5b5011ba6e2962e58bba", message: `561: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(561).json({ error: error.message });
+		}
+		
+		const output = {
+			urlStatusList: clientResponse.body.urlStatusList
+		};
+
+		response.status(200).json(output);
 	}
 
 };

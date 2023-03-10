@@ -29,6 +29,13 @@ export default {
 			isKill: Boolean,
 			messages: [{ severity: Number, message: String, time: Date }]
 		}]
+	}),
+
+	urlStatus: cnBeynum.model("sysUrlStatus", {
+		name: String,
+		url: String,
+		created: Date,
+		modified: Date
 	})
 
 };

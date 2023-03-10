@@ -23,6 +23,7 @@ router.delete("/sys/data/job", data.jobDelete);
 // ************************* API
 
 router.post("/sys/api/addlog", api.addLog);
+router.get("/sys/api/geturlstatuslist", api.getUrlStatusList);
 
 router.get("/sys/api/getjobs", api.getJobs);
 router.post("/sys/api/savejobrun", api.saveJobRun);
