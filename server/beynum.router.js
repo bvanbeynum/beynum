@@ -1,13 +1,10 @@
 import express from "express";
-import lib from "./middleware.js";
 import data from "./beynum.data.js";
 import api from "./beynum.api.js";
 
 const router = express.Router();
 
 // ************************* Middleware
-
-router.use(lib.loadSetup);
 
 // ************************* Data
 

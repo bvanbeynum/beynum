@@ -6,13 +6,14 @@ import config from "./server/config.js";
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import busboy from "connect-busboy";
+import lib from "./server/middleware.js";
 import sysRouter from "./server/sys.router.js";
 import beynumRouter from "./server/beynum.router.js";
 import officeRouter from "./server/officerouter.js";
 import blackJackRouter from "./server/blackjackrouter.js";
 import footballVidRouter from "./server/footballvid.router.js";
 import wrestlingRouter from "./server/wrestling.router.js";
-import busboy from "connect-busboy";
 
 // Declarations =======================================================================
 
@@ -32,6 +33,8 @@ app.use(cookieParser());
 app.use(busboy()); 
 
 // Routes =======================================================================
+
+app.use(lib.loadSetup);
 
 app.use(sysRouter);
 app.use(beynumRouter);

@@ -11,8 +11,10 @@ export default {
 
         let clientResponse = null;
 
+		console.log(JSON.stringify(request.body.log));
+
         try {
-            clientResponse = await client.post(`${ request.serverPath }/sys/data/log`).send(request.body.log );
+            clientResponse = await client.post(`${ request.serverPath }/sys/data/log`).send(request.body.log);
         }
         catch (error) {
 			response.statusMessage = error.message;
