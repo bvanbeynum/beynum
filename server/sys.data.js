@@ -275,7 +275,7 @@ export default {
 		const save = request.body.urlstatus;
 
 		if (save.id) {
-			data.job.findById(save.id)
+			data.urlStatus.findById(save.id)
 				.exec()
 				.then(data => {
 					if (!data) {
@@ -300,7 +300,7 @@ export default {
 				});
 		}
 		else {
-			new data.job({ ...save, created: new Date(), modified: new Date() })
+			new data.urlStatus({ ...save, created: new Date(), modified: new Date() })
 				.save()
 				.then(data => {
 					response.status(200).json({ id: data._id });
@@ -318,7 +318,7 @@ export default {
 			return;
 		}
 
-		data.job.deleteOne({ _id: request.query.id })
+		data.urlStatus.deleteOne({ _id: request.query.id })
 			.then(() => {
 				response.status(200).json({ status: "ok" });
 			})
