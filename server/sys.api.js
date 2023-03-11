@@ -71,6 +71,14 @@ export default {
 			job.runs.push(saveRun);
 		}
 
+		// Only keep last 10 runs
+		job = {
+			...job,
+			runs: job.runs
+				.sort((jobA, jobB) => (new Date(jobB.completeTime)) - (new Date(jobA.completeTime)))
+				.slice(0,10)
+		}
+
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
 		}
