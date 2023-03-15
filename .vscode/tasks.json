@@ -18,12 +18,14 @@
 			"dependsOn": [
 				"docker-build"
 			],
+			"platform": "python",
 			"python": {
 				"file": "${fileBasename}"
 			},
 			"dockerRun": {
 				"network": "host",
-				"env": { "TZ": "America/New_York" }
+				"env": { "TZ": "America/New_York" },
+				"remove": true
 			}
 		}
 	]
