@@ -1,6 +1,7 @@
 import requests
 import time
 import math
+import sys
 
 def currentTime():
 	return f"{ math.floor((time.time() - startTime) / 60) } { round((time.time() - startTime) % 60) }s"
@@ -23,6 +24,15 @@ gameDomain = "http://beynum.com"  # "http://dev.beynum.com"
 gameUrl = f"{ gameDomain }/bj/api/game"
 headers = { "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IktaT01HQUtKQ1VTRzg3MFdVNkE2IiwiaWF0IjoxNjU0OTUxNTU0fQ.TBSE9zzw-T3lYO8vwxLSCeJg9k3hoC12No1RvBEmGpk" }
 bet = 10
+strategy = "basic"
+display = "hands"
+
+for arg in sys.argv:
+	if "=" in arg and arg.split("=")[0] == "s":
+		strategy = arg.split("=")[1]
+	
+	if "=" in arg and arg.split("=")[0] == "d":
+		display = arg.split("=")[1]
 
 print("Starting new game")
 game = loadResponse(requests.get(f"{ gameUrl }/new?bet={ bet }", headers = headers))
@@ -39,7 +49,8 @@ while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game
 		else:
 			splitDisplay = f"none"
 
-		print(f"{ len(game['transactions']) }: 	{ game['strategy']['display'] } - d: { dealerCards }, p: { playerDisplay }, s: { splitDisplay }")
+		if display == "hands":
+			print(f"{ len(game['transactions']) }: 	{ game['strategy']['display'] } - d: { dealerCards }, p: { playerDisplay }, s: { splitDisplay }")
 		
 		game = loadResponse(requests.get(f"{ gameUrl }/play?state={ game['id'] }&action={ game['strategy']['display'].lower() }", headers = headers))
 
@@ -52,7 +63,7 @@ while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game
 
 	print(f"{ len(game['transactions']) - 1 }: { result } b: { game['settings']['bank'] } ({ bet }) d: { game['hands']['dealer']['value'] }, p: { game['hands']['player']['value'] }")
 	
-	if len(game["transactions"]) > 2 and result == "lost" and game["transactions"][-2] > game["transactions"][-3]:
+	if strategy == "flip" and len(game["transactions"]) > 2 and result == "lost" and game["transactions"][-2] > game["transactions"][-3]:
 		bet = 20
 	else:
 		bet = 10
