@@ -73,7 +73,7 @@ export default {
 
 		// Only keep last 10 runs
 		job.runs = job.runs
-			.sort((jobA, jobB) => jobA && jobB ? (new Date(jobB.completeTime)) - (new Date(jobA.completeTime)) : jobA && !jobB ? 1 : -1)
+			.sort((jobA, jobB) => jobA.completeTime && jobB.completeTime ? (new Date(jobB.completeTime)) - (new Date(jobA.completeTime)) : jobA.completeTime && !jobB.completeTime ? 1 : -1)
 			.slice(0,10);
 
 		try {
