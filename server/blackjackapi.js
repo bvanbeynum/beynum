@@ -174,10 +174,6 @@ export default {
 				const game = clientResponse.body.games[0];
 				game.transactions.push(request.body.transaction);
 
-				if (+request.query.bet && game.Settings.currentBet != request.query.bet) {
-					game.Settings.currentBet = +request.query.bet;
-				}
-				
 				client.post(`${ request.serverPath }/bj/data/game`)
 					.send({ game: game })
 					.then(clientResponse => {
@@ -243,7 +239,8 @@ export default {
 
 		const engine = new Engine({
 			settings: {
-				blackjackPayout: 1.2
+				blackjackPayout: 1.2,
+				currentBet: +request.query.bet && request.query.bet > 0 ? +request.query.bet : 10
 			}
 		});
 		const saveState = {
@@ -328,6 +325,10 @@ export default {
 			response.statusMessage = "Game is bankrupt";
 			response.status(564).json({ error: "Game is bankrupt" });
 			return;
+		}
+
+		if (+request.query.bet && request.query.bet > 0 && request.query.bet != engine.Settings.currentBet) {
+			engine.Settings.currentBet = request.query.bet;
 		}
 
 		engine.Deal();
