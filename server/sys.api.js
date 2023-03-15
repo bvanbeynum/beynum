@@ -73,7 +73,7 @@ export default {
 
 		// Only keep last 10 runs
 		job.runs = job.runs
-			.sort((jobA, jobB) => (new Date(jobB.completeTime)) - (new Date(jobA.completeTime)))
+			.sort((jobA, jobB) => jobA && jobB ? (new Date(jobB.completeTime)) - (new Date(jobA.completeTime)) : jobA && !jobB ? 1 : -1)
 			.slice(0,10);
 
 		try {
@@ -101,7 +101,7 @@ export default {
 			run = clientResponse.body.jobs[0].runs.find(run => run["_id"] == saveRun["_id"]);
 		}
 		else {
-			run = clientResponse.body.jobs[0].runs[clientResponse.body.jobs[0].runs.length - 1];
+			run = clientResponse.body.jobs[0].runs.filter(run => !run.completeTime)[0];
 		}
 
 		response.status(200).json({ run: run });
