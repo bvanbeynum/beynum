@@ -173,6 +173,10 @@ export default {
 			.then(clientResponse => {
 				const game = clientResponse.body.games[0];
 				game.transactions.push(request.body.transaction);
+
+				if (+request.query.bet && game.Settings.currentBet != request.query.bet) {
+					game.Settings.currentBet = +request.query.bet;
+				}
 				
 				client.post(`${ request.serverPath }/bj/data/game`)
 					.send({ game: game })
