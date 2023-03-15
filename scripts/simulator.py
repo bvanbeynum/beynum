@@ -49,13 +49,13 @@ while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game
 		result = "lost"
 	else:
 		result = "push"
+
+	print(f"{ len(game['transactions']) - 1 }: { result } b: { game['settings']['bank'] } d: { game['hands']['dealer']['value'] }, p: { game['hands']['player']['value'] }")
 	
-	if len(game("transactions")) > 2 and result == "lost" and game["transactions"][-2] > game["transactions"][-3]:
+	if len(game["transactions"]) > 2 and result == "lost" and game["transactions"][-2] > game["transactions"][-3]:
 		bet = 20
 	else:
 		bet = 10
-
-	print(f"{ len(game['transactions']) - 1 }: { result } b: { game['settings']['bank'] } d: { game['hands']['dealer']['value'] }, p: { game['hands']['player']['value'] }")
 
 	if gameId:
 		response = requests.post(f"{ gameDomain }/bj/api/savegametransaction?gameid={ gameId }", headers = headers, json = { "transaction": game["settings"]["bank"] })
