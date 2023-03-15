@@ -50,7 +50,7 @@ while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game
 	else:
 		result = "push"
 
-	print(f"{ len(game['transactions']) - 1 }: { result } b: { game['settings']['bank'] } d: { game['hands']['dealer']['value'] }, p: { game['hands']['player']['value'] }")
+	print(f"{ len(game['transactions']) - 1 }: { result } b: { game['settings']['bank'] } ({ bet }) d: { game['hands']['dealer']['value'] }, p: { game['hands']['player']['value'] }")
 	
 	if len(game["transactions"]) > 2 and result == "lost" and game["transactions"][-2] > game["transactions"][-3]:
 		bet = 20
