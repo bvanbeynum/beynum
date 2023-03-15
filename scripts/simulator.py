@@ -1,7 +1,6 @@
 import requests
 import time
 import math
-import json
 
 def currentTime():
 	return f"{ math.floor((time.time() - startTime) / 60) } { round((time.time() - startTime) % 60) }s"
@@ -20,15 +19,16 @@ def loadResponse(response):
 
 startTime = time.time()
 gameId = ""
-gameDomain = "http://beynum.com"  # "http://dev.beynum.com:9201"
+gameDomain = "http://beynum.com"  # "http://dev.beynum.com"
 gameUrl = f"{ gameDomain }/bj/api/game"
 headers = { "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IktaT01HQUtKQ1VTRzg3MFdVNkE2IiwiaWF0IjoxNjU0OTUxNTU0fQ.TBSE9zzw-T3lYO8vwxLSCeJg9k3hoC12No1RvBEmGpk" }
+bet = 10
 
 print("Starting new game")
-game = loadResponse(requests.get(f"{ gameUrl }/new", headers = headers))
+game = loadResponse(requests.get(f"{ gameUrl }/new?bet={ bet }", headers = headers))
 
 while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game["transactions"]) < 1000:
-	game = loadResponse(requests.get(f"{ gameUrl }/deal?state={ game['id'] }", headers = headers))
+	game = loadResponse(requests.get(f"{ gameUrl }/deal?state={ game['id'] }&bet={ bet }", headers = headers))
 
 	while game['settings']['isPlaying']:
 		playerDisplay = f"{ game['hands']['player']['value']} [{ ', '.join([ card['card'] for card in game['hands']['player']['cards'] ]) }]"
@@ -49,6 +49,11 @@ while game["settings"]["bank"] - game["settings"]["currentBet"] > 0 and len(game
 		result = "lost"
 	else:
 		result = "push"
+	
+	if len(game("transactions")) > 2 and result == "lost" and game["transactions"][-2] > game["transactions"][-3]:
+		bet = 20
+	else:
+		bet = 10
 
 	print(f"{ len(game['transactions']) - 1 }: { result } b: { game['settings']['bank'] } d: { game['hands']['dealer']['value'] }, p: { game['hands']['player']['value'] }")
 
