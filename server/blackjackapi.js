@@ -328,7 +328,7 @@ export default {
 		}
 
 		if (+request.query.bet && request.query.bet > 0 && request.query.bet != engine.Settings.currentBet) {
-			engine.Settings.currentBet = request.query.bet;
+			engine.Settings.currentBet = +request.query.bet;
 		}
 
 		engine.Deal();
