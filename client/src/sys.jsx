@@ -30,7 +30,11 @@ class Sys extends Component {
 				})
 				.then(data => {
 					this.setState({
-						logs: data.logs.map(log => ({...log, logTime: new Date(log.logTime) })),
+						logs: data.logs.map(log => ({
+							...log,
+							logTime: new Date(log.logTime),
+							dateTime: log.logTime ? (new Date(log.logTime)).toLocaleDateString() + " " + (new Date(log.logTime)).toLocaleTimeString() : ""
+						})),
 						isLoading: false,
 						page: "logs"
 					});

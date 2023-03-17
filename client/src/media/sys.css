@@ -116,6 +116,7 @@ input:focus, select:focus, div:focus {
 	margin: 8px 8px;
 	flex: 1;
 	display: grid;
+	align-content: flex-start;
 }
 
 .codePanel div {

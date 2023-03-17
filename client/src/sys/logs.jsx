@@ -11,9 +11,12 @@ const Logs = props => {
 
 		:
 
-		props.logs.map((log, logIndex) =>
-			<div key={ logIndex } className="error">
-				{ `${log.logTime}: ${ log.app + "." || "" }${ log.module + "." || "" }${ log.function} • ${ log.message }` }
+		props.logs
+			.sort((logA, logB) => logB.logTime - logA.logTime)
+			.map((log, logIndex) =>
+
+			<div key={ logIndex }>
+				{ `${log.dateTime} ${ (log.app || "") + (log.app && log.module ? "." : "") + (log.module || "") + (log.module && log.function ? "." : "") + (log.function || "")}: ${ log.message }` }
 			</div>
 		)}
 		</div>
