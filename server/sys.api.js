@@ -12,7 +12,7 @@ export default {
         let clientResponse = null;
 
         try {
-            clientResponse = await client.post(`${ request.serverPath }/sys/data/log`).send(request.body.log);
+            clientResponse = await client.post(`${ request.serverPath }/sys/data/log`).send({ log: request.body.log });
         }
         catch (error) {
 			response.statusMessage = error.message;
