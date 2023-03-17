@@ -11,8 +11,6 @@ export default {
 
         let clientResponse = null;
 
-		console.log(JSON.stringify(request.body.log));
-
         try {
             clientResponse = await client.post(`${ request.serverPath }/sys/data/log`).send(request.body.log);
         }
@@ -24,6 +22,38 @@ export default {
 
         response.status(200).json({ status: "ok" });
     },
+
+	getRecentLogs: async (request, response) => {
+		let clientResponse = null;
+
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/sys/data/log`);
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6414988550d65e1385d46cea", message: `561: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(561).json({ location: "Get Recent Logs", error: error.message });
+			return;
+		}
+
+		const output = {
+			logs: clientResponse.body.logs.filter(log => (new Date()) - (new Date(log.logTime)) < (1000 * 60 * 60 * 24 * 5))
+		};
+
+		try {
+			clientResponse = await client.get(`${ request.serverPath }/sys/data/logtype`);
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "6414988550d65e1385d46cea", message: `562: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(562).json({ location: "Get Recent Logs", error: error.message });
+			return;
+		}
+
+		output.logs = output.logs.map(log => ({ ...log, ...clientResponse.body.logTypes.find(logType => logType.id === log.logTypeId)}))
+
+		response.status(200).json(output);
+	},
 
 	getJobs: (request, response) => {
 		client.get(`${ request.serverPath }/sys/data/job`)

@@ -27,6 +27,7 @@ router.delete("/sys/data/urlstatus", data.urlStatusDelete);
 // ************************* API
 
 router.post("/sys/api/addlog", api.addLog);
+router.get("/sys/api/getrecentlogs", api.getRecentLogs);
 router.get("/sys/api/geturlstatuslist", api.getUrlStatusList);
 
 router.get("/sys/api/getjobs", api.getJobs);

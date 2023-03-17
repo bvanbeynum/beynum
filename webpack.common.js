@@ -6,7 +6,8 @@ export default {
 		blackjack: "./client/src/blackjack.jsx",
 		wrestlingevent: "./client/src/wrestlingevent.jsx",
 		wrestlingimage: "./client/src/wrestlingimage.jsx",
-		wrestler: "./client/src/wrestler.jsx"
+		wrestler: "./client/src/wrestler.jsx",
+		sys: "./client/src/sys.jsx"
 	},
 	plugins: [
 		new HtmlWebpackPlugin({ 
@@ -59,6 +60,16 @@ export default {
 			favicon: "./client/src/media/favicon.ico",
 			chunks: [ ],
 			template: "./client/src/working.html"
+		}),
+		new HtmlWebpackPlugin({ 
+			filename: "sys.html",
+			title: "System Controls",
+			favicon: "./client/src/media/favicon.ico",
+			meta: {
+				viewport: "width=device-width, initial-scale=1"
+			},
+			chunks: [ "sys" ],
+			templateContent: "<html><body><div id='root'></div></body></html>"
 		})
 	],
 	module: {
