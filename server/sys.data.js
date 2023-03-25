@@ -73,13 +73,13 @@ export default {
 			return;
 		}
 
-        data.logType.deleteOne({ _id: request.query.id })
-            .then(() => {
-                response.status(200).json({ status: "ok" });
-            })
-            .catch(error => {
-                response.status(560).json({ error: error.message });
-            });
+		data.logType.deleteOne({ _id: request.query.id })
+			.then(() => {
+				response.status(200).json({ status: "ok" });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
 	},
 
 	logGet: (request, response) => {
@@ -89,9 +89,9 @@ export default {
 		if (request.query.id) {
 			filter["_id"] = request.query.id;
 		}
-        if (request.query.logtype) {
-            filter["logType"] = request.query.logtype;
-        }
+		if (request.query.logtype) {
+			filter["logType"] = request.query.logtype;
+		}
 
 		data.log.find(filter)
 			.select(select)
@@ -155,13 +155,13 @@ export default {
 			return;
 		}
 
-        data.logType.deleteOne({ _id: request.query.id })
-            .then(() => {
-                response.status(200).json({ status: "ok" });
-            })
-            .catch(error => {
-                response.status(560).json({ error: error.message });
-            });
+		data.logType.deleteOne({ _id: request.query.id })
+			.then(() => {
+				response.status(200).json({ status: "ok" });
+			})
+			.catch(error => {
+				response.status(560).json({ error: error.message });
+			});
 	},
 
 	jobGet: (request, response) => {
