@@ -66,5 +66,5 @@ else {
 // listen (start app with node server.js) ======================================
 
 app.listen(port, () => {
-	console.log("App listening on port " + port);
+	console.log(`${ (new Date()).toLocaleDateString() } ${ (new Date()).toLocaleTimeString() }: App listening on port ${port}`);
 });
