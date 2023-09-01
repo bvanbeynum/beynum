@@ -104,7 +104,15 @@ export default {
 		// Only keep last 10 runs
 		job.runs = job.runs
 			.sort((jobA, jobB) => jobA.completeTime && jobB.completeTime ? (new Date(jobB.completeTime)) - (new Date(jobA.completeTime)) : jobA.completeTime && !jobB.completeTime ? 1 : -1)
-			.slice(0,10);
+			.slice(0,10)
+			.map(job => ({
+				...job,
+				runs: job.runs.map(run => ({ // Fix complete dates for jobs that don't finish by the next job start time
+					...run,
+					completeTime: run.completeTime ? run.completeTime
+						: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds)) ? new Date() : new Date(run.completeTime)
+				}))
+			}));
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
