@@ -17,7 +17,8 @@ export default {
 			domain: String,
 			token: String
 		}],
-		tokens: [ String ],
+		apps: [ String ],
+		tokens: [ String ]
 	}),
 
 	job: cnBeynum.model("job", {

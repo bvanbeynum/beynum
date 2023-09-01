@@ -7,7 +7,8 @@ export default {
 		wrestlingevent: "./client/src/wrestlingevent.jsx",
 		wrestlingimage: "./client/src/wrestlingimage.jsx",
 		wrestler: "./client/src/wrestler.jsx",
-		sys: "./client/src/sys.jsx"
+		sys: "./client/src/sys.jsx",
+		workout: "./client/src/workout.jsx"
 	},
 	plugins: [
 		new HtmlWebpackPlugin({ 
@@ -70,6 +71,16 @@ export default {
 			},
 			chunks: [ "sys" ],
 			templateContent: "<html><body><div id='root'></div></body></html>"
+		}),
+		new HtmlWebpackPlugin({ 
+			filename: "workout.html",
+			title: "Workout",
+			favicon: "./client/src/media/favicon.ico",
+			meta: {
+				viewport: "width=device-width, initial-scale=1"
+			},
+			chunks: [ "workout" ],
+			templateContent: "<html><body><div id='root'></div></body></html>"
 		})
 	],
 	module: {
@@ -85,9 +96,15 @@ export default {
 				use: [ "style-loader", "css-loader" ]
 			},
 			{
-				test: /\.(png|gif|jpg|ico)$/i,
+				test: /\.(png|gif|jpg|ico|mp3)$/i,
 				type: "asset/resource"
-			}
+			},
+			// {
+			// 	test: /\.mp3$/i,
+			// 	loader: "file-loader",
+			// 	// options: { name: "[path][name].[ext]" }
+			// }
+
 		]
 	},
 	resolve: { extensions: [ "*", ".js", ".jsx" ]}
