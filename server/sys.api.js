@@ -107,11 +107,12 @@ export default {
 			.slice(0,10)
 			.map(job => ({
 				...job,
-				runs: job.runs.map(run => ({ // Fix complete dates for jobs that don't finish by the next job start time
-					...run,
-					completeTime: run.completeTime ? run.completeTime
-						: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds)) ? new Date() : new Date(run.completeTime)
-				}))
+				runs: job.runs ? job.runs.map(run => ({ // Fix complete dates for jobs that don't finish by the next job start time
+						...run,
+						completeTime: run.completeTime ? run.completeTime
+							: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds)) ? new Date() : new Date(run.completeTime)
+					}))
+					: []
 			}));
 
 		try {
