@@ -107,8 +107,10 @@ export default {
 			.slice(0,10)
 			.map(run => ({
 				...run,
-				completeTime: run.completeTime ? run.completeTime
-							: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds)) ? new Date() : new Date(run.completeTime)
+				completeTime: run.completeTime ? 
+					new Date(run.completeTime)
+					: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds)) ? new Date() 
+					: null
 			}));
 
 		try {
