@@ -110,7 +110,7 @@ export default {
 				...run,
 				completeTime: run.completeTime ? 
 					new Date(run.completeTime)
-					: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds)) ? new Date() 
+					: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds > 300 ? job.frequencySeconds : 300)) ? new Date() 
 					: null
 			}));
 
