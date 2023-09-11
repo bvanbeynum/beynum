@@ -104,7 +104,7 @@ export default {
 		// Only keep last 10 runs
 		job.runs = job.runs
 			.sort((runA, runB) => runA.completeTime && runB.completeTime ? (new Date(runB.completeTime)) - (new Date(runA.completeTime)) : runA.completeTime && !runB.completeTime ? 1 : -1)
-			.filter((run, runIndex) => runIndex === 0 || (run.messages && run.messages.length > 0))
+			.filter((run, runIndex) => !run.completeTime || runIndex === 0 || (run.messages && run.messages.length > 0))
 			.slice(0,10)
 			.map(run => ({
 				...run,
