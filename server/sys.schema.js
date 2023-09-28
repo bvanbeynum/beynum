@@ -23,6 +23,7 @@ export default {
 		scriptName: String,
 		created: Date,
 		modified: Date,
+		status: String,
 		runs: [{
 			startTime: Date,
 			completeTime: Date,
