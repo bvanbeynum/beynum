@@ -33,6 +33,11 @@ const Jobs = props => {
 							<div className="label">Frequency</div>
 							<div className="data">{ job.frequency }</div>
 						</div>
+
+						<div className="info">
+							<div className="label">Status</div>
+							<div className="data">{ job.status }</div>
+						</div>
 					</div>
 
 					<div className="seperator"></div>
