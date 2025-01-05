@@ -14,6 +14,12 @@ export default {
         category: String,
         created: Date,
         modified: Date
-	})
+	}),
+
+    category: cnBeynum.model("financeCategory", {
+        name: String,
+        expenseType: String,
+        isBudget: Boolean
+    })
 
 };

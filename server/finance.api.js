@@ -66,7 +66,7 @@ export default {
 		const output = {};
 
 		try {
-			const clientResponse = await client.get(`${ request.serverPath }/finance/data/category`);
+			const clientResponse = await client.get(`${ request.serverPath }/finance/data/transactioncategory`);
 			output.categories = clientResponse.body.categories;
 		}
 		catch (error) {
@@ -187,6 +187,54 @@ export default {
 			response.status(200).json(output);
 		}
 
-    }
+    },
+
+	transactionExport: async (request, response) => {
+		const output = {};
+
+		const lastYearStart = new Date((new Date()).getFullYear() - 1, 0, 1).toLocaleDateString(),
+			today = new Date().toLocaleDateString();
+		
+		let categories = [],
+			transactions = [];
+
+		try {
+			const clientResponse = await client.get(`${ request.serverPath }/finance/data/category`);
+			categories = clientResponse.body.categories;
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "66de4e2315c583531cb5e70c", message: `561: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(561).json({ location: "Export Transactions", error: error.message });
+			return;
+		}
+
+		try {
+			const clientResponse = await client.get(`${ request.serverPath }/finance/data/transaction?startdate=${ lastYearStart }&enddate=${ today }`);
+			transactions = clientResponse.body.transactions;
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "66de4e2315c583531cb5e70c", message: `562: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(562).json({ location: "Load Transactions", error: error.message });
+			return;
+		}
+
+		try {
+			output.transactions = transactions.map(transaction => ({
+				...transaction,
+				isBudget: categories.filter(category => transaction.category == category.name).map(category => category.isBudget).find(() => true),
+				expenseType: categories.filter(category => transaction.category == category.name).map(category => category.expenseType).find(() => true)
+			}));
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "66de4e2315c583531cb5e70c", message: `563: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(563).json({ location: "Load Transactions", error: error.message });
+			return;
+		}
+
+		response.status(200).json(output);
+	}
 
 }

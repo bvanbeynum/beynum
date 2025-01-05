@@ -239,6 +239,44 @@ const Finance = () => {
 		
 	};
 
+	const exportTransactions = () => {
+		fetch(`/finance/api/transactionexport`)
+			.then(response => {
+				if (response.ok) {
+					return response.json();
+				}
+				else {
+					throw Error(response.statusText);
+				}
+			})
+			.then(data => {
+				const headers = '"Transaction Date"\t"Expense Type"\t"isBudget"\t"Category"\t"Amount"\t"Description"',
+					fileData = data.transactions.map(transaction => 
+						'"' + (new Date(transaction.transactionDate)).toLocaleDateString() + '"\t' +
+						'"' + transaction.expenseType + '"\t' +
+						(transaction.isBudget ? "true" : "false") + '\t' +
+						'"' + transaction.category + '"\t' +
+						transaction.amount + '\t' +
+						'"' + (transaction.descriptionOverride || transaction.description) + '"'
+					).join("\n"),
+					output = headers + "\n" + fileData;
+				
+				const blob = new Blob([output], { type: "text/tab" }),
+					url = URL.createObjectURL(blob),
+					link = document.createElement("a");
+				
+				link.href = url;
+				link.download = "export.txt";
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			})
+			.catch(error => {
+				console.warn(error);
+				setToastMessage({ text: "Error loading", type: "error" })
+			});
+	};
+
 	const inputDescription = (transactionId, newDescription) => {
 		setTransactions(transactions => transactions.map(transaction => ({
 			...transaction,
@@ -800,6 +838,10 @@ const Finance = () => {
 
 			<div className="paddedContent">
 				<h1>Insights</h1>
+
+				<div className="rowContainer">
+					<button className="pageButton" onClick={ () => exportTransactions() }>Export</button>
+				</div>
 
 				<div className="insightContainer">
 					<LineChart data={ chartData.dailyTotal }></LineChart>

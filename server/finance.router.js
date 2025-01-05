@@ -31,15 +31,20 @@ const router = express.Router();
 
 router.get("/finance/api/load", api.load);
 router.get("/finance/api/transactionsget", api.transactionsGet);
+router.get("/finance/api/transactionexport", api.transactionExport);
 router.post("/finance/api/transactionsave", api.transactionSave);
 router.post("/finance/api/transactionbulksave", api.transactionBulkSave);
 
 // ************************* Data
 
-router.get("/finance/data/category", data.categoryGet);
+router.get("/finance/data/transactioncategory", data.transactionCategoryGet);
 
 router.get("/finance/data/transaction", data.transactionGet);
 router.post("/finance/data/transaction", data.transactionSave);
 router.delete("/finance/data/transaction", data.transactionDelete);
+
+router.get("/finance/data/category", data.categoryGet);
+router.post("/finance/data/category", data.categorySave);
+router.delete("/finance/data/category", data.categoryDelete);
 
 export default router;
