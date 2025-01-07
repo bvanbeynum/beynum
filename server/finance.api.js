@@ -119,6 +119,30 @@ export default {
 		}
 
 		const saveTransaction = request.body.transaction;
+
+		let categories = [];
+		try {
+			const clientResponse = await client.get(`${ request.serverPath }/finance/data/category`);
+			categories = clientResponse.body.categories;
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "66de407b15c583531cb5638d", message: `562: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(563).json({ location: "Get Category", error: error.message });
+			return;
+		}
+		
+		try {
+			if (!categories.includes(saveTransaction.category)) {
+				await client.post(`${ request.serverPath }/finance/data/category`).send({ category: { name: saveTransaction.category } }).then();
+			}
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "66de407b15c583531cb5638d", message: `562: ${error.message}` }});
+			response.statusMessage = error.message;
+			response.status(564).json({ location: "Save Transaction Category", error: error.message });
+			return;
+		}
 		
 		try {
 			const clientResponse = await client.post(`${ request.serverPath }/finance/data/transaction`).send({ transaction: saveTransaction }).then();

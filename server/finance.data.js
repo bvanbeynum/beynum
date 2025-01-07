@@ -1,5 +1,6 @@
 import data from "./finance.schema.js";
 import client from "superagent";
+import mongoose from "mongoose";
 
 export default {
 

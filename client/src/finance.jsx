@@ -353,7 +353,7 @@ const Finance = () => {
 	const updateCategory = isSave => {
 		if (isSave) {
 			const updatedTransaction = transactions.filter(transaction => transaction.id == newCategoryId)
-				.map(transaction => ({...transaction, category: newCategoryInput }));
+				.map(transaction => ({...transaction, category: newCategoryInput })).find(() => true);
 			
 			fetch(`/finance/api/transactionsave`, { method: "post", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ transaction: updatedTransaction }) })
 				.then(response => {
