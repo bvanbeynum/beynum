@@ -133,7 +133,7 @@ export default {
 		}
 		
 		try {
-			if (!categories.includes(saveTransaction.category)) {
+			if (!categories.some(category => category.name == saveTransaction.category)) {
 				await client.post(`${ request.serverPath }/finance/data/category`).send({ category: { name: saveTransaction.category } }).then();
 			}
 		}
