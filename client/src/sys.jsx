@@ -66,6 +66,11 @@ class Sys extends Component {
 									job.frequencySeconds >= 3600 ? Math.floor(job.frequencySeconds / 3600) + "h " : "" +
 									job.frequencySeconds % 3600 !== 0 ? Math.floor((job.frequencySeconds % 3600) / 60) + "m " : "" +
 									job.frequencySeconds % 60 !== 0 ? job.frequencySeconds % 60 + "s" : "",
+								isRunning: job.runs
+									.map(run => ({...run, startTime: new Date(run.startTime)}))
+									.sort((runA, runB) => +runB.startTime - +runA.startTime)
+									.map(run => job.status == "active" && !run.completeTime)
+									.find(() => true),
 								runs: job.runs
 									.filter(run => run.messages && run.messages.length > 0)
 									.sort((runA, runB) => new Date(runB.completeTime) - new Date(runA.completeTime))

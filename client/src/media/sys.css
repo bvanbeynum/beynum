@@ -102,6 +102,11 @@ input:focus, select:focus, div:focus {
 	color: rgb(0 41 241);
 }
 
+.panel .data.highlight {
+	color: rgb(255 0 0);
+	font-weight: bold;
+}
+
 .panel .listItem {
 	margin: 8px 0px;
 	padding: 5px 10px;

@@ -36,8 +36,17 @@ const Jobs = props => {
 
 						<div className="info">
 							<div className="label">Status</div>
-							<div className="data">{ job.status }</div>
+							<div className={`data ${ job.status == "inactive" ? "highlight" : "" }`}>{ job.status }</div>
 						</div>
+						
+						{
+						job.status == "active" ?
+						<div className="info">
+							<div className="label">Run Status</div>
+							<div className={`data ${ job.isRunning ? "highlight" : "" }`}>{ job.isRunning ? "running" : "not running" }</div>
+						</div>
+						: "" 
+						}
 					</div>
 
 					<div className="seperator"></div>
