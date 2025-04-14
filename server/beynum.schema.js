@@ -19,20 +19,6 @@ export default {
 		}],
 		apps: [ String ],
 		tokens: [ String ]
-	}),
-
-	job: cnBeynum.model("job", {
-		name: String,
-		frequencySeconds: Number,
-		scriptName: String,
-		created: Date,
-		modified: Date,
-		runs: [{
-			startTime: Date,
-			completeTime: Date,
-			isKill: Boolean,
-			messages: [{ severity: Number, message: String, time: Date }]
-		}]
 	})
 
 };
