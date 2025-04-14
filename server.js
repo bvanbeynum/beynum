@@ -12,9 +12,6 @@ import sysRouter from "./server/sys.router.js";
 import beynumRouter from "./server/beynum.router.js";
 import officeRouter from "./server/officerouter.js";
 import blackJackRouter from "./server/blackjackrouter.js";
-import footballVidRouter from "./server/footballvid.router.js";
-import wrestlingRouter from "./server/wrestling.router.js";
-import workoutRouter from "./server/workout.router.js";
 
 // Declarations =======================================================================
 
@@ -41,9 +38,6 @@ app.use(sysRouter);
 app.use(beynumRouter);
 app.use(officeRouter);
 app.use(blackJackRouter);
-app.use(footballVidRouter);
-app.use(wrestlingRouter);
-app.use(workoutRouter);
 
 app.use("/media", express.static(path.join(currentDirectory, "/client/src/media")));
 
