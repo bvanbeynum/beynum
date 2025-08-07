@@ -114,6 +114,7 @@ export default {
 					: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds > 300 ? job.frequencySeconds : 300)) ? new Date() 
 					: null
 			}));
+		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - runs: ${ JSON.stringify(job.runs) }`);
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
@@ -143,7 +144,6 @@ export default {
 			run = clientResponse.body.jobs[0].runs.filter(run => !run.completeTime)[0];
 		}
 		
-		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - Run: ${ JSON.stringify(run) }`);
 		response.status(200).json({ run: run });
 	},
 
