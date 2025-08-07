@@ -116,6 +116,7 @@ export default {
 			}));
 		
 		// console.log(`${ (new Date()).toLocaleString() }: Sent - runs: ${ JSON.stringify(job.runs.map(({ messages, ...run}) => run)) }`);
+		console.log(`${ (new Date()).toLocaleString() }: Sent - ${ request.serverPath }/sys/data/job`)
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
