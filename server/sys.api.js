@@ -114,6 +114,8 @@ export default {
 					: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds > 300 ? job.frequencySeconds : 300)) ? new Date() 
 					: null
 			}));
+		
+		console.log(`${ (new Date()).toLocaleString() }: Sent - runs: ${ JSON.stringify(job.runs.map(({ messages, ...run}) => run)) }`);
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
@@ -125,7 +127,7 @@ export default {
 			return;
 		}
 
-		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - http: ${ clientResponse.status }, text: ${ clientResponse.text }}`);
+		console.log(`${ (new Date()).toLocaleString() }: Returned - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
 
 		try {
 			clientResponse = await client.get(`${ request.serverPath }/sys/data/job?id=${ job.id }`);
@@ -136,6 +138,8 @@ export default {
 			response.status(564).json({ location: "Pull saved job", error: error.message });
 			return;
 		}
+
+		console.log(`${ (new Date()).toLocaleString() }: Get - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
 
 		let run = null;
 		if (saveRun["_id"]) {
