@@ -142,7 +142,8 @@ export default {
 		else {
 			run = clientResponse.body.jobs[0].runs.filter(run => !run.completeTime)[0];
 		}
-
+		
+		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - Run: ${ JSON.stringify(run) }`);
 		response.status(200).json({ run: run });
 	},
 
