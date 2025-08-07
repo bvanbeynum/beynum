@@ -77,6 +77,7 @@ export default {
 			response.status(561).json({ error: "Missing object to save" });
 			return;
 		}
+		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - Job ID: ${ request.query.jobid }, Run: ${ JSON.stringify(request.body.jobrun) }`);
 
 		let clientResponse = null;
 		try {
