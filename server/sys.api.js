@@ -115,20 +115,15 @@ export default {
 					: null
 			}));
 		
-		// console.log(`${ (new Date()).toLocaleString() }: Sent - runs: ${ JSON.stringify(job.runs.map(({ messages, ...run}) => run)) }`);
-		console.log(`${ (new Date()).toLocaleString() }: Sent - ${ request.serverPath }/sys/data/job`)
-
 		try {
-			clientResponse = await client.post(`https://beynum.com/sys/data/job`).send({ job: job });
+			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
 		}
 		catch (error) {
-			// client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `563: ${error.message}` }});
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `563: ${error.message}` }});
 			response.statusMessage = "Error saving job";
 			response.status(563).json({ location: "Save job", error: error.message });
 			return;
 		}
-
-		// console.log(`${ (new Date()).toLocaleString() }: Returned - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
 
 		try {
 			clientResponse = await client.get(`${ request.serverPath }/sys/data/job?id=${ job.id }`);
@@ -139,8 +134,6 @@ export default {
 			response.status(564).json({ location: "Pull saved job", error: error.message });
 			return;
 		}
-
-		// console.log(`${ (new Date()).toLocaleString() }: Get - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
 
 		let run = null;
 		if (saveRun["_id"]) {
