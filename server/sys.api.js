@@ -114,7 +114,10 @@ export default {
 					: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds > 300 ? job.frequencySeconds : 300)) ? new Date() 
 					: null
 			}));
-		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - runs: ${ JSON.stringify(job.runs) }`);
+		
+		const jobRunsWithoutMessages = job.runs.map(({ messages, ...run}) => run);
+
+		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - runs: ${ JSON.stringify(jobRunsWithoutMessages) }`);
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
