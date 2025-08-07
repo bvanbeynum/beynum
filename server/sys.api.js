@@ -93,8 +93,6 @@ export default {
 		const job = clientResponse.body.jobs[0],
 			saveRun = request.body.jobrun;
 
-		console.log(`${ (new Date()).toLocaleString() }: Jobs: ${ JSON.stringify(clientResponse.body.jobs.map(({ runs, ...job}) => ({ ...job }))) }`);
-
 		if (saveRun["_id"]) {
 			job.runs = job.runs.map(run => {
 				return run["_id"] == saveRun["_id"] ? saveRun : run

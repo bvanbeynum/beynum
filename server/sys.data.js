@@ -191,6 +191,7 @@ export default {
 		}
 		
 		const save = request.body.job;
+		console.log(`${ (new Date()).toLocaleString() }: SaveJob - Job: ${ save.id }`)
 
 		if (save.id) {
 			data.job.findById(save.id)
