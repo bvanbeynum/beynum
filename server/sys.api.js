@@ -114,16 +114,12 @@ export default {
 					: new Date() > new Date(new Date(run.startTime).setSeconds(job.frequencySeconds > 300 ? job.frequencySeconds : 300)) ? new Date() 
 					: null
 			}));
-		
-		const jobRunsWithoutMessages = job.runs.map(({ messages, ...run}) => run);
-
-		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - runs: ${ JSON.stringify(jobRunsWithoutMessages) }`);
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
 		}
 		catch (error) {
-			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `563: ${error.message}` }});
+			// client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `563: ${error.message}` }});
 			response.statusMessage = "Error saving job";
 			response.status(563).json({ location: "Save job", error: error.message });
 			return;
