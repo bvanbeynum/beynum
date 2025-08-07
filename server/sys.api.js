@@ -125,6 +125,8 @@ export default {
 			return;
 		}
 
+		console.log(`${ (new Date()).toLocaleString() }: SaveJobRun - http: ${ clientResponse.status }, text: ${ clientResponse.text }}`);
+
 		try {
 			clientResponse = await client.get(`${ request.serverPath }/sys/data/job?id=${ job.id }`);
 		}
