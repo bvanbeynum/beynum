@@ -185,7 +185,6 @@ export default {
 	},
 
 	jobSave: (request, response) => {
-		console.log(`${ (new Date()).toLocaleString() }: SaveJob - Job: ${ request.body.job.id }`)
 		if (!request.body.job) {
 			response.status(550).json({ error: "Missing object to save" });
 			return;
