@@ -93,6 +93,8 @@ export default {
 		const job = clientResponse.body.jobs[0],
 			saveRun = request.body.jobrun;
 
+		console.log(`${ (new Date()).toLocaleString() }: Jobs: ${ clientResponse.body.jobs.map(({ runs, ...job}) => ({ ...job })) }`);
+
 		if (saveRun["_id"]) {
 			job.runs = job.runs.map(run => {
 				return run["_id"] == saveRun["_id"] ? saveRun : run
@@ -115,7 +117,7 @@ export default {
 					: null
 			}));
 		
-		console.log(`${ (new Date()).toLocaleString() }: Sent - runs: ${ JSON.stringify(job.runs.map(({ messages, ...run}) => run)) }`);
+		// console.log(`${ (new Date()).toLocaleString() }: Sent - runs: ${ JSON.stringify(job.runs.map(({ messages, ...run}) => run)) }`);
 
 		try {
 			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
@@ -127,7 +129,7 @@ export default {
 			return;
 		}
 
-		console.log(`${ (new Date()).toLocaleString() }: Returned - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
+		// console.log(`${ (new Date()).toLocaleString() }: Returned - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
 
 		try {
 			clientResponse = await client.get(`${ request.serverPath }/sys/data/job?id=${ job.id }`);
@@ -139,7 +141,7 @@ export default {
 			return;
 		}
 
-		console.log(`${ (new Date()).toLocaleString() }: Get - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
+		// console.log(`${ (new Date()).toLocaleString() }: Get - runs: ${ JSON.stringify(clientResponse.body.jobs[0].runs.map(({ messages, ...run}) => run)) }`);
 
 		let run = null;
 		if (saveRun["_id"]) {
