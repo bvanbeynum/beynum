@@ -119,7 +119,7 @@ export default {
 		console.log(`${ (new Date()).toLocaleString() }: Sent - ${ request.serverPath }/sys/data/job`)
 
 		try {
-			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
+			clientResponse = await client.post(`https://beynum.com/sys/data/job`).send({ job: job });
 		}
 		catch (error) {
 			// client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `563: ${error.message}` }});
