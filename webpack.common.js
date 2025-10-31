@@ -9,6 +9,24 @@ export default {
 		network: "./client/src/network.jsx"
 	},
 	plugins: [
+		new HtmlWebpackPlugin({
+			filename: "index.html",
+			title: "The Beynum Company",
+			favicon: "./client/src/media/favicon.ico",
+			template: "./client/src/index.html"
+		}),
+		new HtmlWebpackPlugin({
+			filename: "privacy.html",
+			title: "Privacy Policy - The Beynum Company",
+			favicon: "./client/src/media/favicon.ico",
+			template: "./client/src/privacy.html"
+		}),
+		new HtmlWebpackPlugin({
+			filename: "tos.html",
+			title: "Terms of Service - The Beynum Company",
+			favicon: "./client/src/media/favicon.ico",
+			template: "./client/src/tos.html"
+		}),
 		new HtmlWebpackPlugin({ 
 			filename: "commandcenter.html",
 			template: "./client/src/commandcenter.html"
