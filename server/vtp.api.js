@@ -62,7 +62,7 @@ export default {
 				<html>
 					<body>
 						<script>
-							window.opener.postMessage(${JSON.stringify(saveUser)}, '${ request.serverPath }');
+							window.opener.postMessage(${JSON.stringify(saveUser)}, 'https://beynum.com');
 							window.close();
 						</script>
 						<p>Authenticated successfully. You can close this window.</p>
@@ -74,7 +74,7 @@ export default {
 				<html>
 					<body>
 						<script>
-							window.opener.postMessage({ error: "${error.message}" }, '${ request.serverPath }');
+							window.opener.postMessage({ error: "${error.message}" }, 'https://beynum.com');
 							window.close();
 						</script>
 						<p>An error occurred. You can close this window.</p>
