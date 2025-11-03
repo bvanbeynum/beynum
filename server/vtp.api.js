@@ -164,11 +164,11 @@ export default {
 
 			console.log(`Sheet Details: ${JSON.stringify(sheetDetails.data.sheets.map(s => s.properties.title))}`);
 
-			const teamEmailsSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Team Emails");
+			const teamEmailsSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Team Email");
 			const configSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Config");
 
 			if (!teamEmailsSheet) {
-				throw new Error("Worksheet 'Team Emails' not found in 'Team Email' Google Sheet.");
+				throw new Error("Worksheet 'Team Email' not found in 'Team Email' Google Sheet.");
 			}
 
 			if (!configSheet) {
