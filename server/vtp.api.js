@@ -52,19 +52,23 @@ export default {
 			let saveUser = null;
 			if (users.body.vtpUsers && users.body.vtpUsers.length === 1) {
 				saveUser = {
-					id: users.body.vtpUsers[0].id,
-					googleName: userProfileResponse.body?.name,
-					googleEmail: userProfileResponse.body?.email,
-					refreshToken: refreshToken,
-					refreshExpireDate: expirationDate
+					vtpuser: {
+						id: users.body.vtpUsers[0].id,
+						googleName: userProfileResponse.body?.name,
+						googleEmail: userProfileResponse.body?.email,
+						refreshToken: refreshToken,
+						refreshExpireDate: expirationDate
+					}
 				};
 			}
 			else {
 				saveUser = {
-					googleName: userProfileResponse.body?.name,
-					googleEmail: userProfileResponse.body?.email,
-					refreshToken: refreshToken,
-					refreshExpireDate: expirationDate
+					vtpuser: {
+						googleName: userProfileResponse.body?.name,
+						googleEmail: userProfileResponse.body?.email,
+						refreshToken: refreshToken,
+						refreshExpireDate: expirationDate
+					}
 				};
 			}
 
