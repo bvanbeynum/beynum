@@ -8,7 +8,8 @@ export default {
 	vtpUser: cnBeynum.model("vtpUser", {
 		googleName: String,
 		googleEmail: String,
-		refreshToken: String
+		refreshToken: String,
+		refreshExpireDate: Date
 	})
 
 };

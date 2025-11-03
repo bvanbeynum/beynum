@@ -26,16 +26,8 @@ export default {
 		}
 
 		try {
-			console.log(`query: ${JSON.stringify(request.query)}`)
 			const authorizationCode = request.query.code;
 
-			console.log(`to send: ${JSON.stringify({
-					code: authorizationCode,
-					client_id: config.google.client_id,
-					client_secret: config.google.client_secret,
-					redirect_uri: config.google.redirect_uris[0],
-					grant_type: "authorization_code",
-				})}`)
 			const tokenResponse = await client
 				.post(config.google.token_uri)
 				.send({
@@ -46,29 +38,49 @@ export default {
 					grant_type: "authorization_code",
 				});
 			
-			console.log(`token response: ${JSON.stringify(tokenResponse.body)}`)
-
 			const accessToken = tokenResponse.body.access_token;
 			const refreshToken = tokenResponse.body.refresh_token;
+			const expiresIn = tokenResponse.body.expires_in;
+			const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
 
 			const userProfileResponse = await client
 				.get("https://www.googleapis.com/oauth2/v2/userinfo")
 				.set("Authorization", `Bearer ${accessToken}`);
 			
-			console.log(`user profile response: ${JSON.stringify(userProfileResponse.body)}`);
-
 			const saveUser = {
 				googleName: userProfileResponse.body?.name,
 				googleEmail: userProfileResponse.body?.email,
-				refreshToken: refreshToken
+				refreshToken: refreshToken,
+				refreshExpireDate: expirationDate
 			};
 			console.log(`save user: ${JSON.stringify(saveUser)}`);
 
-			// await client.post("http://localhost:3000/vtp/data/vtpuser").send(userProfileResponse.body);
+			const clientResponse = await client.post(`${ request.serverPath }/vtp/data/vtpuser`).send(userProfileResponse.body);
+			saveUser.id = clientResponse.body.id;
 
-			response.redirect("/vtp.html");
+			response.send(`
+				<html>
+					<body>
+						<script>
+							window.opener.postMessage(${JSON.stringify(saveUser)}, '${ request.serverPath }');
+							window.close();
+						</script>
+						<p>Authenticated successfully. You can close this window.</p>
+					</body>
+				</html>
+			`);
 		} catch (error) {
-			response.redirect("/vtp.html?error=" + error.message);
+			response.send(`
+				<html>
+					<body>
+						<script>
+							window.opener.postMessage({ error: "${error.message}" }, '${ request.serverPath }');
+							window.close();
+						</script>
+						<p>An error occurred. You can close this window.</p>
+					</body>
+				</html>
+			`);
 		}
 	}
 

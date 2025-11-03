@@ -5,39 +5,69 @@ import "./media/vtp.css";
 const VirtualTeamParentComponent = () => {
 	
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [user, setUser] = useState(null);
+	const [error, setError] = useState(null);
+
+	useEffect(() => {
+		const handleMessage = (event) => {
+			if (event.origin !== "https://beynum.com") {
+				return;
+			}
+
+			if (event.data && event.data.error) {
+				setError(event.data.error);
+			}
+			else if (event.data && event.data.googleName) {
+				setUser(event.data);
+				setIsLoggedIn(true);
+			}
+		};
+
+		window.addEventListener("message", handleMessage);
+
+		return () => {
+			window.removeEventListener("message", handleMessage);
+		};
+	}, []);
+
+	const openGoogleLogin = () => {
+		setError(null);
+		window.open("/vtp/auth/google", "Google Login", "width=500,height=600");
+	};
 		
 	return (
 
-isLoggedIn ?
+		isLoggedIn && user ?
 
-<div className="dashboard-container">
-	<h1>Dashboard</h1>
-	<div className="user-info">
-		<h2>User Information</h2>
-		<p>Name: John Doe</p>
-		<p>Email: john.doe@example.com</p>
-	</div>
-	<div className="children-list">
-		<h2>Children</h2>
-		<ul>
-			<li>Child 1</li>
-			<li>Child 2</li>
-		</ul>
-	</div>
-	<div className="calendar">
-		<h2>Calendar</h2>
-		<p>Calendar placeholder</p>
-	</div>
-</div>
+		<div className="dashboard-container">
+			<h1>Dashboard</h1>
+			<div className="user-info">
+				<h2>User Information</h2>
+				<p>Name: {user.googleName}</p>
+				<p>Email: {user.googleEmail}</p>
+			</div>
+			<div className="children-list">
+				<h2>Children</h2>
+				<ul>
+					<li>Child 1</li>
+					<li>Child 2</li>
+				</ul>
+			</div>
+			<div className="calendar">
+				<h2>Calendar</h2>
+				<p>Calendar placeholder</p>
+			</div>
+		</div>
 
-:
+		:
 
-<div className="login-container">
-	<img src="./media/VirtualTeamLogo.png" alt="Virtual Team Parent" className="logo" />
-	<a href="/vtp/auth/google" className="login-button">
-		Login with Google
-	</a>
-</div>
+		<div className="login-container">
+			<img src="./media/VirtualTeamLogo.png" alt="Virtual Team Parent" className="logo" />
+			{error && <div className="error-message">{error}</div>}
+			<button onClick={openGoogleLogin} className="login-button">
+				Login with Google
+			</button>
+		</div>
 
 	)
 }
