@@ -12,6 +12,7 @@ import sysRouter from "./server/sys.router.js";
 import beynumRouter from "./server/beynum.router.js";
 import officeRouter from "./server/officerouter.js";
 import blackJackRouter from "./server/blackjackrouter.js";
+import vtpRouter from "./server/vtp.router.js";
 
 // Declarations =======================================================================
 
@@ -38,6 +39,7 @@ app.use(sysRouter);
 app.use(beynumRouter);
 app.use(officeRouter);
 app.use(blackJackRouter);
+app.use(vtpRouter);
 
 app.use("/media", express.static(path.join(currentDirectory, "/client/src/media")));
 
