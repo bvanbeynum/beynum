@@ -13,19 +13,22 @@ export default {
 			filename: "index.html",
 			title: "The Beynum Company",
 			favicon: "./client/src/media/favicon.ico",
-			template: "./client/src/index.html"
+			template: "./client/src/index.html",
+			chunks: []
 		}),
 		new HtmlWebpackPlugin({
 			filename: "privacy.html",
 			title: "Privacy Policy - The Beynum Company",
 			favicon: "./client/src/media/favicon.ico",
-			template: "./client/src/privacy.html"
+			template: "./client/src/privacy.html",
+			chunks: []
 		}),
 		new HtmlWebpackPlugin({
 			filename: "tos.html",
 			title: "Terms of Service - The Beynum Company",
 			favicon: "./client/src/media/favicon.ico",
-			template: "./client/src/tos.html"
+			template: "./client/src/tos.html",
+			chunks: []
 		}),
 		new HtmlWebpackPlugin({ 
 			filename: "commandcenter.html",
