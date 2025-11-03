@@ -162,8 +162,6 @@ export default {
 				spreadsheetId: spreadsheetId,
 			});
 
-			console.log(`Sheet Details: ${JSON.stringify(sheetDetails.data.sheets.map(s => s.properties.title))}`);
-
 			const teamEmailsSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Parent Emails");
 			const configSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Config");
 
@@ -175,6 +173,30 @@ export default {
 				throw new Error("Worksheet 'Config' not found in 'Team Email' Google Sheet.");
 			}
 
+			// Get the team emails from the Parent Emails sheet. Look for the column with the header "Email Address"
+			const parentEmailsSheetName = teamEmailsSheet.properties.title;
+			const headerResponse = await sheets.spreadsheets.values.get({
+				spreadsheetId: spreadsheetId,
+				range: `${parentEmailsSheetName}!A1:Z1`,
+			});
+
+			const header = headerResponse.data.values[0];
+			const emailColumnIndex = header.indexOf("Email Address");
+
+			if (emailColumnIndex === -1) {
+				throw new Error("Column 'Email Address' not found in 'Parent Emails' sheet.");
+			}
+
+			const emailColumn = String.fromCharCode(65 + emailColumnIndex);
+
+			const teamEmailResponse = await sheets.spreadsheets.values.get({
+				spreadsheetId: spreadsheetId,
+				range: `${parentEmailsSheetName}!${emailColumn}2:${emailColumn}`,
+			});
+
+			const teamEmails = teamEmailResponse.data.values ? teamEmailResponse.data.values.flat().filter(email => email) : [];
+
+			// Get the configuration settings
 			const configValuesResponse = await sheets.spreadsheets.values.get({
 				spreadsheetId: spreadsheetId,
 				range: "Config!A2:B",
@@ -187,9 +209,33 @@ export default {
 				}
 			});
 
-			console.log(`Config: ${JSON.stringify(configValues)}`);
+			// Get the coach's emails to watch
+			const coachEmailResponse = await  sheets.spreadsheets.values.get({
+				spreadsheetId: spreadsheetId,
+				range: "Config!D2:D",
+			});
 
-			response.status(200).json({ config: configValues });
+			const coachEmails = coachEmailResponse.data.values.filter(row => row[0]).map(row => row[0]);
+
+			const coachName = configValues["Coach Name"];
+			const teamEmail = configValues["Team Email"];
+			const teamName = configValues["Team Name"];
+			const parentName = configValues["Parent Name"];
+			const notifyEmail = configValues["Notify Email"];
+
+			if (!coachEmails || coachEmails.length === 0 || !coachName || !teamEmail || !teamName || !parentName || !notifyEmail) {
+				throw new Error("Missing configuration values in 'Config' Google Sheet.");
+			}
+
+			// Construct the search query to look for emails from any of the coachEmails that is unread
+
+			// If no emails are found, then return a successful response indicating no emails to process
+
+			response.status(200).json({ 
+				config: configValues,
+				coachEmails: coachEmails,
+				teamEmails: teamEmails
+			});
 		}
 		catch (error) {
 			response.status(570).json({ error: error.message });
