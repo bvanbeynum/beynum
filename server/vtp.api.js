@@ -50,9 +50,9 @@ export default {
 			const users = await client.get(`${ request.serverPath }/vtp/data/vtpuser?email=${ userProfileResponse.body.email }`);
 
 			let saveUser = null;
-			if (users.body.users.length === 1) {
+			if (users.body.vtpUsers && users.body.vtpUsers.length === 1) {
 				saveUser = {
-					id: users.body.users[0].id,
+					id: users.body.vtpUsers[0].id,
 					googleName: userProfileResponse.body?.name,
 					googleEmail: userProfileResponse.body?.email,
 					refreshToken: refreshToken,
