@@ -38,6 +38,6 @@
     - [x] 3.3.3 Add error handling for the server-to-server token exchange request.
 - [x] 4.0 Handle User Data
   - [x] 4.1 Use the `POST /vtp/data/vtpuser` route to save user data on successful login.
-- [ ] 5.0 Implement the Dashboard View
-  - [ ] 5.1 Create the basic structure of the dashboard view.
-  - [ ] 5.2 Add placeholder elements for future functionality.
+- [x] 5.0 Implement the Dashboard View
+  - [x] 5.1 Create the basic structure of the dashboard view.
+  - [x] 5.2 Add placeholder elements for future functionality.
