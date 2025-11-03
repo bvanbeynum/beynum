@@ -20,11 +20,11 @@
   - [x] 2.3 Create a new CSS file `vtp.css` for styling, using `index.css` for design inspiration.
   - [x] 2.4 Import and apply styles from `vtp.css` to the `vtp.jsx` component.
 - [ ] 3.0 Implement Google OAuth 2.0 Authentication
-  - [ ] 3.1 Handle Initial Login Request (Server-Side)
-    - [ ] 3.1.1 Create a `GET /vtp/auth/google` route in `vtp.router.js`.
-    - [ ] 3.1.2 In `vtp.api.js`, create a function to be called by the route.
-    - [ ] 3.1.3 Inside this function, construct the Google OAuth URL with the correct parameters (client_id, scope, redirect_uri, response_type).
-    - [ ] 3.1.4 Redirect the user's browser to the constructed Google OAuth URL.
+  - [x] 3.1 Handle Initial Login Request (Server-Side)
+    - [x] 3.1.1 Create a `GET /vtp/auth/google` route in `vtp.router.js`.
+    - [x] 3.1.2 In `vtp.api.js`, create a function to be called by the route.
+    - [x] 3.1.3 Inside this function, construct the Google OAuth URL with the correct parameters (client_id, scope, redirect_uri, response_type).
+    - [x] 3.1.4 Redirect the user's browser to the constructed Google OAuth URL.
   - [ ] 3.2 Handle Google's Callback (Server-Side)
     - [ ] 3.2.1 Create a `GET /vtp/auth/google/callback` route in `vtp.router.js`.
     - [ ] 3.2.2 In `vtp.api.js`, create a function to handle the callback.

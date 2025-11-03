@@ -14,4 +14,6 @@ router.delete("/vtp/data/vtpuser", data.vtpUserDelete);
 
 // ************************* API
 
+router.get("/vtp/auth/google", api.authGoogle);
+
 export default router;
