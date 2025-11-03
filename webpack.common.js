@@ -84,7 +84,7 @@ export default {
 		}),
 		new HtmlWebpackPlugin({ 
 			filename: "vtp.html",
-			title: "VTP",
+			title: "Virtual Team Parent",
 			favicon: "./client/src/media/favicon.ico",
 			meta: {
 				viewport: "width=device-width, initial-scale=1"
