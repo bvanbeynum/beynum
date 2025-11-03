@@ -25,13 +25,13 @@
     - [x] 3.1.2 In `vtp.api.js`, create a function to be called by the route.
     - [x] 3.1.3 Inside this function, construct the Google OAuth URL with the correct parameters (client_id, scope, redirect_uri, response_type).
     - [x] 3.1.4 Redirect the user's browser to the constructed Google OAuth URL.
-  - [ ] 3.2 Handle Google's Callback (Server-Side)
-    - [ ] 3.2.1 Create a `GET /vtp/auth/google/callback` route in `vtp.router.js`.
-    - [ ] 3.2.2 In `vtp.api.js`, create a function to handle the callback.
-    - [ ] 3.2.3 Extract the `authorization code` from the URL query parameters.
-    - [ ] 3.2.4 Make a `POST` request to Google's token endpoint to exchange the code for tokens.
-    - [ ] 3.2.5 Receive the `access_token` and `refresh_token` from Google.
-    - [ ] 3.2.6 Redirect the user to the VTP dashboard upon successful token exchange.
+  - [x] 3.2 Handle Google's Callback (Server-Side)
+    - [x] 3.2.1 Create a `GET /vtp/auth/google/callback` route in `vtp.router.js`.
+    - [x] 3.2.2 In `vtp.api.js`, create a function to handle the callback.
+    - [x] 3.2.3 Extract the `authorization code` from the URL query parameters.
+    - [x] 3.2.4 Make a `POST` request to Google's token endpoint to exchange the code for tokens.
+    - [x] 3.2.5 Receive the `access_token` and `refresh_token` from Google.
+    - [x] 3.2.6 Redirect the user to the VTP dashboard upon successful token exchange.
   - [ ] 3.3 Implement Error Handling (Server-Side)
     - [ ] 3.3.1 In the callback handler, check for an `error` query parameter from Google (if the user denies access).
     - [ ] 3.3.2 If an error is present, redirect the user to the login page with an error message.
