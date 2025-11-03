@@ -10,6 +10,7 @@ const VirtualTeamParentComponent = () => {
 
 	useEffect(() => {
 		const handleMessage = (event) => {
+			console.log(`origin: ${event.origin}, data: ${event.data}`);
 			if (event.origin !== "https://beynum.com") {
 				return;
 			}
