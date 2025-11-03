@@ -10,7 +10,7 @@ export default {
 			client_id: config.google.client_id,
 			redirect_uri: config.google.redirect_uris[0],
 			response_type: "code",
-			scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/drive",
+			scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets",
 			access_type: "offline",
 			prompt: "consent",
 		};
@@ -43,8 +43,6 @@ export default {
 			const refreshToken = tokenResponse.body.refresh_token;
 			const expiresIn = tokenResponse.body.expires_in;
 			const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
-			console.log(tokenResponse.body.expires_in);
-			console.log(expirationDate);
 
 			const userProfileResponse = await client
 				.get("https://www.googleapis.com/oauth2/v2/userinfo")
