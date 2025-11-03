@@ -1,5 +1,12 @@
 import client from "superagent";
 import config from "./config.js";
+import { google } from "googleapis";
+
+const oAuth2Client = new google.auth.OAuth2(
+	config.google.client_id,
+	config.google.client_secret,
+	config.google.redirect_uris[0]
+);
 
 export default {
 
@@ -42,6 +49,8 @@ export default {
 			const refreshToken = tokenResponse.body.refresh_token;
 			const expiresIn = tokenResponse.body.expires_in;
 			const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+			console.log(tokenResponse.body.expires_in);
+			console.log(expirationDate);
 
 			const userProfileResponse = await client
 				.get("https://www.googleapis.com/oauth2/v2/userinfo")
@@ -73,13 +82,17 @@ export default {
 			}
 
 			const clientResponse = await client.post(`${ request.serverPath }/vtp/data/vtpuser`).send(saveUser);
-			saveUser.id = clientResponse.body.id;
+			const output = {
+				id: clientResponse.body.id,
+				googleName: saveUser.vtpuser.googleName,
+				googleEmail: saveUser.vtpuser.googleEmail
+			};
 
 			response.send(`
 				<html>
 					<body>
 						<script>
-							window.opener.postMessage(${JSON.stringify(saveUser.vtpuser)}, 'https://beynum.com');
+							window.opener.postMessage(${JSON.stringify(output)}, 'https://beynum.com');
 							window.close();
 						</script>
 						<p>Authenticated successfully. You can close this window.</p>
@@ -99,7 +112,91 @@ export default {
 				</html>
 			`);
 		}
-	}
+	},
 
+	coachBroadcast: async (request, response) => {
+		if (!request.query.id) {
+			response.status(550).json({ error: "Missing ID" });
+			return;
+		}
+
+		let user = null;
+		try {
+			const clientResponse = await client.get(`${ request.serverPath }/vtp/data/vtpuser?id=${ request.query.id }`);
+			user = clientResponse.body.vtpUsers[0];
+		}
+		catch (error) {
+			response.status(560).json({ error: error.message });
+			return;
+		}
+
+		try {
+			// Get Team Email Google Sheet
+			if (!user.refreshToken || !user.refreshExpireDate) {
+				throw new Error("User refresh token or expiry date not found. Please re-authenticate with Google.");
+			}
+
+			// if (new Date(user.refreshExpireDate) < new Date()) {
+			// 	throw new Error("Google refresh token expired. Please re-authenticate with Google.");
+			// }
+
+			oAuth2Client.setCredentials({
+				refresh_token: user.refreshToken,
+			});
+
+			const sheets = google.sheets({ version: "v4", auth: oAuth2Client });
+			const drive = google.drive({ version: "v3", auth: oAuth2Client });
+
+			const searchResult = await drive.files.list({
+				q: "name='Team Email' and mimeType='application/vnd.google-apps.spreadsheet'",
+				fields: "files(id, name)",
+			});
+
+			const teamEmailSheet = searchResult.data.files[0];
+
+			if (!teamEmailSheet) {
+				throw new Error("Google Sheet 'Team Email' not found in your Google Drive.");
+			}
+
+			const spreadsheetId = teamEmailSheet.id;
+
+			const sheetDetails = await sheets.spreadsheets.get({
+				spreadsheetId: spreadsheetId,
+			});
+
+			console.log(`Sheet Details: ${JSON.stringify(sheetDetails.data.sheets.map(s => s.properties.title))}`);
+
+			const teamEmailsSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Team Emails");
+			const configSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Config");
+
+			if (!teamEmailsSheet) {
+				throw new Error("Worksheet 'Team Emails' not found in 'Team Email' Google Sheet.");
+			}
+
+			if (!configSheet) {
+				throw new Error("Worksheet 'Config' not found in 'Team Email' Google Sheet.");
+			}
+
+			const configValuesResponse = await sheets.spreadsheets.values.get({
+				spreadsheetId: spreadsheetId,
+				range: "Config!A2:B",
+			});
+
+			const configValues = {};
+			configValuesResponse.data.values.forEach(row => {
+				if (row[0] && row[1]) {
+					configValues[row[0]] = row[1];
+				}
+			});
+
+			console.log(`Config: ${JSON.stringify(configValues)}`);
+
+			response.status(200).json({ config: configValues });
+		}
+		catch (error) {
+			response.status(570).json({ error: error.message });
+			return;
+		}
+	}
 
 };
