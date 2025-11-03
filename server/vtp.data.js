@@ -9,7 +9,10 @@ export default {
 			filter["_id"] = request.query.id;
 		}
 		if (request.query.token) {
-			filter["token"] = request.query.token;
+			filter.token = request.query.token;
+		}
+		if (request.query.email) {
+			filter.email = request.query.email;
 		}
 
 		data.vtpUser.find(filter)

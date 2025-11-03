@@ -47,15 +47,30 @@ export default {
 				.get("https://www.googleapis.com/oauth2/v2/userinfo")
 				.set("Authorization", `Bearer ${accessToken}`);
 			
-			const saveUser = {
-				googleName: userProfileResponse.body?.name,
-				googleEmail: userProfileResponse.body?.email,
-				refreshToken: refreshToken,
-				refreshExpireDate: expirationDate
-			};
+			const users = await client.get(`${ request.serverPath }/vtp/data/vtpuser?email=${ userProfileResponse.body.email }`);
+
+			let saveUser = null;
+			if (users.body.users.length === 1) {
+				saveUser = {
+					id: users.body.users[0].id,
+					googleName: userProfileResponse.body?.name,
+					googleEmail: userProfileResponse.body?.email,
+					refreshToken: refreshToken,
+					refreshExpireDate: expirationDate
+				};
+			}
+			else {
+				saveUser = {
+					googleName: userProfileResponse.body?.name,
+					googleEmail: userProfileResponse.body?.email,
+					refreshToken: refreshToken,
+					refreshExpireDate: expirationDate
+				};
+			}
+
 			console.log(`save user: ${JSON.stringify(saveUser)}`);
 
-			const clientResponse = await client.post(`${ request.serverPath }/vtp/data/vtpuser`).send(userProfileResponse.body);
+			const clientResponse = await client.post(`${ request.serverPath }/vtp/data/vtpuser`).send(saveUser);
 			saveUser.id = clientResponse.body.id;
 
 			response.send(`
