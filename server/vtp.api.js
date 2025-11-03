@@ -71,6 +71,7 @@ export default {
 			console.log(`save user: ${JSON.stringify(saveUser)}`);
 
 			const clientResponse = await client.post(`${ request.serverPath }/vtp/data/vtpuser`).send(saveUser);
+			console.log(`client response: ${JSON.stringify(clientResponse.body)}`);
 			saveUser.id = clientResponse.body.id;
 
 			response.send(`
