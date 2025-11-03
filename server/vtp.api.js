@@ -164,7 +164,7 @@ export default {
 
 			console.log(`Sheet Details: ${JSON.stringify(sheetDetails.data.sheets.map(s => s.properties.title))}`);
 
-			const teamEmailsSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Team Email");
+			const teamEmailsSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Parent Emails");
 			const configSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Config");
 
 			if (!teamEmailsSheet) {

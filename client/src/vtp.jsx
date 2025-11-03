@@ -10,58 +10,73 @@ const VirtualTeamParentComponent = () => {
 
 	useEffect(() => {
 		const handleMessage = (event) => {
-			console.log(`origin: ${event.origin}, data: ${JSON.stringify(event.data)}`);
 			if (event.origin !== "https://beynum.com") {
 				return;
 			}
 			
-			console.log(`data: ${JSON.stringify(event.data)}`);
-
 			if (event.data && event.data.error) {
 				setError(event.data.error);
 			}
 			else if (event.data && event.data.googleName) {
-				console.log("Logged in")
 				setUser(event.data);
 				setIsLoggedIn(true);
+				
+				window.removeEventListener("message", handleMessage);
 			}
 		};
 
-		window.addEventListener("message", handleMessage);
+		// window.addEventListener("message", handleMessage);
+
+		setUser({
+			"id": "69091d967ade6be0946fc085",
+			"googleName": "Brett van Beynum",
+			"googleEmail": "thebeynumco@gmail.com"
+		});
+		setIsLoggedIn(true);
 
 		return () => {
 			window.removeEventListener("message", handleMessage);
 		};
 	}, []);
 
-	useEffect(() => console.log(`isLoggedIn: ${isLoggedIn}, user: ${JSON.stringify(user)}`), [user, isLoggedIn]);
-
 	const openGoogleLogin = () => {
 		setError(null);
-		window.open("/vtp/auth/google", "Google Login", "width=500,height=600");
+		window.open("/vtp/auth/google", "Google Login", "width=700,height=600");
 	};
-		
+
+	const coachBroadcast = () => {
+	};
+
 	return (
 
 		isLoggedIn && user ?
 
 		<div className="dashboard-container">
-			<h1>Dashboard</h1>
-			<div className="user-info">
-				<h2>User Information</h2>
-				<p>Name: {user.googleName}</p>
-				<p>Email: {user.googleEmail}</p>
+			<div className="dashboard-header">
+				<img src="./media/VirtualTeamLogo.png" alt="Virtual Team Parent" className="dashboard-logo" />
+				<h1 className="dashboard-title">Virtual Team Parent</h1>
 			</div>
-			<div className="children-list">
-				<h2>Children</h2>
-				<ul>
-					<li>Child 1</li>
-					<li>Child 2</li>
-				</ul>
-			</div>
-			<div className="calendar">
-				<h2>Calendar</h2>
-				<p>Calendar placeholder</p>
+			<div className="dashboard-grid">
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">Process Coach's Email</h2>
+					<button onClick={ () => coachBroadcast() } className="dashboard-card-button">Process</button>
+				</div>
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">Send Weekly Coach Email</h2>
+					<button disabled className="dashboard-card-button">Send</button>
+				</div>
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">Send Weekly Parent's Email</h2>
+					<button disabled className="dashboard-card-button">Send</button>
+				</div>
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">Send Volunteer Email</h2>
+					<button disabled className="dashboard-card-button">Send</button>
+				</div>
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">Send Request Funds Email</h2>
+					<button disabled className="dashboard-card-button">Send</button>
+				</div>
 			</div>
 		</div>
 
