@@ -223,9 +223,9 @@ export default {
 			const parentName = configValues["Parent Name"];
 			const notifyEmail = configValues["Notify Email"];
 
-			if (!coachEmails || coachEmails.length === 0 || !coachName || !teamEmail || !teamName || !parentName || !notifyEmail) {
-				throw new Error("Missing configuration values in 'Config' Google Sheet.");
-			}
+			// if (!coachEmails || coachEmails.length === 0 || !coachName || !teamEmail || !teamName || !parentName || !notifyEmail) {
+			// 	throw new Error("Missing configuration values in 'Config' Google Sheet.");
+			// }
 
 			// Construct the search query to look for emails from any of the coachEmails that is unread
 
