@@ -17,4 +17,6 @@ router.delete("/vtp/data/vtpuser", data.vtpUserDelete);
 router.get("/vtp/auth/google", api.authGoogle);
 router.get("/vtp/auth/google/callback", api.authGoogleCallback);
 
+router.get("/vtp/api/coachbroadcast", api.coachBroadcast);
+
 export default router;

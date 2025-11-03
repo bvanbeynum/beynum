@@ -1,4 +1,5 @@
 import data from "./vtp.schema.js";
+import mongoose from "mongoose";
 
 export default {
 
@@ -6,7 +7,7 @@ export default {
 		const filter = {};
 
 		if (request.query.id) {
-			filter["_id"] = request.query.id;
+			filter["_id"] = mongoose.Types.ObjectId.isValid(request.query.id) ? request.query.id : null;
 		}
 		if (request.query.token) {
 			filter.token = request.query.token;

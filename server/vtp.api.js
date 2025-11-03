@@ -2,12 +2,6 @@ import client from "superagent";
 import config from "./config.js";
 import { google } from "googleapis";
 
-const oAuth2Client = new google.auth.OAuth2(
-	config.google.client_id,
-	config.google.client_secret,
-	config.google.redirect_uris[0]
-);
-
 export default {
 
 	authGoogle: async (request, response) => {
@@ -139,6 +133,12 @@ export default {
 			// if (new Date(user.refreshExpireDate) < new Date()) {
 			// 	throw new Error("Google refresh token expired. Please re-authenticate with Google.");
 			// }
+
+			const oAuth2Client = new google.auth.OAuth2(
+				config.google.client_id,
+				config.google.client_secret,
+				config.google.redirect_uris[0]
+			);
 
 			oAuth2Client.setCredentials({
 				refresh_token: user.refreshToken,
