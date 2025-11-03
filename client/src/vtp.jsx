@@ -10,10 +10,12 @@ const VirtualTeamParentComponent = () => {
 
 	useEffect(() => {
 		const handleMessage = (event) => {
-			console.log(`origin: ${event.origin}, data: ${event.data}`);
+			console.log(`origin: ${event.origin}, data: ${JSON.stringify(event.data)}`);
 			if (event.origin !== "https://beynum.com") {
 				return;
 			}
+			
+			console.log(`data: ${JSON.stringify(event.data)}`);
 
 			if (event.data && event.data.error) {
 				setError(event.data.error);
