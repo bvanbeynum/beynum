@@ -10,15 +10,15 @@
 
 ## Tasks
 
-- [ ] 1.0 Setup Webpack and Create `vtp.jsx`
-  - [ ] 1.1 Add a new entry for `vtp.jsx` in `webpack.common.js`.
-  - [ ] 1.2 Add a new `HtmlWebpackPlugin` for `vtp.html` in `webpack.common.js`.
-  - [ ] 1.3 Create the initial `vtp.jsx` component with `login` and `dashboard` views.
-- [ ] 2.0 Implement the Login View
-  - [ ] 2.1 Add the `VirtualTeamLogo.png` to the login view.
-  - [ ] 2.2 Add the "Login with Google" button.
-  - [ ] 2.3 Create a new CSS file `vtp.css` for styling, using `index.css` for design inspiration.
-  - [ ] 2.4 Import and apply styles from `vtp.css` to the `vtp.jsx` component.
+- [x] 1.0 Setup Webpack and Create `vtp.jsx`
+  - [x] 1.1 Add a new entry for `vtp.jsx` in `webpack.common.js`.
+  - [x] 1.2 Add a new `HtmlWebpackPlugin` for `vtp.html` in `webpack.common.js`.
+  - [x] 1.3 Create the initial `vtp.jsx` component with `login` and `dashboard` views.
+- [x] 2.0 Implement the Login View
+  - [x] 2.1 Add the `VirtualTeamLogo.png` to the login view.
+  - [x] 2.2 Add the "Login with Google" button.
+  - [x] 2.3 Create a new CSS file `vtp.css` for styling, using `index.css` for design inspiration.
+  - [x] 2.4 Import and apply styles from `vtp.css` to the `vtp.jsx` component.
 - [ ] 3.0 Implement Google OAuth 2.0 Authentication
   - [ ] 3.1 Handle Initial Login Request (Server-Side)
     - [ ] 3.1.1 Create a `GET /vtp/auth/google` route in `vtp.router.js`.

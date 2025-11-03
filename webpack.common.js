@@ -6,7 +6,8 @@ export default {
 		blackjack: "./client/src/blackjack.jsx",
 		sys: "./client/src/sys.jsx",
 		workout: "./client/src/workout.jsx",
-		network: "./client/src/network.jsx"
+		network: "./client/src/network.jsx",
+		vtp: "./client/src/vtp.jsx"
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
@@ -79,6 +80,16 @@ export default {
 				viewport: "width=device-width, initial-scale=1"
 			},
 			chunks: [ "network" ],
+			templateContent: "<html><body><div id='root'></div></body></html>"
+		}),
+		new HtmlWebpackPlugin({ 
+			filename: "vtp.html",
+			title: "VTP",
+			favicon: "./client/src/media/favicon.ico",
+			meta: {
+				viewport: "width=device-width, initial-scale=1"
+			},
+			chunks: [ "vtp" ],
 			templateContent: "<html><body><div id='root'></div></body></html>"
 		})
 	],
