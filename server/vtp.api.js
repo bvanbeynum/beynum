@@ -17,21 +17,29 @@ async function authGoogle(request, response) {
 }
 
 async function authGoogleCallback(request, response) {
-	const authorizationCode = request.query.code;
-	const tokenResponse = await client
-		.post(config.google.token_uri)
-		.send({
-			code: authorizationCode,
-			client_id: config.google.client_id,
-			client_secret: config.google.client_secret,
-			redirect_uri: config.google.redirect_uris[0],
-			grant_type: "authorization_code",
-		});
+	if (request.query.error) {
+		return response.redirect("/vtp.html?error=" + request.query.error);
+	}
 
-	const accessToken = tokenResponse.body.access_token;
-	const refreshToken = tokenResponse.body.refresh_token;
+	try {
+		const authorizationCode = request.query.code;
+		const tokenResponse = await client
+			.post(config.google.token_uri)
+			.send({
+				code: authorizationCode,
+				client_id: config.google.client_id,
+				client_secret: config.google.client_secret,
+				redirect_uri: config.google.redirect_uris[0],
+				grant_type: "authorization_code",
+			});
 
-	response.redirect("/vtp.html");
+		const accessToken = tokenResponse.body.access_token;
+		const refreshToken = tokenResponse.body.refresh_token;
+
+		response.redirect("/vtp.html");
+	} catch (error) {
+		response.redirect("/vtp.html?error=" + error.message);
+	}
 }
 
 export default {

@@ -32,10 +32,10 @@
     - [x] 3.2.4 Make a `POST` request to Google's token endpoint to exchange the code for tokens.
     - [x] 3.2.5 Receive the `access_token` and `refresh_token` from Google.
     - [x] 3.2.6 Redirect the user to the VTP dashboard upon successful token exchange.
-  - [ ] 3.3 Implement Error Handling (Server-Side)
-    - [ ] 3.3.1 In the callback handler, check for an `error` query parameter from Google (if the user denies access).
-    - [ ] 3.3.2 If an error is present, redirect the user to the login page with an error message.
-    - [ ] 3.3.3 Add error handling for the server-to-server token exchange request.
+  - [x] 3.3 Implement Error Handling (Server-Side)
+    - [x] 3.3.1 In the callback handler, check for an `error` query parameter from Google (if the user denies access).
+    - [x] 3.3.2 If an error is present, redirect the user to the login page with an error message.
+    - [x] 3.3.3 Add error handling for the server-to-server token exchange request.
 - [ ] 4.0 Handle User Data
   - [ ] 4.1 Use the `POST /vtp/data/vtpuser` route to save user data on successful login.
 - [ ] 5.0 Implement the Dashboard View
