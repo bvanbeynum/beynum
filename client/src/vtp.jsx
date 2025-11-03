@@ -21,6 +21,7 @@ const VirtualTeamParentComponent = () => {
 				setError(event.data.error);
 			}
 			else if (event.data && event.data.googleName) {
+				console.log("Logged in")
 				setUser(event.data);
 				setIsLoggedIn(true);
 			}
@@ -32,6 +33,8 @@ const VirtualTeamParentComponent = () => {
 			window.removeEventListener("message", handleMessage);
 		};
 	}, []);
+
+	useEffect(() => console.log(`isLoggedIn: ${isLoggedIn}, user: ${JSON.stringify(user)}`), [user, isLoggedIn]);
 
 	const openGoogleLogin = () => {
 		setError(null);
