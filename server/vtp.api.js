@@ -9,7 +9,9 @@ export default {
 			client_id: config.google.client_id,
 			redirect_uri: config.google.redirect_uris[0],
 			response_type: "code",
-			scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+			scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/drive",
+			access_type: "offline",
+			prompt: "consent",
 		};
 
 		const queryString = new URLSearchParams(query).toString();
@@ -54,6 +56,13 @@ export default {
 				.set("Authorization", `Bearer ${accessToken}`);
 			
 			console.log(`user profile response: ${JSON.stringify(userProfileResponse.body)}`);
+
+			const saveUser = {
+				googleName: userProfileResponse.body?.name,
+				googleEmail: userProfileResponse.body?.email,
+				refreshToken: refreshToken
+			};
+			console.log(`save user: ${JSON.stringify(saveUser)}`);
 
 			// await client.post("http://localhost:3000/vtp/data/vtpuser").send(userProfileResponse.body);
 

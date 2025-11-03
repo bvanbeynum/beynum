@@ -6,13 +6,9 @@ const cnBeynum = mongoose.createConnection(`mongodb://${config.db.beynum.user}:$
 export default {
 
 	vtpUser: cnBeynum.model("vtpUser", {
-		"accessToken": String,
-		"refreshToken": String,
-		"tokenURI": String,
-		"clientId": String,
-		"clientSecret": String,
-		"scopes": [ String ],
-		"expires": Date
+		googleName: String,
+		googleEmail: String,
+		refreshToken: String
 	})
 
 };
