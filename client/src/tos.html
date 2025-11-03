@@ -114,7 +114,7 @@
 
 					<h2>11. Contact Us</h2>
 					<p>
-						If you have any questions about these Terms, please contact us at: <a href="mailto:thebeynumco@gmail.com">thebeynumco@gmail.com</a>
+						If you have any questions about these Terms, please contact us at: <span id="email-contact"></span>
 					</p>
 
 				</div>
@@ -133,6 +133,16 @@
 	<script>
 		document.getElementById('current-year').textContent = new Date().getFullYear();
 	</script>
-
+	
+	<script>
+		(function() {
+			var user = 'thebeynumco';
+			var domain = 'gmail.com';
+			var emailLink = document.getElementById('email-contact');
+			if (emailLink) {
+				emailLink.innerHTML = '<a href="mailto:' + user + '@' + domain + '">' + user + '@' + domain + '</a>';
+			}
+		})();
+	</script>
 </body>
 </html>
