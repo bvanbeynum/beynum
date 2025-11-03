@@ -72,17 +72,14 @@ export default {
 				};
 			}
 
-			console.log(`save user: ${JSON.stringify(saveUser)}`);
-
 			const clientResponse = await client.post(`${ request.serverPath }/vtp/data/vtpuser`).send(saveUser);
-			console.log(`client response: ${JSON.stringify(clientResponse.body)}`);
 			saveUser.id = clientResponse.body.id;
 
 			response.send(`
 				<html>
 					<body>
 						<script>
-							window.opener.postMessage(${JSON.stringify(saveUser)}, 'https://beynum.com');
+							window.opener.postMessage(${JSON.stringify(saveUser.vtpuser)}, 'https://beynum.com');
 							window.close();
 						</script>
 						<p>Authenticated successfully. You can close this window.</p>
