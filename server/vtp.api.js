@@ -220,21 +220,36 @@ export default {
 			const coachName = configValues["Coach Name"];
 			const teamEmail = configValues["Team Email"];
 			const teamName = configValues["Team Name"];
-			const parentName = configValues["Parent Name"];
 			const notifyEmail = configValues["Notify Email"];
 
-			// if (!coachEmails || coachEmails.length === 0 || !coachName || !teamEmail || !teamName || !parentName || !notifyEmail) {
-			// 	throw new Error("Missing configuration values in 'Config' Google Sheet.");
-			// }
+			if (!coachEmails || coachEmails.length === 0 || !coachName || !teamEmail || !teamName || !notifyEmail) {
+				throw new Error("Missing configuration values in 'Config' Google Sheet.");
+			}
 
 			// Construct the search query to look for emails from any of the coachEmails that is unread
+			const searchQuery = `is:unread (${coachEmails.map(email => `from:${email}`).join(' OR ')})`;
+
+			const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+			const gmailResponse = await gmail.users.messages.list({
+				userId: 'me',
+				q: searchQuery,
+			});
 
 			// If no emails are found, then return a successful response indicating no emails to process
+			if (!gmailResponse.data.messages || gmailResponse.data.messages.length === 0) {
+				return response.status(200).json({
+					message: "No new coach emails to process.",
+					config: configValues,
+					coachEmails: coachEmails,
+					teamEmails: teamEmails
+				});
+			}
 
 			response.status(200).json({ 
 				config: configValues,
 				coachEmails: coachEmails,
-				teamEmails: teamEmails
+				teamEmails: teamEmails,
+				emails: gmailResponse.data.messages
 			});
 		}
 		catch (error) {
