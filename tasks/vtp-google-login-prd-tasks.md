@@ -19,7 +19,7 @@
   - [x] 2.2 Add the "Login with Google" button.
   - [x] 2.3 Create a new CSS file `vtp.css` for styling, using `index.css` for design inspiration.
   - [x] 2.4 Import and apply styles from `vtp.css` to the `vtp.jsx` component.
-- [ ] 3.0 Implement Google OAuth 2.0 Authentication
+- [x] 3.0 Implement Google OAuth 2.0 Authentication
   - [x] 3.1 Handle Initial Login Request (Server-Side)
     - [x] 3.1.1 Create a `GET /vtp/auth/google` route in `vtp.router.js`.
     - [x] 3.1.2 In `vtp.api.js`, create a function to be called by the route.
@@ -36,8 +36,8 @@
     - [x] 3.3.1 In the callback handler, check for an `error` query parameter from Google (if the user denies access).
     - [x] 3.3.2 If an error is present, redirect the user to the login page with an error message.
     - [x] 3.3.3 Add error handling for the server-to-server token exchange request.
-- [ ] 4.0 Handle User Data
-  - [ ] 4.1 Use the `POST /vtp/data/vtpuser` route to save user data on successful login.
+- [x] 4.0 Handle User Data
+  - [x] 4.1 Use the `POST /vtp/data/vtpuser` route to save user data on successful login.
 - [ ] 5.0 Implement the Dashboard View
   - [ ] 5.1 Create the basic structure of the dashboard view.
   - [ ] 5.2 Add placeholder elements for future functionality.

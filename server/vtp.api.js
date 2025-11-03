@@ -36,6 +36,12 @@ async function authGoogleCallback(request, response) {
 		const accessToken = tokenResponse.body.access_token;
 		const refreshToken = tokenResponse.body.refresh_token;
 
+		const userProfileResponse = await client
+			.get("https://www.googleapis.com/oauth2/v2/userinfo")
+			.set("Authorization", `Bearer ${accessToken}`);
+
+		await client.post("http://localhost:3000/vtp/data/vtpuser").send(userProfileResponse.body);
+
 		response.redirect("/vtp.html");
 	} catch (error) {
 		response.redirect("/vtp.html?error=" + error.message);
