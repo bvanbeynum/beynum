@@ -2,7 +2,8 @@ import client from "superagent";
 import config from "./config.js";
 import { google } from "googleapis";
 import { Readable } from "stream";
-import { parse as markedParse } from "./marked.cjs";
+import pkg from './marked.cjs';
+const { parse: markedParse } = pkg;
 
 /**
  * Extracts text from a Gmail attachment using a robust two-step process:
