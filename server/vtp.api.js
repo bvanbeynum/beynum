@@ -361,7 +361,7 @@ export default {
 				}
 
 				// Send the attachments to google drive to use OCR to extract the text
-				const attachmentText = "";
+				let attachmentText = "";
 				if (emailResponse.data.payload.parts) {
 					for (const part of emailResponse.data.payload.parts) {
 						if (part.filename && part.body && part.body.attachmentId) {
