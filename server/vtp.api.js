@@ -448,6 +448,7 @@ ${ extractedText }
 				}
 				
 				const rewrittenEmail = await rewriteWithGemini(body, attachmentText, coachName, teamName);
+				console.log(marked);
 				const htmlEmailBody = '<meta charset="UTF-8">' + marked.default.parse(rewrittenEmail);
 				const batchSize = 40;
 
