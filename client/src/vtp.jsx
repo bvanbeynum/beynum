@@ -8,11 +8,11 @@ const VirtualTeamParentComponent = () => {
 	const [user, setUser] = useState(null);
 	const [error, setError] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [draftsCreated, setDraftsCreated] = useState(null);
+	const [processResult, setProcessResult] = useState(null);
 
 	useEffect(() => {
 		const handleMessage = (event) => {
-			if (event.origin !== "https://beynum.com") {
+			if (!/^https?:\/\/([a-z0-9-]+\.)*beynum\.com$/.test(event.origin)) {
 				return;
 			}
 			
@@ -42,15 +42,20 @@ const VirtualTeamParentComponent = () => {
 	const coachBroadcast = async () => {
 		setIsLoading(true);
 		setError(null);
-		setDraftsCreated(null);
+		setProcessResult(null);
 
 		try {
 			const response = await fetch("/vtp/api/coachbroadcast?id=" + user.id);
 			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+				throw new Error(`HTTP error (${response.status}): ${ response.statusText }`);
 			}
+
 			const data = await response.json();
-			setDraftsCreated(data.draftsCreated);
+			if (data.draftsCreated) {
+				setProcessResult(`${data.draftsCreated} drafts created.`);
+			} else if (data.message) {
+				setProcessResult(data.message);
+			}
 		} catch (error) {
 			console.error("Error during coach broadcast:", error);
 			setError("Failed to process coach's email.");
@@ -71,12 +76,16 @@ const VirtualTeamParentComponent = () => {
 			<div className="dashboard-grid">
 				<div className="dashboard-card">
 					<h2 className="dashboard-card-title">Process Coach's Email</h2>
+
 					<button onClick={ () => coachBroadcast() } className="dashboard-card-button" disabled={isLoading}>
 						{isLoading ? "Processing..." : "Process"}
 					</button>
-					{draftsCreated !== null && (
-						<p className="dashboard-card-message">{draftsCreated} drafts created.</p>
+
+					{processResult && (
+						<p className="dashboard-card-message">{processResult}</p>
 					)}
+					
+					{error && <div className="error-message">{error}</div>}
 				</div>
 
 				<div className="dashboard-card">
@@ -105,7 +114,9 @@ const VirtualTeamParentComponent = () => {
 
 		<div className="login-container">
 			<img src="./media/VirtualTeamLogo.png" alt="Virtual Team Parent" className="logo" />
+			
 			{error && <div className="error-message">{error}</div>}
+			
 			<button onClick={openGoogleLogin} className="login-button">
 				Login with Google
 			</button>

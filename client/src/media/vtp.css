@@ -139,3 +139,8 @@ h1 {
 .dashboard-card-button:hover {
 	background-color: #357ABD;
 }
+
+.error-message {
+	color: red;
+	font-weight: bold;
+}
