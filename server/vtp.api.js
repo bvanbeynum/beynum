@@ -510,7 +510,7 @@ ${ extractedText }
 
 					totalDraftsCreated++;
 				}
-				await gmail.users.messages.update({
+				await gmail.users.messages.modify({
 					userId: 'me',
 					id: message.id,
 					requestBody: {
