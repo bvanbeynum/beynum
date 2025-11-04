@@ -388,7 +388,7 @@ ${ extractedText }
 					id: message.id,
 					subject: subject,
 					body: body,
-					attachments: attachments
+					attachmentText: attachmentText
 				});
 			}
 
