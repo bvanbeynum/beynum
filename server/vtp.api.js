@@ -2,7 +2,7 @@ import client from "superagent";
 import config from "./config.js";
 import { google } from "googleapis";
 import { Readable } from "stream";
-import marked from "./marked.js";
+import * as marked from "./marked.js";
 
 /**
  * Extracts text from a Gmail attachment using a robust two-step process:
