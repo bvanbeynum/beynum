@@ -45,7 +45,7 @@ const VirtualTeamParentComponent = () => {
 		setDraftsCreated(null);
 
 		try {
-			const response = await fetch("/vtp/api/coachbroadcast");
+			const response = await fetch("/vtp/api/coachbroadcast?id=" + user.id);
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
