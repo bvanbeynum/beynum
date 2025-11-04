@@ -1,6 +1,98 @@
 import client from "superagent";
 import config from "./config.js";
 import { google } from "googleapis";
+import { Readable } from "stream";
+
+/**
+ * Extracts text from a Gmail attachment using a robust two-step process:
+ * 1. Upload the file to Drive.
+ * 2. Copy the uploaded file into a new Google Doc, forcing OCR conversion.
+ * @param {GmailAttachment} attachment The attachment object from Gmail.
+ * @return {string} The extracted text from the document.
+ */
+async function getTextFromAttachment(gmail, drive, messageId, attachmentId, filename, mimeType) {
+	let uploadedFileId = null;
+	let convertedDocId = null;
+	let extractedText = '';
+
+	try {
+		// 1. Get attachment content from Gmail
+		const attachment = await gmail.users.messages.attachments.get({
+			userId: 'me',
+			messageId: messageId,
+			id: attachmentId,
+		});
+
+		const buffer = Buffer.from(attachment.data.data, 'base64');
+		const stream = new Readable();
+		stream.push(buffer);
+		stream.push(null);
+
+		// 2. Upload to Drive
+		const uploadedFile = await drive.files.create({
+			requestBody: {
+				name: filename,
+			},
+			media: {
+				mimeType: mimeType,
+				body: stream,
+			},
+			fields: 'id',
+		});
+		uploadedFileId = uploadedFile.data.id;
+
+		if (!uploadedFileId) {
+			throw new Error('Failed to upload the initial file to Drive.');
+		}
+
+		await new Promise(resolve => setTimeout(resolve, 3000));
+
+		// 3. Copy to Google Doc to trigger OCR
+		const newDocTitle = filename.replace(/\.[^/.]+$/, '');
+		const convertedDoc = await drive.files.copy({
+			fileId: uploadedFileId,
+			ocr: true,
+			ocrLanguage: 'en',
+			requestBody: {
+				name: newDocTitle,
+				mimeType: 'application/vnd.google-apps.document',
+			},
+			fields: 'id',
+		});
+		convertedDocId = convertedDoc.data.id;
+
+		if (!convertedDocId) {
+			throw new Error('Failed to get an ID for the converted Google Doc.');
+		}
+
+		// 4. Export the Google Doc as plain text
+		const exportedDoc = await drive.files.export({
+			fileId: convertedDocId,
+			mimeType: 'text/plain',
+		}, { responseType: 'stream' });
+
+		extractedText = await new Promise((resolve, reject) => {
+			let text = '';
+			exportedDoc.data.on('data', chunk => (text += chunk));
+			exportedDoc.data.on('end', () => resolve(text));
+			exportedDoc.data.on('error', reject);
+		});
+
+	} catch (e) {
+		console.error(`Fatal error during text extraction: ${e.message}`);
+		return `[Error: Could not process attachment: ${filename}]`;
+	} finally {
+		// 5. Clean up
+		if (uploadedFileId) {
+			await drive.files.delete({ fileId: uploadedFileId });
+		}
+		if (convertedDocId) {
+			await drive.files.delete({ fileId: convertedDocId });
+		}
+	}
+
+	return extractedText;
+}
 
 export default {
 
@@ -238,10 +330,60 @@ export default {
 			// If no emails are found, then return a successful response indicating no emails to process
 			if (!gmailResponse.data.messages || gmailResponse.data.messages.length === 0) {
 				return response.status(200).json({
-					message: "No new coach emails to process.",
-					config: configValues,
-					coachEmails: coachEmails,
-					teamEmails: teamEmails
+					message: "No new coach emails to process."
+				});
+			}
+
+			const processedEmails = [];
+			for (const message of gmailResponse.data.messages) {
+				const emailResponse = await gmail.users.messages.get({
+					userId: 'me',
+					id: message.id,
+					format: 'full'
+				});
+
+				// Get the subject, body and attachments from the email
+				const headers = emailResponse.data.payload.headers;
+				const subject = headers.find(header => header.name === 'Subject').value;
+				
+				let body = '';
+				if (emailResponse.data.payload.parts) {
+					const part = emailResponse.data.payload.parts.find(p => p.mimeType === 'text/plain');
+					if (part && part.body.data) {
+						body = Buffer.from(part.body.data, 'base64').toString('utf-8');
+					}
+				} else if (emailResponse.data.payload.body.data) {
+					body = Buffer.from(emailResponse.data.payload.body.data, 'base64').toString('utf-8');
+				}
+
+				if (!body) {
+					body = emailResponse.data.snippet;
+				}
+
+				const attachments = [];
+				if (emailResponse.data.payload.parts) {
+					for (const part of emailResponse.data.payload.parts) {
+						if (part.filename && part.body && part.body.attachmentId) {
+							const attachment = {
+								filename: part.filename,
+								mimeType: part.mimeType,
+								attachmentId: part.body.attachmentId
+							};
+
+							if (part.mimeType === "application/pdf" || part.mimeType.startsWith("image/")) {
+								attachment.text = await getTextFromAttachment(gmail, drive, message.id, part.body.attachmentId, part.filename, part.mimeType);
+							}
+
+							attachments.push(attachment);
+						}
+					}
+				}
+				
+				processedEmails.push({
+					id: message.id,
+					subject: subject,
+					body: body,
+					attachments: attachments
 				});
 			}
 
@@ -249,7 +391,7 @@ export default {
 				config: configValues,
 				coachEmails: coachEmails,
 				teamEmails: teamEmails,
-				emails: gmailResponse.data.messages
+				emails: processedEmails
 			});
 		}
 		catch (error) {
