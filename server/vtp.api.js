@@ -10,7 +10,7 @@ export default {
 			client_id: config.google.client_id,
 			redirect_uri: config.google.redirect_uris[0],
 			response_type: "code",
-			scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets",
+			scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets",
 			access_type: "offline",
 			prompt: "consent",
 		};
