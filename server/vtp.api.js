@@ -2,7 +2,9 @@ import client from "superagent";
 import config from "./config.js";
 import { google } from "googleapis";
 import { Readable } from "stream";
-import * as marked from "./marked.js";
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const marked = require('./marked.js');
 
 /**
  * Extracts text from a Gmail attachment using a robust two-step process:
@@ -448,8 +450,7 @@ ${ extractedText }
 				}
 				
 				const rewrittenEmail = await rewriteWithGemini(body, attachmentText, coachName, teamName);
-				console.log(marked);
-				const htmlEmailBody = '<meta charset="UTF-8">' + marked.default.parse(rewrittenEmail);
+				const htmlEmailBody = '<meta charset="UTF-8">' + marked(rewrittenEmail);
 				const batchSize = 40;
 
 				for (let emailIndex = 0; emailIndex < parentEmails.length; emailIndex += batchSize) {
