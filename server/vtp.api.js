@@ -2,6 +2,7 @@ import client from "superagent";
 import config from "./config.js";
 import { google } from "googleapis";
 import { Readable } from "stream";
+import marked from "marked";
 
 /**
  * Extracts text from a Gmail attachment using a robust two-step process:
@@ -94,7 +95,7 @@ async function getTextFromAttachment(gmail, drive, messageId, attachmentId, file
 	return extractedText;
 }
 
-async function rewriteWithGemini(subject, body, attachmentText, coachName, parentName, teamName) {
+async function rewriteWithGemini(body, attachmentText, coachName, teamName) {
 	const API_KEY = config.geminiAPIKey;
 	if (!API_KEY) {
 		console.error("GEMINI_API_KEY not set.");
@@ -129,7 +130,6 @@ Here are your instructions:
 - IMPORTANT: Do not add any information that was not in the original email body or the attached document. Just reformat and rephrase what is there.
 
 **Original Email from Coach ${coachName}:**
-Subject: ${subject}
 Body:
 ---
 ${body}
@@ -266,6 +266,7 @@ export default {
 			return;
 		}
 
+		let totalDraftsCreated = 0;
 		let user = null;
 		try {
 			const clientResponse = await client.get(`${ request.serverPath }/vtp/data/vtpuser?id=${ request.query.id }`);
@@ -348,7 +349,7 @@ export default {
 				range: `${parentEmailsSheetName}!${emailColumn}2:${emailColumn}`,
 			});
 
-			const teamEmails = teamEmailResponse.data.values ? teamEmailResponse.data.values.flat().filter(email => email) : [];
+			const parentEmails = teamEmailResponse.data.values ? teamEmailResponse.data.values.flat().filter(email => email) : [];
 
 			// Get the configuration settings
 			const configValuesResponse = await sheets.spreadsheets.values.get({
@@ -446,7 +447,71 @@ ${ extractedText }
 					}
 				}
 				
-				const rewrittenEmail = await rewriteWithGemini(subject, body, attachmentText, coachName, user.googleName, teamName);
+				const rewrittenEmail = await rewriteWithGemini(body, attachmentText, coachName, teamName);
+				
+				const htmlEmailBody = '<meta charset="UTF-8">' + marked.parse(rewrittenEmail);
+				const batchSize = 40;
+
+				for (let emailIndex = 0; emailIndex < parentEmails.length; emailIndex += batchSize) {
+					const emailBatch = parentEmails.slice(emailIndex, emailIndex + batchSize);
+
+					const boundary = `----=_Part_${Math.random().toString().slice(2)}`;
+					const emailLines = [
+						`To: "${user.googleName}" <${user.googleEmail}>`,
+						`Bcc: ${emailBatch.join(',')}`,
+						`Subject: ${subject}`,
+						'MIME-Version: 1.0',
+						`Content-Type: multipart/mixed; boundary="${boundary}"`,
+						'',
+						`--${boundary}`,
+						'Content-Type: text/html; charset="UTF-8"',
+						'Content-Transfer-Encoding: 7bit',
+						'',
+						htmlEmailBody,
+						''
+					];
+
+					const attachments = [];
+					if (emailResponse.data.payload.parts) {
+						for (const part of emailResponse.data.payload.parts) {
+							if (part.filename && part.body && part.body.attachmentId) {
+								attachments.push(part);
+							}
+						}
+					}
+
+					for (const part of attachments) {
+						const attachmentData = await gmail.users.messages.attachments.get({
+							id: part.body.attachmentId,
+							messageId: message.id,
+							userId: 'me'
+						});
+						emailLines.push(`--${boundary}`);
+						emailLines.push(`Content-Type: ${part.mimeType}; name="${part.filename}"`);
+						emailLines.push('Content-Transfer-Encoding: base64');
+						emailLines.push(`Content-Disposition: attachment; filename="${part.filename}"`);
+						emailLines.push('');
+						emailLines.push(attachmentData.data.data);
+						emailLines.push('');
+					}
+
+					emailLines.push(`--${boundary}--`);
+
+					const email = emailLines.join('\r\n');
+					const base64EncodedEmail = Buffer.from(email).toString('base64url');
+
+					await gmail.users.drafts.create({
+						userId: 'me',
+						requestBody: {
+							message: {
+								raw: base64EncodedEmail
+							}
+						}
+					});
+
+					totalDraftsCreated++;
+				}
+				// message.markRead();
 
 				processedEmails.push({
 					id: message.id,
@@ -460,7 +525,7 @@ ${ extractedText }
 			response.status(200).json({ 
 				config: configValues,
 				coachEmails: coachEmails,
-				teamEmails: teamEmails,
+				parentEmails: parentEmails,
 				emails: processedEmails
 			});
 		}
