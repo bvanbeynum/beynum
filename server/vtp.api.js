@@ -360,21 +360,26 @@ export default {
 					body = emailResponse.data.snippet;
 				}
 
-				const attachments = [];
+				// Send the attachments to google drive to use OCR to extract the text
+				const attachmentText = "";
 				if (emailResponse.data.payload.parts) {
 					for (const part of emailResponse.data.payload.parts) {
 						if (part.filename && part.body && part.body.attachmentId) {
-							const attachment = {
-								filename: part.filename,
-								mimeType: part.mimeType,
-								attachmentId: part.body.attachmentId
-							};
 
 							if (part.mimeType === "application/pdf" || part.mimeType.startsWith("image/")) {
-								attachment.text = await getTextFromAttachment(gmail, drive, message.id, part.body.attachmentId, part.filename, part.mimeType);
-							}
+								const extractedText = await getTextFromAttachment(gmail, drive, message.id, part.body.attachmentId, part.filename, part.mimeType);
 
-							attachments.push(attachment);
+								if (extractedText && extractedText.trim().length > 0) {
+									attachmentText += `
+----
+Attachment: ${ part.filename }
+
+${ extractedText }
+
+----
+`
+								}
+							}
 						}
 					}
 				}
