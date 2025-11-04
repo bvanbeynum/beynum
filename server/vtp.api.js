@@ -94,6 +94,68 @@ async function getTextFromAttachment(gmail, drive, messageId, attachmentId, file
 	return extractedText;
 }
 
+async function rewriteWithGemini(subject, body, attachmentText, coachName, parentName, teamName) {
+	const API_KEY = config.geminiAPIKey;
+	if (!API_KEY) {
+		console.error("GEMINI_API_KEY not set.");
+		return null;
+	}
+	const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+	const attachmentPromptSection = attachmentText
+		? `
+---
+IMPORTANT: Please also incorporate the key information from this attached document:
+ATTACHED DOCUMENT TEXT:
+${attachmentText}
+---
+`
+		: '';
+
+	const prompt = `
+You are a helpful parent volunteer for the fort mill high school wrestling team, the ${teamName}. Your task is to rewrite an email from Coach ${coachName} into a clear, friendly, and concise message for all the other parents.
+
+Here are your instructions:
+- Keep the tone positive, encouraging and excited.
+- Start with a friendly greeting like "Hi Team Parents,".
+- Clearly state the main points (e.g., practice time changes, game location, required gear). Use bullet points for lists if it makes it easier to read.
+- Make it fun by adding emoji
+- Remove any coach-specific jargon or overly technical language.
+- Ensure all key details like dates, times, and locations are present and easy to find.
+- Conclude with support for ${teamName} and don't sign your name.
+- Do not include any place holders. The email should be ready to send without review.
+- AVOID call to action. Only provide information in an informative way.
+- Don't repeat the subject in the body.
+- IMPORTANT: Do not add any information that was not in the original email body or the attached document. Just reformat and rephrase what is there.
+
+**Original Email from Coach ${coachName}:**
+Subject: ${subject}
+Body:
+---
+${body}
+---
+${attachmentPromptSection}
+`;
+
+	const requestBody = { "contents": [{ "parts": [{ "text": prompt }] }] };
+
+	try {
+		const response = await client.post(url)
+			.send(requestBody)
+			.set('Content-Type', 'application/json');
+
+		if (response.status === 200) {
+			return response.body.candidates[0].content.parts[0].text;
+		} else {
+			console.error(`Error calling Gemini API. Status: ${response.status}. Response: ${JSON.stringify(response.body)}`);
+			return null;
+		}
+	} catch (e) {
+		console.error(`Exception calling Gemini API: ${e.message}`);
+		return null;
+	}
+}
+
 export default {
 
 	authGoogle: async (request, response) => {
@@ -384,11 +446,14 @@ ${ extractedText }
 					}
 				}
 				
+				const rewrittenEmail = await rewriteWithGemini(subject, body, attachmentText, coachName, user.googleName, teamName);
+
 				processedEmails.push({
 					id: message.id,
 					subject: subject,
 					body: body,
-					attachmentText: attachmentText
+					attachmentText: attachmentText,
+					rewrittenEmail: rewrittenEmail
 				});
 			}
 
