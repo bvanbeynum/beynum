@@ -398,7 +398,6 @@ export default {
 				});
 			}
 
-			const processedEmails = [];
 			for (const message of gmailResponse.data.messages) {
 				const emailResponse = await gmail.users.messages.get({
 					userId: 'me',
@@ -511,22 +510,18 @@ ${ extractedText }
 
 					totalDraftsCreated++;
 				}
-				// message.markRead();
-
-				processedEmails.push({
+				await gmail.users.messages.update({
+					userId: 'me',
 					id: message.id,
-					subject: subject,
-					body: body,
-					attachmentText: attachmentText,
-					rewrittenEmail: rewrittenEmail
+					requestBody: {
+						removeLabelIds: ['UNREAD']
+					}
 				});
+
 			}
 
-			response.status(200).json({ 
-				config: configValues,
-				coachEmails: coachEmails,
-				parentEmails: parentEmails,
-				emails: processedEmails
+			response.status(200).json({
+				draftsCreated: totalDraftsCreated
 			});
 		}
 		catch (error) {
