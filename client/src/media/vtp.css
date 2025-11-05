@@ -81,8 +81,7 @@ h1 {
 }
 
 .dashboard-logo {
-	width: 60px;
-	height: 60px;
+	width: 100px;
 	margin-right: 20px;
 }
 
@@ -130,10 +129,17 @@ h1 {
 	align-self: flex-start;
 }
 
+input.dashboard-card-input {
+	border: 0;
+	border-bottom: 1px solid rgb(119 119 119);
+	margin: 10px 0px;
+	outline: none;
+}
+
 .dashboard-card-button:disabled {
-    background-color: rgb(195 195 195 / 30%);
-    color: rgb(0 0 0 / 30%);
-    border-color: rgb(79 79 79 / 30%);
+	background-color: rgb(195 195 195 / 30%);
+	color: rgb(0 0 0 / 30%);
+	border-color: rgb(79 79 79 / 30%);
 }
 
 .dashboard-card-button:hover {

@@ -12,8 +12,8 @@ export default {
 		if (request.query.token) {
 			filter.token = request.query.token;
 		}
-		if (request.query.email) {
-			filter.email = request.query.email;
+		if (request.query.googleid) {
+			filter.googleId = request.query.googleid;
 		}
 
 		data.vtpUser.find(filter)

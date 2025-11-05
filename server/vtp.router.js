@@ -18,5 +18,7 @@ router.get("/vtp/auth/google", api.authGoogle);
 router.get("/vtp/auth/google/callback", api.authGoogleCallback);
 
 router.get("/vtp/api/coachbroadcast", api.coachBroadcast);
+router.get("/vtp/api/teamfunds", api.teamFunds);
+router.post("/vtp/api/saveindexsheet", api.saveIndexSheet);
 
 export default router;

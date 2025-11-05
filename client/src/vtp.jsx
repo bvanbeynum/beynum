@@ -8,7 +8,20 @@ const VirtualTeamParentComponent = () => {
 	const [user, setUser] = useState(null);
 	const [error, setError] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [processResult, setProcessResult] = useState(null);
+
+	const [coachBroadcastLoading, setCoachBroadcastLoading] = useState(null);
+	const [coachBroadcastResult, setCoachBroadcastResult] = useState(null);
+	const [coachBroadcastError, setCoachBroadcastError] = useState(null);
+
+	const [teamFundsLoading, setTeamFundsLoading] = useState(null);
+	const [teamFundsResult, setTeamFundsResult] = useState(null);
+	const [teamFundsError, setTeamFundsError] = useState(null);
+
+	const [sheetId, setSheetId] = useState(null);
+	const [sheetUrl, setSheetUrl] = useState("");
+	const [sheetIdLoading, setSheetIdLoading] = useState(null);
+	const [sheetIdResult, setSheetIdResult] = useState(null);
+	const [sheetIdError, setSheetIdError] = useState(null);
 
 	useEffect(() => {
 		const handleMessage = (event) => {
@@ -21,6 +34,11 @@ const VirtualTeamParentComponent = () => {
 			}
 			else if (event.data && event.data.googleName) {
 				setUser(event.data);
+
+				if (event.data.indexSheetId) {
+					setSheetId(event.data.indexSheetId);
+				}
+
 				setIsLoggedIn(true);
 				
 				window.removeEventListener("message", handleMessage);
@@ -36,13 +54,52 @@ const VirtualTeamParentComponent = () => {
 
 	const openGoogleLogin = () => {
 		setError(null);
-		window.open("/vtp/auth/google", "Google Login", "width=1000,height=600");
+		window.open("/vtp/auth/google", "Google Login", "width=1000,height=700");
 	};
+
+	const saveIndexSheet = async () => {
+		setIsLoading(true);
+		setSheetIdLoading(true);
+		setSheetIdError(null);
+		setSheetIdResult(null);
+
+		try {
+			const response = await fetch("/vtp/api/saveindexsheet", {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					sheetUrl: sheetUrl,
+					userId: user.id
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error (${response.status}): ${ response.statusText }`);
+			}
+
+			const data = await response.json();
+			if (data.sheetId) {
+				setSheetId(data.sheetId);
+				setSheetIdResult("Sheet ID Saved");
+			}
+		}
+		catch (error) {
+			console.error("Error during save index sheet:", error);
+			setSheetIdError("Failed to save index sheet.");
+		}
+		finally {
+			setIsLoading(false);
+			setSheetIdLoading(false);
+		}
+	}
 
 	const coachBroadcast = async () => {
 		setIsLoading(true);
-		setError(null);
-		setProcessResult(null);
+		setCoachBroadcastLoading(true);
+		setCoachBroadcastError(null);
+		setCoachBroadcastResult(null);
 
 		try {
 			const response = await fetch("/vtp/api/coachbroadcast?id=" + user.id);
@@ -52,15 +109,41 @@ const VirtualTeamParentComponent = () => {
 
 			const data = await response.json();
 			if (data.draftsCreated) {
-				setProcessResult(`${data.draftsCreated} drafts created.`);
+				setCoachBroadcastResult(`${data.draftsCreated} drafts created.`);
 			} else if (data.message) {
-				setProcessResult(data.message);
+				setCoachBroadcastResult(data.message);
 			}
 		} catch (error) {
 			console.error("Error during coach broadcast:", error);
-			setError("Failed to process coach's email.");
+			setCoachBroadcastError("Failed to process coach's email.");
 		} finally {
 			setIsLoading(false);
+			setCoachBroadcastLoading(false);
+		}
+	};
+
+	const teamFunds = async () => {
+		setIsLoading(true);
+		setTeamFundsLoading(true);
+		setTeamFundsError(null);
+		setTeamFundsResult(null);
+
+		try {
+			const response = await fetch("/vtp/api/teamfunds?id=" + user.id);
+			if (!response.ok) {
+				throw new Error(`HTTP error (${response.status}): ${ response.statusText }`);
+			}
+
+			const data = await response.json();
+			if (data.message) {
+				setTeamFundsResult(data.message);
+			}
+		} catch (error) {
+			console.error("Error during team funds:", error);
+			setTeamFundsError("Failed to process team funds email.");
+		} finally {
+			setIsLoading(false);
+			setTeamFundsLoading(false);
 		}
 	};
 
@@ -73,40 +156,67 @@ const VirtualTeamParentComponent = () => {
 				<img src="./media/VirtualTeamLogo.png" alt="Virtual Team Parent" className="dashboard-logo" />
 				<h1 className="dashboard-title">Virtual Team Parent</h1>
 			</div>
+
 			<div className="dashboard-grid">
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">VTP Index Sheet</h2>
+					
+					<input type="text" value={sheetUrl} onChange={e => setSheetUrl(e.target.value)} placeholder="Enter Google Sheet URL" className="dashboard-card-input" />
+
+					<button onClick={ () => saveIndexSheet() } className="dashboard-card-button" disabled={isLoading}>
+						{sheetIdLoading ? "Saving..." : "Save"}
+					</button>
+
+					{sheetIdResult && (
+						<p className="dashboard-card-message">{sheetIdResult}</p>
+					)}
+
+					{sheetIdError && <div className="error-message">{sheetIdError}</div>}
+				</div>
+
 				<div className="dashboard-card">
 					<h2 className="dashboard-card-title">Process Coach's Email</h2>
 
-					<button onClick={ () => coachBroadcast() } className="dashboard-card-button" disabled={isLoading}>
-						{isLoading ? "Processing..." : "Process"}
+					<button onClick={ () => coachBroadcast() } className="dashboard-card-button" disabled={isLoading || !sheetId}>
+						{coachBroadcastLoading ? "Processing..." : "Process"}
 					</button>
 
-					{processResult && (
-						<p className="dashboard-card-message">{processResult}</p>
+					{coachBroadcastResult && (
+						<p className="dashboard-card-message">{coachBroadcastResult}</p>
 					)}
 					
-					{error && <div className="error-message">{error}</div>}
+					{coachBroadcastError && <div className="error-message">{coachBroadcastError}</div>}
 				</div>
-
-				<div className="dashboard-card">
-					<h2 className="dashboard-card-title">Send Weekly Coach Email</h2>
-					<button disabled className="dashboard-card-button">Send</button>
-				</div>
-
-				<div className="dashboard-card">
-					<h2 className="dashboard-card-title">Send Weekly Parent's Email</h2>
-					<button disabled className="dashboard-card-button">Send</button>
-				</div>
-
+				
 				<div className="dashboard-card">
 					<h2 className="dashboard-card-title">Send Volunteer Email</h2>
-					<button disabled className="dashboard-card-button">Send</button>
+					<button className="dashboard-card-button" disabled>Process</button>
 				</div>
 
 				<div className="dashboard-card">
 					<h2 className="dashboard-card-title">Send Request Funds Email</h2>
-					<button disabled className="dashboard-card-button">Send</button>
+
+					<button onClick={ () => teamFunds() } className="dashboard-card-button" disabled={isLoading || !sheetId}>
+						{teamFundsLoading ? "Processing..." : "Process"}
+					</button>
+
+					{teamFundsResult && (
+						<p className="dashboard-card-message">{teamFundsResult}</p>
+					)}
+					
+					{teamFundsError && <div className="error-message">{teamFundsError}</div>}
 				</div>
+
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">Send Weekly Coach Email</h2>
+					<button className="dashboard-card-button" disabled>Process</button>
+				</div>
+
+				<div className="dashboard-card">
+					<h2 className="dashboard-card-title">Send Weekly Parent's Email</h2>
+					<button className="dashboard-card-button" disabled>Process</button>
+				</div>
+
 			</div>
 		</div>
 

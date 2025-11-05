@@ -127,25 +127,40 @@ ${ extractedText }
 	return attachmentText;
 }
 
-async function loadDriveData() {
+async function loadDriveData(indexSheetId) {
 	const sheets = google.sheets({ version: "v4", auth: oAuth2Client });
 
-	const searchResult = await Drive.files.list({
-		q: "name='Team Email' and mimeType='application/vnd.google-apps.spreadsheet'",
-		fields: "files(id, name)",
+	// Get the index sheet
+	
+	const sheetIndexSheet = await sheets.spreadsheets.values.get({
+		spreadsheetId: indexSheetId,
+		range: "Sheets!A2:C",
 	});
 
-	const teamEmailSheet = searchResult.data.files[0];
-
-	if (!teamEmailSheet) {
-		throw new Error("Google Sheet 'Team Email' not found in your Google Drive.");
+	if (!sheetIndexSheet) {
+		throw new Error("Could not load the index sheet");
 	}
 
-	const spreadsheetId = teamEmailSheet.id;
+	let teamEmailSheetId = null;
+	sheetIndexSheet.data.values.forEach(row => {
+		if (row[0] && row[0] == "Team Email" && row[1]) {
+			const teamEmailSheetUrl = row[1];
+			const match = teamEmailSheetUrl.match(/\/d\/([^\/]+)/);
+			if (match) {
+				teamEmailSheetId = match[1];
+			}
+		}
+	});
+
+	// Get the team email sheet
 
 	const sheetDetails = await sheets.spreadsheets.get({
-		spreadsheetId: spreadsheetId,
+		spreadsheetId: teamEmailSheetId,
 	});
+
+	if (!sheetDetails) {
+		throw new Error("Could not load the team email sheet.");
+	}
 
 	const teamEmailsSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Parent Emails");
 	const configSheet = sheetDetails.data.sheets.find(s => s.properties.title === "Config");
@@ -161,7 +176,7 @@ async function loadDriveData() {
 	// Get the team emails from the Parent Emails sheet. Look for the column with the header "Email Address"
 	const parentEmailsSheetName = teamEmailsSheet.properties.title;
 	const headerResponse = await sheets.spreadsheets.values.get({
-		spreadsheetId: spreadsheetId,
+		spreadsheetId: teamEmailSheetId,
 		range: `${parentEmailsSheetName}!A1:Z1`,
 	});
 
@@ -175,7 +190,7 @@ async function loadDriveData() {
 	const emailColumn = String.fromCharCode(65 + emailColumnIndex);
 
 	const teamEmailResponse = await sheets.spreadsheets.values.get({
-		spreadsheetId: spreadsheetId,
+		spreadsheetId: teamEmailSheetId,
 		range: `${parentEmailsSheetName}!${emailColumn}2:${emailColumn}`,
 	});
 
@@ -183,7 +198,7 @@ async function loadDriveData() {
 
 	// Get the configuration settings
 	const configValuesResponse = await sheets.spreadsheets.values.get({
-		spreadsheetId: spreadsheetId,
+		spreadsheetId: teamEmailSheetId,
 		range: "Config!A2:B",
 	});
 
@@ -196,7 +211,7 @@ async function loadDriveData() {
 
 	// Get the coach's emails to watch
 	const coachEmailResponse = await sheets.spreadsheets.values.get({
-		spreadsheetId: spreadsheetId,
+		spreadsheetId: teamEmailSheetId,
 		range: "Config!D2:D",
 	});
 
@@ -204,8 +219,9 @@ async function loadDriveData() {
 
 	const coachName = configValues["Coach Name"];
 	const teamName = configValues["Team Name"];
+	const teamEmail = configValues["Team Email"];
 
-	if (!coachEmails || coachEmails.length === 0 || !coachName || !teamName) {
+	if (!coachEmails || coachEmails.length === 0 || !coachName || !teamName || !teamEmail) {
 		throw new Error("Missing configuration values in 'Config' Google Sheet.");
 	}
 
@@ -213,7 +229,8 @@ async function loadDriveData() {
 		parentEmails: parentEmails,
 		coachEmails: coachEmails,
 		coachName: coachName,
-		teamName: teamName
+		teamName: teamName,
+		teamEmail: teamEmail
 	};
 }
 
@@ -289,11 +306,11 @@ ${attachmentPromptSection}
 
 export default {
 
-	runProcess: async (vtpUserID, serverPath) => {
+	runProcess: async (vtxUserID, serverPath) => {
 		let totalDraftsCreated = 0;
 		let user = null;
 		try {
-			const clientResponse = await client.get(`${ serverPath }/vtp/data/vtpuser?id=${ vtpUserID }`);
+			const clientResponse = await client.get(`${ serverPath }/vtp/data/vtpuser?id=${ vtxUserID }`);
 			user = clientResponse.body.vtpUsers[0];
 		}
 		catch (error) {
@@ -315,6 +332,10 @@ export default {
 				throw new Error("Google refresh token expired. Please re-authenticate with Google.");
 			}
 
+			if (!user.indexSheetId) {
+				throw new Error("Google refresh token expired. Please re-authenticate with Google.");
+			}
+
 			oAuth2Client = new google.auth.OAuth2(
 				config.google.client_id,
 				config.google.client_secret,
@@ -327,11 +348,12 @@ export default {
 			
 			Drive = google.drive({ version: "v3", auth: oAuth2Client });
 
-			const driveOutput = await loadDriveData();
+			const driveOutput = await loadDriveData(user.indexSheetId);
 			userConfig.parentEmails = driveOutput.parentEmails;
 			userConfig.coachEmails = driveOutput.coachEmails;
 			userConfig.coachName = driveOutput.coachName;
 			userConfig.teamName = driveOutput.teamName;
+			userConfig.teamEmail = driveOutput.teamEmail;
 
 		}
 		catch (error) {
@@ -400,7 +422,7 @@ export default {
 
 					const boundary = `----=_Part_${Math.random().toString().slice(2)}`;
 					const emailLines = [
-						`To: "${user.googleName}" <${user.googleEmail}>`,
+						`To: ${userConfig.teamEmail}`,
 						`Bcc: ${emailBatch.join(',')}`,
 						`Subject: ${subject}`,
 						'MIME-Version: 1.0',
