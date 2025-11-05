@@ -7,11 +7,20 @@ export default {
 
 	authGoogle: async (request, response) => {
 		const googleAuthorizationUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+
+		const scopes = [
+			"https://www.googleapis.com/auth/userinfo.profile",
+			"https://www.googleapis.com/auth/gmail.modify",
+			"https://www.googleapis.com/auth/drive.file",
+			"https://www.googleapis.com/auth/spreadsheets",
+			"https://www.googleapis.com/auth/forms.body"
+			]
+
 		const query = {
 			client_id: config.google.client_id,
 			redirect_uri: config.google.redirect_uris[0],
 			response_type: "code",
-			scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets",
+			scope: scopes.join(" "),
 			access_type: "offline",
 			prompt: "consent",
 		};
