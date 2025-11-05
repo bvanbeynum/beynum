@@ -13,6 +13,10 @@ const VirtualTeamParentComponent = () => {
 	const [coachBroadcastResult, setCoachBroadcastResult] = useState(null);
 	const [coachBroadcastError, setCoachBroadcastError] = useState(null);
 
+	const [volunteerLoading, setVolunteerLoading] = useState(null);
+	const [volunteerResult, setVolunteerResult] = useState(null);
+	const [volunteerError, setVolunteerError] = useState(null);
+
 	const [teamFundsLoading, setTeamFundsLoading] = useState(null);
 	const [teamFundsResult, setTeamFundsResult] = useState(null);
 	const [teamFundsError, setTeamFundsError] = useState(null);
@@ -122,6 +126,31 @@ const VirtualTeamParentComponent = () => {
 		}
 	};
 
+	const volunteerBroadcast = async () => {
+		setIsLoading(true);
+		setVolunteerLoading(true);
+		setVolunteerError(null);
+		setVolunteerResult(null);
+
+		try {
+			const response = await fetch("/vtp/api/volunteerbroadcast?id=" + user.id);
+			if (!response.ok) {
+				throw new Error(`HTTP error (${response.status}): ${ response.statusText }`);
+			}
+
+			const data = await response.json();
+			if (data.message) {
+				setVolunteerResult(data.message);
+			}
+		} catch (error) {
+			console.error("Error during team funds:", error);
+			setVolunteerError("Failed to process team funds email.");
+		} finally {
+			setIsLoading(false);
+			setVolunteerLoading(false);
+		}
+	};
+
 	const teamFunds = async () => {
 		setIsLoading(true);
 		setTeamFundsLoading(true);
@@ -177,34 +206,43 @@ const VirtualTeamParentComponent = () => {
 				<div className="dashboard-card">
 					<h2 className="dashboard-card-title">Process Coach's Email</h2>
 
-					<button onClick={ () => coachBroadcast() } className="dashboard-card-button" disabled={isLoading || !sheetId}>
-						{coachBroadcastLoading ? "Processing..." : "Process"}
-					</button>
-
 					{coachBroadcastResult && (
 						<p className="dashboard-card-message">{coachBroadcastResult}</p>
 					)}
 					
 					{coachBroadcastError && <div className="error-message">{coachBroadcastError}</div>}
+
+					<button onClick={ () => coachBroadcast() } className="dashboard-card-button" disabled={isLoading || !sheetId}>
+						{coachBroadcastLoading ? "Processing..." : "Process"}
+					</button>
 				</div>
 				
 				<div className="dashboard-card">
 					<h2 className="dashboard-card-title">Send Volunteer Email</h2>
-					<button className="dashboard-card-button" disabled>Process</button>
+					
+					{volunteerResult && (
+						<p className="dashboard-card-message">{volunteerResult}</p>
+					)}
+					
+					{volunteerError && <div className="error-message">{volunteerError}</div>}
+					
+					<button onClick={ () => volunteerBroadcast() } className="dashboard-card-button" disabled={isLoading || !sheetId}>
+						{volunteerLoading ? "Processing..." : "Process"}
+					</button>
 				</div>
 
 				<div className="dashboard-card">
 					<h2 className="dashboard-card-title">Send Request Funds Email</h2>
-
-					<button onClick={ () => teamFunds() } className="dashboard-card-button" disabled={isLoading || !sheetId}>
-						{teamFundsLoading ? "Processing..." : "Process"}
-					</button>
 
 					{teamFundsResult && (
 						<p className="dashboard-card-message">{teamFundsResult}</p>
 					)}
 					
 					{teamFundsError && <div className="error-message">{teamFundsError}</div>}
+
+					<button onClick={ () => teamFunds() } className="dashboard-card-button" disabled={isLoading || !sheetId}>
+						{teamFundsLoading ? "Processing..." : "Process"}
+					</button>
 				</div>
 
 				<div className="dashboard-card">

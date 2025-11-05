@@ -1,6 +1,7 @@
 import client from "superagent";
 import config from "./config.js";
 import coachBroadcast from "./modules/coachBroadcast.js";
+import volunteer from "./modules/volunteer.js";
 import teamFunds from "./modules/teamFunds.js";
 
 export default {
@@ -145,6 +146,55 @@ export default {
 		}
 
 		const processResponse = await teamFunds.runProcess(request.query.id, request.serverPath);
+
+		if (processResponse.error) {
+			response.statusMessage = processResponse.error;
+			response.status(processResponse.status ? processResponse.status : 540).send(processResponse.error);
+			return;
+		}
+
+		response.status(200).json({
+			message: processResponse.message
+		});
+	},
+
+	volunteerBroadcast: async (request, response) => {
+		if (!request.query.id) {
+			response.status(550).json({ error: "Missing ID" });
+			return;
+		}
+
+		const processResponse = await volunteer.emailBroadcast(request.query.id, request.serverPath);
+
+		if (processResponse.error) {
+			response.statusMessage = processResponse.error;
+			response.status(processResponse.status ? processResponse.status : 540).send(processResponse.error);
+			return;
+		}
+
+		response.status(200).json({
+			message: processResponse.message
+		});
+	},
+
+	volunteerFormSubmit: async (request, response) => {
+		if (!request.query.userid || !request.query.sheetid) {
+			response.status(550).json({ error: "Missing ID" });
+			return;
+		}
+		
+		const params = [];
+		Object.keys(request.body).forEach(key => {
+			params[key] = request.body[key];
+		});
+		console.log(`body: ${ JSON.stringify(params) }`);
+
+		if (!params["name"] || !params["email"] || !params["selectedSlot"]) {
+			response.status(550).json({ error: "Missing required form fields" });
+			return;
+		}
+
+		const processResponse = await volunteer.processForm(request.query.userid, request.query.sheetid, params, request.serverPath);
 
 		if (processResponse.error) {
 			response.statusMessage = processResponse.error;
