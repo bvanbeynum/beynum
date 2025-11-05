@@ -504,7 +504,6 @@ export default {
 			});
 
 			const openNeeds = await getOpenVolumnteerNeeds(positionUpdate);
-			console.log(`openNeeds: ${JSON.stringify(openNeeds)}`);
 			const userConfig = await getConfigData(sheetId);
 			await updateGoogleForm(userConfig["Form URL"], openNeeds);
 			

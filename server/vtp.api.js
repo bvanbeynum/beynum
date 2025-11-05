@@ -187,7 +187,6 @@ export default {
 		Object.keys(request.body).forEach(key => {
 			params[key] = request.body[key];
 		});
-		console.log(`body: ${ JSON.stringify(params) }`);
 
 		if (!params["name"] || !params["email"] || !params["selectedSlot"]) {
 			response.status(550).json({ error: "Missing required form fields" });
