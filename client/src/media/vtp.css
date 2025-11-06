@@ -150,3 +150,39 @@ input.dashboard-card-input {
 	color: red;
 	font-weight: bold;
 }
+
+.loginPage {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center
+}
+
+.iconContainer {
+	width: 140px;
+	margin: 20px;
+}
+
+.loginIcon {
+	fill: rgb(118 185 0);
+	stroke: rgb(40 151 40);
+	stroke-Width: 0.5px;
+}
+
+.loginContent {
+	margin: 20px;
+	color: rgb(132 133 137);
+	display: flex;
+	flex-Direction: column;
+}
+
+.requestContainer {
+	margin: 20px;
+	display: flex;
+	flex-Direction: column;
+	align-Items: center;
+}
+
+.requestInput {
+	margin: 10px
+}

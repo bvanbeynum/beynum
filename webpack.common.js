@@ -1,4 +1,5 @@
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import webpack from 'webpack';
 
 export default {
 	entry: {
@@ -10,6 +11,10 @@ export default {
 		vtp: "./client/src/vtp.jsx"
 	},
 	plugins: [
+		new webpack.ProvidePlugin({
+			process: 'process/browser',
+			Buffer: ['buffer', 'Buffer']
+		}),
 		new HtmlWebpackPlugin({
 			filename: "index.html",
 			title: "The Beynum Company",
@@ -117,5 +122,14 @@ export default {
 
 		]
 	},
-	resolve: { extensions: [ "*", ".js", ".jsx" ]}
+	resolve: { 
+		extensions: [ "*", ".js", ".jsx" ],
+		fallback: {
+			"crypto": "crypto-browserify",
+			"stream": "stream-browserify",
+			"util": "util/",
+			"vm": "vm-browserify",
+			"buffer": "buffer/"
+		}
+	}
 };

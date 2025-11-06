@@ -24,6 +24,7 @@ export default {
 			scope: scopes.join(" "),
 			access_type: "offline",
 			prompt: "consent",
+			state: request.query.state
 		};
 
 		const queryString = new URLSearchParams(query).toString();
@@ -60,6 +61,23 @@ export default {
 				.set("Authorization", `Bearer ${accessToken}`);
 			
 			const users = await client.get(`${ request.serverPath }/vtp/data/vtpuser?googleid=${ userProfileResponse.body.id }`);
+			
+			if (users.body.vtpUsers && users.body.vtpUsers.length > 0 && users.body.vtpUsers[0].id !== "690ca1ecd76d6c3af6ff8150") {
+				
+				// Only allow specific Google IDs for now
+				response.send(`
+					<html>
+						<body>
+							<script>
+								window.opener.postMessage({ state: ${request.query.state}, error: "Unauthorized Google account." }, '*');
+								window.close();
+							</script>
+							<p>Unauthorized Google account.</p>
+						</body>
+					</html>
+				`);
+				return;
+			}
 
 			let saveUser = null;
 			if (users.body.vtpUsers && users.body.vtpUsers.length === 1) {
@@ -90,7 +108,8 @@ export default {
 				id: clientResponse.body.id,
 				googleId: saveUser.vtpuser.googleId,
 				googleName: saveUser.vtpuser.googleName,
-				indexSheetId: saveUser.vtpuser.indexSheetId
+				indexSheetId: saveUser.vtpuser.indexSheetId,
+				state: request.query.state
 			};
 
 			response.send(`

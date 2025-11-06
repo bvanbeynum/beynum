@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import njwt from "njwt";
 import ReactDOM from "react-dom";
 import "./media/vtp.css";
 
 const VirtualTeamParentComponent = () => {
 	
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [isAuthorized, setIsAuthorized] = useState(false);
 	const [user, setUser] = useState(null);
 	const [error, setError] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +28,7 @@ const VirtualTeamParentComponent = () => {
 	const [sheetIdLoading, setSheetIdLoading] = useState(null);
 	const [sheetIdResult, setSheetIdResult] = useState(null);
 	const [sheetIdError, setSheetIdError] = useState(null);
+	const [jwt, setJwt] = useState(null);
 
 	useEffect(() => {
 		const handleMessage = (event) => {
@@ -36,16 +39,28 @@ const VirtualTeamParentComponent = () => {
 			if (event.data && event.data.error) {
 				setError(event.data.error);
 			}
-			else if (event.data && event.data.googleName) {
-				setUser(event.data);
-
-				if (event.data.indexSheetId) {
-					setSheetId(event.data.indexSheetId);
-				}
-
+			else if (event.data && event.data.state && !event.data.googleName) {
 				setIsLoggedIn(true);
-				
-				window.removeEventListener("message", handleMessage);
+				setIsAuthorized(false);
+			}
+			else if (event.data && event.data.googleName) {
+				njwt.verify(event.data.state, "secret", (error, verifiedJwt) => {
+					if (error) {
+						setError(error.message);
+					}
+					else {
+						setUser(event.data);
+
+						if (event.data.indexSheetId) {
+							setSheetId(event.data.indexSheetId);
+						}
+
+						setIsLoggedIn(true);
+						setIsAuthorized(true);
+						
+						window.removeEventListener("message", handleMessage);
+					}
+				});
 			}
 		};
 
@@ -58,7 +73,17 @@ const VirtualTeamParentComponent = () => {
 
 	const openGoogleLogin = () => {
 		setError(null);
-		window.open("/vtp/auth/google", "Google Login", "width=1000,height=700");
+
+		const claims = {
+			iss: "https://beynum.com",
+			sub: "vtp",
+			scope: "user"
+		};
+		const jwt = njwt.create(claims, "secret");
+		const token = jwt.compact();
+		setJwt(token);
+
+		window.open(`/vtp/auth/google?state=${token}`, "Google Login", "width=1000,height=700");
 	};
 
 	const saveIndexSheet = async () => {
@@ -178,7 +203,7 @@ const VirtualTeamParentComponent = () => {
 
 	return (
 
-		isLoggedIn && user ?
+		isLoggedIn && user && isAuthorized ?
 
 		<div className="dashboard-container">
 			<div className="dashboard-header">
@@ -255,6 +280,24 @@ const VirtualTeamParentComponent = () => {
 					<button className="dashboard-card-button" disabled>Process</button>
 				</div>
 
+			</div>
+		</div>
+
+		: isLoggedIn && !isAuthorized ?
+
+		<div className="loginPage">
+			<div className="iconContainer">
+				<svg xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 24 24" viewBox="0 0 24 24" fill="black" className="loginIcon">
+					<g>
+						<path d="M12,1L3,5v6c0,5.55,3.84,10.74,9,12c5.16-1.26,9-6.45,9-12V5L12,1L12,1z M11,7h2v2h-2V7z M11,11h2v6h-2V11z"/>
+					</g>
+				</svg>
+			</div>
+			
+			<div className="loginContent">
+				<div>
+					This is a restricted site that requires pre-approval to use. If you'd like access to this site, please contact the owner.
+				</div>
 			</div>
 		</div>
 
