@@ -1,8 +1,71 @@
+import crypto from "crypto";
+import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import client from "superagent";
 import config from "./config.js";
 import coachBroadcast from "./modules/coachBroadcast.js";
 import volunteer from "./modules/volunteer.js";
 import teamFunds from "./modules/teamFunds.js";
+
+const algorithm = 'aes-256-cbc';
+let vtpEncryptionSecret = null;
+
+async function getSecret() {
+	if (vtpEncryptionSecret) {
+		return vtpEncryptionSecret;
+	}
+
+	const secretName = "projects/359189838627/secrets/vtp-encryption";
+	const client = new SecretManagerServiceClient();
+
+	const [version] = await client.accessSecretVersion({
+		name: `${secretName}/versions/latest`,
+	});
+
+	const secretPayload = version.payload.data.toString("utf8");
+	vtpEncryptionSecret = secretPayload;
+	return vtpEncryptionSecret;
+}
+
+async function encrypt(text) {
+	const secret = await getSecret();
+	const iv = crypto.randomBytes(16);
+	const cipher = crypto.createCipheriv(algorithm, Buffer.from(secret, 'hex'), iv);
+	let encrypted = cipher.update(text);
+	encrypted = Buffer.concat([encrypted, cipher.final()]);
+	return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
+async function decrypt(text) {
+	if (!text || text.indexOf(':') === -1) {
+		return text;
+	}
+	const secret = await getSecret();
+	const textParts = text.split(':');
+	const iv = Buffer.from(textParts.shift(), 'hex');
+	const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+	const decipher = crypto.createDecipheriv(algorithm, Buffer.from(secret, 'hex'), iv);
+	let decrypted = decipher.update(encryptedText);
+	decrypted = Buffer.concat([decrypted, decipher.final()]);
+	return decrypted.toString();
+}
+
+async function getUser(vtpUserId, serverPath) {
+	try {
+		const response = await client.get(`${ serverPath }/vtp/data/vtpuser?id=${ vtpUserId }`);
+		if (response.body.vtpUsers && response.body.vtpUsers.length === 1) {
+			const user = response.body.vtpUsers[0];
+			user.googleName = await decrypt(user.googleName);
+			user.googleId = await decrypt(user.googleId);
+			user.refreshToken = await decrypt(user.refreshToken);
+			return user;
+		}
+		else {
+			throw new Error("User not found");
+		}
+	} catch (error) {
+		throw new Error("Error fetching user: " + error.message);
+	}
+}
 
 export default {
 
@@ -62,7 +125,7 @@ export default {
 			
 			const users = await client.get(`${ request.serverPath }/vtp/data/vtpuser?googleid=${ userProfileResponse.body.id }`);
 			
-			if (users.body.vtpUsers && users.body.vtpUsers.length > 0 && users.body.vtpUsers[0].id !== "690ca1ecd76d6c3af6ff8150") {
+			if (users.body.vtpUsers && users.body.vtpUsers.length > 0) {
 				
 				// Only allow specific Google IDs for now
 				response.send(`
@@ -84,10 +147,10 @@ export default {
 				saveUser = {
 					vtpuser: {
 						id: users.body.vtpUsers[0].id,
-						googleName: userProfileResponse.body?.name,
+						googleName: await encrypt(userProfileResponse.body?.name),
 						googleEmail: userProfileResponse.body?.email,
 						indexSheetId: users.body.vtpUsers[0].indexSheetId,
-						refreshToken: refreshToken,
+						refreshToken: await encrypt(refreshToken),
 						refreshExpireDate: expirationDate
 					}
 				};
@@ -95,9 +158,9 @@ export default {
 			else {
 				saveUser = {
 					vtpuser: {
-						googleId: userProfileResponse.body.id,
-						googleName: userProfileResponse.body?.name,
-						refreshToken: refreshToken,
+						googleId: await encrypt(userProfileResponse.body.id),
+						googleName: await encrypt(userProfileResponse.body?.name),
+						refreshToken: await encrypt(refreshToken),
 						refreshExpireDate: expirationDate
 					}
 				};
@@ -144,7 +207,14 @@ export default {
 			return;
 		}
 
-		const processResponse = await coachBroadcast.runProcess(request.query.id, request.serverPath);
+		let user = null;
+		try {
+			user = await getUser(request.query.id, request.serverPath);
+		} catch (error) {
+			response.status(551).json({ error: error.message });
+			return;
+		}
+		const processResponse = await coachBroadcast.runProcess(user, request.serverPath);
 
 		if (processResponse.error) {
 			response.statusMessage = processResponse.error;
@@ -164,7 +234,14 @@ export default {
 			return;
 		}
 
-		const processResponse = await teamFunds.runProcess(request.query.id, request.serverPath);
+		let user = null;
+		try {
+			user = await getUser(request.query.id, request.serverPath);
+		} catch (error) {
+			response.status(551).json({ error: error.message });
+			return;
+		}
+		const processResponse = await teamFunds.runProcess(user);
 
 		if (processResponse.error) {
 			response.statusMessage = processResponse.error;
@@ -183,7 +260,14 @@ export default {
 			return;
 		}
 
-		const processResponse = await volunteer.emailBroadcast(request.query.id, request.serverPath);
+		let user = null;
+		try {
+			user = await getUser(request.query.id, request.serverPath);
+		} catch (error) {
+			response.status(551).json({ error: error.message });
+			return;
+		}
+		const processResponse = await volunteer.emailBroadcast(user);
 
 		if (processResponse.error) {
 			response.statusMessage = processResponse.error;
@@ -212,7 +296,14 @@ export default {
 			return;
 		}
 
-		const processResponse = await volunteer.processForm(request.query.userid, request.query.sheetid, params, request.serverPath);
+		let user = null;
+		try {
+			user = await getUser(request.query.id, request.serverPath);
+		} catch (error) {
+			response.status(551).json({ error: error.message });
+			return;
+		}
+		const processResponse = await volunteer.processForm(user, request.query.sheetid, params);
 
 		if (processResponse.error) {
 			response.statusMessage = processResponse.error;

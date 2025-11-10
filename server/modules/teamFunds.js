@@ -239,18 +239,7 @@ async function markScheduleAsSent(rowNum, teamFundsSheetId) {
 
 export default {
 
-	runProcess: async (vtxUserID, serverPath) => {
-		let user = null;
-		try {
-			const clientResponse = await client.get(`${serverPath}/vtp/data/vtpuser?id=${vtxUserID}`);
-			user = clientResponse.body.vtpUsers[0];
-		} catch (error) {
-			return {
-				status: 560,
-				error: error.message
-			};
-		}
-
+	runProcess: async (user) => {
 		try {
 			if (!user.refreshToken || !user.refreshExpireDate) {
 				throw new Error("User refresh token or expiry date not found. Please re-authenticate with Google.");

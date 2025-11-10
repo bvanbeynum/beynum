@@ -9,6 +9,7 @@
 		"build": "webpack --config webpack.prod.js"
 	},
 	"dependencies": {
+		"@google-cloud/secret-manager": "^6.1.1",
 		"connect-busboy": "1.0.0",
 		"cookie-parser": "^1.4.6",
 		"d3": "^7.8.5",

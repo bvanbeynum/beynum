@@ -306,20 +306,8 @@ ${attachmentPromptSection}
 
 export default {
 
-	runProcess: async (vtxUserID, serverPath) => {
+	runProcess: async (user) => {
 		let totalDraftsCreated = 0;
-		let user = null;
-		try {
-			const clientResponse = await client.get(`${ serverPath }/vtp/data/vtpuser?id=${ vtxUserID }`);
-			user = clientResponse.body.vtpUsers[0];
-		}
-		catch (error) {
-			return {
-				status: 560,
-				error: error.message
-			};
-		}
-
 		const userConfig = {};
 
 		try {
