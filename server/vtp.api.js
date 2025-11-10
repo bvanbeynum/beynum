@@ -280,7 +280,7 @@ export default {
 
 		let user = null;
 		try {
-			user = await getUser(request.query.id, request.serverPath);
+			user = await getUser(request.query.userid, request.serverPath);
 		} catch (error) {
 			response.status(551).json({ error: error.message });
 			return;
