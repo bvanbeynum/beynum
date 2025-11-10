@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import client from "superagent";
 import config from "./config.js";
 import coachBroadcast from "./modules/coachBroadcast.js";
@@ -7,27 +6,9 @@ import volunteer from "./modules/volunteer.js";
 import teamFunds from "./modules/teamFunds.js";
 
 const algorithm = 'aes-256-cbc';
-let vtpEncryptionSecret = null;
-
-async function getSecret() {
-	if (vtpEncryptionSecret) {
-		return vtpEncryptionSecret;
-	}
-
-	const secretName = "projects/359189838627/secrets/vtp-encryption";
-	const client = new SecretManagerServiceClient();
-
-	const [version] = await client.accessSecretVersion({
-		name: `${secretName}/versions/latest`,
-	});
-
-	const secretPayload = version.payload.data.toString("utf8");
-	vtpEncryptionSecret = secretPayload;
-	return vtpEncryptionSecret;
-}
 
 async function encrypt(text) {
-	const secret = await getSecret();
+	const secret = config.sessionSecret;
 	const iv = crypto.randomBytes(16);
 	const cipher = crypto.createCipheriv(algorithm, Buffer.from(secret, 'hex'), iv);
 	let encrypted = cipher.update(text);
@@ -39,7 +20,7 @@ async function decrypt(text) {
 	if (!text || text.indexOf(':') === -1) {
 		return text;
 	}
-	const secret = await getSecret();
+	const secret = config.sessionSecret;
 	const textParts = text.split(':');
 	const iv = Buffer.from(textParts.shift(), 'hex');
 	const encryptedText = Buffer.from(textParts.join(':'), 'hex');
@@ -124,15 +105,16 @@ export default {
 				.set("Authorization", `Bearer ${accessToken}`);
 			
 			const users = await client.get(`${ request.serverPath }/vtp/data/vtpuser?googleid=${ userProfileResponse.body.id }`);
+			console.log(`users: ${ JSON.stringify(users.body) }`);
+			console.log(`response: ${ JSON.stringify(userProfileResponse.body) }`);
 			
-			if (users.body.vtpUsers && users.body.vtpUsers.length > 0) {
-				
+			if (!users.body.vtpUsers || users.body.vtpUsers.length == 0) {
 				// Only allow specific Google IDs for now
 				response.send(`
 					<html>
 						<body>
 							<script>
-								window.opener.postMessage({ state: ${request.query.state}, error: "Unauthorized Google account." }, '*');
+								window.opener.postMessage({ error: "Unauthorized Google account." }, '*');
 								window.close();
 							</script>
 							<p>Unauthorized Google account.</p>
