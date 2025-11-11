@@ -105,8 +105,6 @@ export default {
 				.set("Authorization", `Bearer ${accessToken}`);
 			
 			const users = await client.get(`${ request.serverPath }/vtp/data/vtpuser?googleid=${ userProfileResponse.body.id }`);
-			console.log(`users: ${ JSON.stringify(users.body) }`);
-			console.log(`response: ${ JSON.stringify(userProfileResponse.body) }`);
 			
 			if (!users.body.vtpUsers || users.body.vtpUsers.length == 0) {
 				// Only allow specific Google IDs for now
