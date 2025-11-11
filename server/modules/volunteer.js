@@ -321,6 +321,8 @@ export default {
 				error: error.message
 			};
 		}
+		
+		let scheduleProcessed = false;
 
 		for (const sheetId of volunteerSheetIds) {
 			let userConfig = null;
@@ -340,7 +342,6 @@ export default {
 			}
 
 			const now = new Date();
-			let scheduleProcessed = false;
 			let emailsSentCount = 0;
 
 			for (const schedule of userConfig.emailSchedules) {
@@ -377,14 +378,13 @@ export default {
 					break;
 				}
 			}
-
-			if (!scheduleProcessed) {
-				return { status: 200, message: "No pending schedules to process at this time." };
-			}
-			
-			return { status: 200, message: `${emailsSentCount} emails processed.` };
-
 		}
+		
+		if (!scheduleProcessed) {
+			return { status: 200, message: "No pending schedules to process at this time." };
+		}
+		
+		return { status: 200, message: `${emailsSentCount} emails processed.` };
 
 	},
 
