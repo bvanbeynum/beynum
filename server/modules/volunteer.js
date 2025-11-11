@@ -143,12 +143,12 @@ async function generateEmail(userConfig, openNeeds, emailVersion) {
 
 	const prompt = `
 You are an enthusiastic parent volunteer for the Fort Mill High School Yellow Jackets wrestling team.
-Write a friendly and encouraging ${ emailVersion } email to fellow parents asking them to volunteer for ${userConfig['Event Name']}.
+Write a friendly and encouraging ${ emailVersion } email to fellow parents asking them to help out for ${userConfig['Event Name']}.
 
 Event Name: ${userConfig['Event Name']}
 From Name: ${userConfig['From Name']}
 
-Use this exact list of open volunteer spots:
+Use this exact list of open spots:
 <table>
 <tr>
 <td>Position</td><td>Date/Time</td><td>Open Spots</td>
@@ -168,7 +168,7 @@ Instructions:
 - Include countdown to the event in ${ daysToEvent } days.
 - The closer it is to the event, the more urgent the email should be.
 - Use Markdown for formatting tables if it makes it easier to read.
-- Clearly present the list of open volunteer spots provided above.
+- Clearly present the list of open spots provided above.
 - Emphasize that any help is greatly appreciated.
 - Encourage parents to sign up early to help us plan for a smooth event.
 - Include a strong call to action with a link to sign up. Use the exact placeholder "{{SignUpLink}}" for the URL. Make the link a prominent button.
