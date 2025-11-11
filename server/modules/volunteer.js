@@ -82,7 +82,7 @@ async function updateGoogleForm(formUrl, openNeeds) {
 
 	const form = await Forms.forms.get({ formId: formId });
 	const items = form.data.items;
-	const volunteerItemIndex = items.findIndex(item => /volunteer/i.test(item.title));
+	const volunteerItemIndex = items.findIndex(item => /select/i.test(item.title));
 
 	if (volunteerItemIndex === -1) {
 		throw new Error("Could not find the volunteer dropdown in the form.");
