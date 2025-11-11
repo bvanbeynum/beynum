@@ -328,7 +328,8 @@ export default {
 				userConfig = await getConfigData(sheetId);
 				
 				if (!userConfig.emailSchedules || userConfig.emailSchedules.length === 0) {
-					return { status: 200, message: "No email schedules found." };
+					// go to the next sheet
+					continue;
 				}
 			}
 			catch (error) {
