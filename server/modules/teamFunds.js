@@ -39,7 +39,7 @@ async function loadSheetData(indexSheetId) {
 		throw new Error("Could not find the Team Funds Google Sheet.");
 	}
 
-	const configValues = {};
+	const userConfig = {};
 	const configResponse = await Sheets.spreadsheets.values.get({
 		spreadsheetId: teamFundsSheetId,
 		range: `${CONFIG_SHEET_NAME}!A2:B`,
@@ -48,30 +48,10 @@ async function loadSheetData(indexSheetId) {
 	if (configResponse.data.values) {
 		configResponse.data.values.forEach(row => {
 			if (row[0]) {
-				configValues[row[0]] = row[1];
+				userConfig[row[0]] = row[1];
 			}
 		});
 	}
-
-	const scheduleValues = await Sheets.spreadsheets.values.get({
-		spreadsheetId: teamFundsSheetId,
-		range: `${CONFIG_SHEET_NAME}!D2:E`,
-	});
-
-	const emailSchedules = [];
-	if (scheduleValues.data.values) {
-		scheduleValues.data.values.forEach((row, index) => {
-			if (row[0]) {
-				emailSchedules.push({
-					date: new Date(row[0]),
-					sentStatus: row[1] || "",
-					row: index + 2
-				});
-			}
-		});
-	}
-
-	const userConfig = { ...configValues, emailSchedules };
 
 	const wrestlerSheet = await Sheets.spreadsheets.values.get({
 		spreadsheetId: teamFundsSheetId,
@@ -175,7 +155,7 @@ async function generateAndSendEmail(wrestler, userConfig, teamFundsSheetId) {
 		const geminiResponse = await callGeminiAPI(prompt);
 
 		const htmlBody = markedParse(geminiResponse);
-		const subject = "Wrestling Feed the Team Funds";
+		const subject = "Wrestling Feed the Varsity Team Funds";
 
 		const emailLines = [
 			`To: ${recipientEmails}`,
@@ -226,17 +206,6 @@ async function incrementEmailCount(rowNum, teamFundsSheetId) {
 	});
 }
 
-async function markScheduleAsSent(rowNum, teamFundsSheetId) {
-	await Sheets.spreadsheets.values.update({
-		spreadsheetId: teamFundsSheetId,
-		range: `${CONFIG_SHEET_NAME}!E${rowNum}`,
-		valueInputOption: "RAW",
-		requestBody: {
-			values: [[new Date().toISOString()]]
-		}
-	});
-}
-
 export default {
 
 	runProcess: async (user) => {
@@ -268,38 +237,23 @@ export default {
 
 			const { teamFundsSheetId, userConfig, wrestlers } = await loadSheetData(user.indexSheetId);
 
-			if (!userConfig.emailSchedules || userConfig.emailSchedules.length === 0) {
-				return { status: 200, message: "No email schedules found." };
-			}
-
 			const now = new Date();
-			let scheduleProcessed = false;
 			let emailsSentCount = 0;
 
-			for (const schedule of userConfig.emailSchedules) {
-				if (schedule.sentStatus === "" && now > schedule.date) {
-					console.log(`Processing schedule for ${schedule.date.toLocaleString()}`);
-					scheduleProcessed = true;
+			console.log(`Processing team funds`);
 
-					const wrestlersToEmail = wrestlers.filter(w => !w.fundsPaid);
-					emailsSentCount = wrestlersToEmail.length;
+			const wrestlersToEmail = wrestlers.filter(w => !w.fundsPaid);
+			emailsSentCount = wrestlersToEmail.length;
 
-					if (wrestlersToEmail.length === 0) {
-						console.log("All wrestlers have paid. No emails to send.");
-						await markScheduleAsSent(schedule.row, teamFundsSheetId);
-						break;
-					}
+			if (wrestlersToEmail.length === 0) {
+				console.log("All wrestlers have paid. No emails to send.");
+				return { status: 200, message: "All wrestlers have paid. No emails to send." };
+			}
 
-					console.log(`Found ${wrestlersToEmail.length} wrestlers to email.`);
+			console.log(`Found ${wrestlersToEmail.length} wrestlers to email.`);
 
-					for (const wrestler of wrestlersToEmail) {
-						await generateAndSendEmail(wrestler, userConfig, teamFundsSheetId);
-					}
-
-					await markScheduleAsSent(schedule.row, teamFundsSheetId);
-					console.log("Finished processing schedule. Marked as sent.");
-					break;
-				}
+			for (const wrestler of wrestlersToEmail) {
+				await generateAndSendEmail(wrestler, userConfig, teamFundsSheetId);
 			}
 
 			if (!scheduleProcessed) {
