@@ -256,10 +256,6 @@ export default {
 				await generateAndSendEmail(wrestler, userConfig, teamFundsSheetId);
 			}
 
-			if (!scheduleProcessed) {
-				return { status: 200, message: "No pending schedules to process at this time." };
-			}
-
 			return { status: 200, message: `${emailsSentCount} emails processed.` };
 
 		} catch (error) {
