@@ -55,20 +55,22 @@ async function loadSheetData(indexSheetId) {
 
 	const wrestlerSheet = await Sheets.spreadsheets.values.get({
 		spreadsheetId: teamFundsSheetId,
-		range: `${TEAM_SHEET_NAME}!A2:E`,
+		range: `${TEAM_SHEET_NAME}!A2:F`,
 	});
 
 	const wrestlers = [];
 	if (wrestlerSheet.data.values) {
 		wrestlerSheet.data.values.forEach((row, index) => {
-			wrestlers.push({
-				name: row[0],
-				parents: row[1],
-				emails: row[2],
-				fundsPaid: (row[3] || "") !== "",
-				emailCount: parseInt(row[4], 10) || 0,
-				row: index + 2
-			});
+			if (row[0] && row[2]) {
+				wrestlers.push({
+					name: row[1],
+					parents: row[2],
+					emails: row[3],
+					fundsPaid: (row[4] || "") !== "",
+					emailCount: parseInt(row[5], 10) || 0,
+					row: index + 2
+				});
+			}
 		});
 	}
 
