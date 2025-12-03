@@ -439,12 +439,25 @@ export default {
 							messageId: message.id,
 							userId: 'me'
 						});
+
+						const [ctype, subtype] = part.mimeType.split('/');
+
 						emailLines.push(`--${boundary}`);
 						emailLines.push(`Content-Type: ${part.mimeType}; name="${part.filename}"`);
-						emailLines.push('Content-Transfer-Encoding: base64');
 						emailLines.push(`Content-Disposition: attachment; filename="${part.filename}"`);
-						emailLines.push('');
-						emailLines.push(attachmentData.data.data);
+
+						// The data from Gmail API is base64url. It needs to be converted to standard base64 for the email body.
+						const base64Data = attachmentData.data.data.replace(/-/g, '+').replace(/_/g, '/');
+
+						if (ctype === 'application') {
+							emailLines.push('Content-Transfer-Encoding: base64');
+							emailLines.push('');
+							emailLines.push(base64Data);
+						} else {
+							emailLines.push('Content-Transfer-Encoding: base64');
+							emailLines.push('');
+							emailLines.push(base64Data);
+						}
 						emailLines.push('');
 					}
 
