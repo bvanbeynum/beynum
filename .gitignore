@@ -18,3 +18,5 @@ jspm_packages/
 
 config.js
 client/dev/*
+
+working/

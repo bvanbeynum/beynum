@@ -21,6 +21,7 @@ export default {
 		name: String,
 		frequencySeconds: Number,
 		scriptName: String,
+		startTime: String,
 		created: Date,
 		modified: Date,
 		status: String,
