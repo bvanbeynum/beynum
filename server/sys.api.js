@@ -93,7 +93,7 @@ export default {
 		job.command = request.query.command;
 
 		try {
-			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
+			const clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
 		}
 		catch (error) {
 			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `563: ${error.message}` }});

@@ -369,8 +369,8 @@ class Sys extends Component {
 			showCreateModal: true,
 			formName: "",
 			formScript: "",
-			formFrequency: "86400",
-			formStartTime: "02:00",
+			formFrequency: "",
+			formStartTime: "",
 			formStatus: "active",
 			formCommand: "Unset"
 		});
@@ -378,12 +378,13 @@ class Sys extends Component {
 
 	// Opens Edit Configuration Modal
 	openEditModal = (job) => {
+		const frequencyString = (job.frequencySeconds !== null && job.frequencySeconds !== undefined && job.frequencySeconds !== "") ? String(job.frequencySeconds) : "";
 		this.setState({
 			showEditModal: true,
 			formName: job.name || "",
 			formScript: job.scriptName || "",
-			formFrequency: String(job.frequencySeconds || "86400"),
-			formStartTime: job.startTime || "02:00",
+			formFrequency: frequencyString,
+			formStartTime: job.startTime || "",
 			formStatus: job.status || "active",
 			formCommand: job.command || "Unset"
 		});
@@ -399,11 +400,14 @@ class Sys extends Component {
 			return;
 		}
 
+		const parsedFrequency = formFrequency && String(formFrequency).trim() !== "" ? Number(formFrequency) : null;
+		const parsedStartTime = formStartTime && String(formStartTime).trim() !== "" ? String(formStartTime).trim() : "";
+
 		const jobData = {
 			name: formName,
 			scriptName: formScript,
-			frequencySeconds: Number(formFrequency),
-			startTime: formStartTime,
+			frequencySeconds: parsedFrequency,
+			startTime: parsedStartTime,
 			status: formStatus,
 			command: formCommand
 		};
@@ -682,7 +686,7 @@ class Sys extends Component {
 												<div className="config-grid">
 													<div className="config-item">
 														<span className="config-label">Frequency</span>
-														<span className="config-value">{formatFrequency(selectedJob.frequencySeconds)}</span>
+														<span className="config-value">{formatFrequency(selectedJob.frequencySeconds) || "-"}</span>
 													</div>
 													<div className="config-item">
 														<span className="config-label">Start Time</span>
@@ -864,23 +868,44 @@ class Sys extends Component {
 									</div>
 
 									<div className="form-group">
-										<label className="form-label">Frequency (seconds)</label>
+										<div className="form-label-row">
+											<label className="form-label">Frequency (seconds)</label>
+											{formFrequency !== "" && (
+												<button 
+													type="button" 
+													className="btn-link-unset"
+													onClick={() => this.setState({ formFrequency: "" })}
+												>
+													Unset
+												</button>
+											)}
+										</div>
 										<input 
 											type="number" 
 											className="form-control" 
-											placeholder="e.g., 86400"
+											placeholder="Leave blank or e.g., 86400"
 											value={formFrequency}
 											onChange={(event) => this.setState({ formFrequency: event.target.value })}
-											required
 										/>
 									</div>
 
 									<div className="form-group">
-										<label className="form-label">Start Time (HH:MM)</label>
+										<div className="form-label-row">
+											<label className="form-label">Start Time (HH:MM)</label>
+											{formStartTime !== "" && (
+												<button 
+													type="button" 
+													className="btn-link-unset"
+													onClick={() => this.setState({ formStartTime: "" })}
+												>
+													Unset
+												</button>
+											)}
+										</div>
 										<input 
 											type="text" 
 											className="form-control" 
-											placeholder="e.g., 02:17"
+											placeholder="Leave blank or e.g., 02:17"
 											value={formStartTime}
 											onChange={(event) => this.setState({ formStartTime: event.target.value })}
 										/>
