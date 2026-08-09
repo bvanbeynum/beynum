@@ -82,7 +82,7 @@ const formatDate = (dateInput) => {
 	const date = new Date(dateInput);
 	if (isNaN(date.getTime())) return "";
 	const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-	const pad = (n) => n.toString().padStart(2, '0');
+	const pad = (numberValue) => numberValue.toString().padStart(2, '0');
 	return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} - ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
@@ -100,7 +100,7 @@ const formatTimePart = (dateInput) => {
 	if (!dateInput) return "";
 	const date = new Date(dateInput);
 	if (isNaN(date.getTime())) return "";
-	const pad = (n) => n.toString().padStart(2, '0');
+	const pad = (numberValue) => numberValue.toString().padStart(2, '0');
 	return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
@@ -156,6 +156,71 @@ const parseLogMessage = (msgText) => {
 	return { time: "", text: msgText };
 };
 
+// Get the latest run time timestamp for a job (0 if no runs)
+const getJobLastRunTime = (job) => {
+	if (!job || !job.runs || job.runs.length === 0) {
+		return 0;
+	}
+	let latestTimestamp = 0;
+	job.runs.forEach((run) => {
+		if (run.startTime) {
+			const runTimestamp = new Date(run.startTime).getTime();
+			if (!isNaN(runTimestamp) && runTimestamp > latestTimestamp) {
+				latestTimestamp = runTimestamp;
+			}
+		}
+	});
+	return latestTimestamp;
+};
+
+// Calculate next run time display for a job
+const calculateNextRunTime = (job) => {
+	if (!job) return "-";
+
+	// If job has a start time, use it to calculate next occurrence
+	if (job.startTime && job.startTime.trim() !== "") {
+		const timeParts = job.startTime.trim().split(":");
+		if (timeParts.length === 2) {
+			const hours = parseInt(timeParts[0], 10);
+			const minutes = parseInt(timeParts[1], 10);
+			if (!isNaN(hours) && !isNaN(minutes)) {
+				const currentDate = new Date();
+				const nextRunDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), hours, minutes, 0, 0);
+				if (nextRunDate <= currentDate) {
+					nextRunDate.setDate(nextRunDate.getDate() + 1);
+				}
+				return formatDate(nextRunDate);
+			}
+		}
+		return job.startTime;
+	}
+
+	// If it has a frequency, calculate based off the last run's completeTime
+	if (job.frequencySeconds) {
+		const frequencyMilliseconds = Number(job.frequencySeconds) * 1000;
+		if (!isNaN(frequencyMilliseconds) && frequencyMilliseconds > 0) {
+			let latestCompletedTime = null;
+			if (job.runs && job.runs.length > 0) {
+				job.runs.forEach((run) => {
+					if (run.completeTime) {
+						const completedTimestamp = new Date(run.completeTime).getTime();
+						if (!isNaN(completedTimestamp) && (!latestCompletedTime || completedTimestamp > latestCompletedTime)) {
+							latestCompletedTime = completedTimestamp;
+						}
+					}
+				});
+			}
+
+			if (latestCompletedTime) {
+				const nextRunDate = new Date(latestCompletedTime + frequencyMilliseconds);
+				return formatDate(nextRunDate);
+			}
+		}
+	}
+
+	return "-";
+};
+
 class Sys extends Component {
 	constructor(props) {
 		super(props);
@@ -179,7 +244,8 @@ class Sys extends Component {
 			formScript: "",
 			formFrequency: "86400",
 			formStartTime: "02:00",
-			formStatus: "active"
+			formStatus: "active",
+			formCommand: "Unset"
 		};
 	}
 
@@ -191,22 +257,22 @@ class Sys extends Component {
 	loadData = (selectNewJobId = null) => {
 		this.setState({ isLoading: true }, () => {
 			Promise.all([
-				fetch("/sys/api/getjobs").then(res => res.ok ? res.json() : Promise.reject(res.statusText)),
-				fetch("/sys/api/getrecentlogs").then(res => res.ok ? res.json() : Promise.reject(res.statusText))
+				fetch("/sys/api/getjobs").then(fetchResponse => fetchResponse.ok ? fetchResponse.json() : Promise.reject(fetchResponse.statusText)),
+				fetch("/sys/api/getrecentlogs").then(fetchResponse => fetchResponse.ok ? fetchResponse.json() : Promise.reject(fetchResponse.statusText))
 			])
 			.then(([jobsData, logsData]) => {
-				const jobs = jobsData.jobs.map(job => {
-					const activeRun = job.runs && job.runs.find(run => !run.completeTime);
+				const jobs = jobsData.jobs.map(jobItem => {
+					const activeRun = jobItem.runs && jobItem.runs.find(runItem => !runItem.completeTime);
 					return {
-						...job,
-						isRunning: job.status === "active" && !!activeRun
+						...jobItem,
+						isRunning: jobItem.status === "active" && !!activeRun
 					};
 				});
 
-				const logs = logsData.logs.map(log => ({
-					...log,
-					logTime: new Date(log.logTime),
-					dateTime: log.logTime ? (new Date(log.logTime)).toLocaleDateString() + " " + (new Date(log.logTime)).toLocaleTimeString() : ""
+				const logs = logsData.logs.map(logItem => ({
+					...logItem,
+					logTime: new Date(logItem.logTime),
+					dateTime: logItem.logTime ? (new Date(logItem.logTime)).toLocaleDateString() + " " + (new Date(logItem.logTime)).toLocaleTimeString() : ""
 				}));
 
 				const nextState = {
@@ -219,17 +285,17 @@ class Sys extends Component {
 				let selectedJobId = selectNewJobId || this.state.selectedJobId;
 				if (!selectedJobId && jobs.length > 0) {
 					// Default to first active job, or just first job
-					const activeJob = jobs.find(j => j.status === "active") || jobs[0];
+					const activeJob = jobs.find(jobItem => jobItem.status === "active") || jobs[0];
 					selectedJobId = activeJob.id;
 				}
 				nextState.selectedJobId = selectedJobId;
 
 				// If there's a selected job, set default selected run to its latest run
-				const currentJob = jobs.find(j => j.id === selectedJobId);
+				const currentJob = jobs.find(jobItem => jobItem.id === selectedJobId);
 				if (currentJob && currentJob.runs && currentJob.runs.length > 0) {
-					const sortedRuns = [...currentJob.runs].sort((a,b) => new Date(b.startTime) - new Date(a.startTime));
+					const sortedRuns = [...currentJob.runs].sort((runFirst, runSecond) => new Date(runSecond.startTime) - new Date(runFirst.startTime));
 					// Keep previous selectedRunId if it is still valid for this job
-					if (!this.state.selectedRunId || !currentJob.runs.some(r => r._id === this.state.selectedRunId)) {
+					if (!this.state.selectedRunId || !currentJob.runs.some(runItem => runItem._id === this.state.selectedRunId)) {
 						nextState.selectedRunId = sortedRuns[0]._id;
 					}
 				} else {
@@ -238,8 +304,8 @@ class Sys extends Component {
 
 				this.setState(nextState);
 			})
-			.catch(error => {
-				console.error("Error fetching system configurations:", error);
+			.catch(errorReason => {
+				console.error("Error fetching system configurations:", errorReason);
 				this.setState({
 					isLoading: false,
 					toast: { text: "Error loading system parameters", type: "error" }
@@ -249,10 +315,10 @@ class Sys extends Component {
 	};
 
 	selectJob = (jobId) => {
-		const job = this.state.jobs.find(j => j.id === jobId);
+		const job = this.state.jobs.find(jobItem => jobItem.id === jobId);
 		let selectedRunId = null;
 		if (job && job.runs && job.runs.length > 0) {
-			const sortedRuns = [...job.runs].sort((a,b) => new Date(b.startTime) - new Date(a.startTime));
+			const sortedRuns = [...job.runs].sort((runFirst, runSecond) => new Date(runSecond.startTime) - new Date(runFirst.startTime));
 			selectedRunId = sortedRuns[0]._id;
 		}
 		this.setState({
@@ -280,8 +346,8 @@ class Sys extends Component {
 			this.setState({ toast: { text: "No logs available to export", type: "info" } });
 			return;
 		}
-		const content = run.messages.map(m => {
-			const parsed = parseLogMessage(m.message);
+		const content = run.messages.map(messageItem => {
+			const parsed = parseLogMessage(messageItem.message);
 			return `${parsed.time || ""} ${parsed.text}`;
 		}).join("\n");
 		
@@ -305,7 +371,8 @@ class Sys extends Component {
 			formScript: "",
 			formFrequency: "86400",
 			formStartTime: "02:00",
-			formStatus: "active"
+			formStatus: "active",
+			formCommand: "Unset"
 		});
 	};
 
@@ -317,14 +384,15 @@ class Sys extends Component {
 			formScript: job.scriptName || "",
 			formFrequency: String(job.frequencySeconds || "86400"),
 			formStartTime: job.startTime || "02:00",
-			formStatus: job.status || "active"
+			formStatus: job.status || "active",
+			formCommand: job.command || "Unset"
 		});
 	};
 
 	// Handles submission of Create or Edit
-	saveJob = (e) => {
-		e.preventDefault();
-		const { formName, formScript, formFrequency, formStartTime, formStatus, showEditModal, selectedJobId } = this.state;
+	saveJob = (event) => {
+		event.preventDefault();
+		const { formName, formScript, formFrequency, formStartTime, formStatus, formCommand, showEditModal, selectedJobId } = this.state;
 		
 		if (!formName.trim() || !formScript.trim()) {
 			this.setState({ toast: { text: "Please populate all required fields", type: "error" } });
@@ -336,7 +404,8 @@ class Sys extends Component {
 			scriptName: formScript,
 			frequencySeconds: Number(formFrequency),
 			startTime: formStartTime,
-			status: formStatus
+			status: formStatus,
+			command: formCommand
 		};
 
 		if (showEditModal) {
@@ -350,23 +419,23 @@ class Sys extends Component {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ job: jobData })
 		})
-		.then(res => {
-			if (res.ok) {
-				return res.json();
+		.then(fetchResponse => {
+			if (fetchResponse.ok) {
+				return fetchResponse.json();
 			}
 			throw new Error("Failed to save configuration parameters");
 		})
-		.then(data => {
+		.then(responseData => {
 			this.setState({
 				showCreateModal: false,
 				showEditModal: false,
 				toast: { text: showEditModal ? "Job configuration updated" : "Job created successfully", type: "success" }
 			});
-			this.loadData(data.id);
+			this.loadData(responseData.id);
 		})
-		.catch(err => {
-			console.error(err);
-			this.setState({ toast: { text: err.message || "Failed to save job configuration", type: "error" } });
+		.catch(errorReason => {
+			console.error(errorReason);
+			this.setState({ toast: { text: errorReason.message || "Failed to save job configuration", type: "error" } });
 		});
 	};
 
@@ -376,9 +445,9 @@ class Sys extends Component {
 		fetch(`/sys/data/job?id=${selectedJobId}`, {
 			method: "DELETE"
 		})
-		.then(res => {
-			if (res.ok) {
-				return res.json();
+		.then(fetchResponse => {
+			if (fetchResponse.ok) {
+				return fetchResponse.json();
 			}
 			throw new Error("Failed to delete configuration profile");
 		})
@@ -391,9 +460,9 @@ class Sys extends Component {
 			});
 			this.loadData();
 		})
-		.catch(err => {
-			console.error(err);
-			this.setState({ toast: { text: err.message || "Failed to delete job", type: "error" } });
+		.catch(errorReason => {
+			console.error(errorReason);
+			this.setState({ toast: { text: errorReason.message || "Failed to delete job", type: "error" } });
 		});
 	};
 
@@ -401,18 +470,21 @@ class Sys extends Component {
 		const {
 			isLoading, jobs, logs, selectedType, selectedJobId, selectedRunId,
 			isMobileSidebarOpen, toast, showCreateModal, showEditModal, showDeleteConfirm,
-			formName, formScript, formFrequency, formStartTime, formStatus
+			formName, formScript, formFrequency, formStartTime, formStatus, formCommand
 		} = this.state;
 
-		const activeJobs = jobs.filter(j => j.status === "active");
-		const inactiveJobs = jobs.filter(j => j.status === "inactive");
-		const selectedJob = jobs.find(j => j.id === selectedJobId);
+		const sortedJobs = [...jobs].sort((jobFirst, jobSecond) => getJobLastRunTime(jobSecond) - getJobLastRunTime(jobFirst));
+		const activeJobs = sortedJobs.filter(jobItem => jobItem.status === "active");
+		const inactiveJobs = sortedJobs.filter(jobItem => jobItem.status === "inactive");
+		const selectedJob = jobs.find(jobItem => jobItem.id === selectedJobId);
+
+		const isJobRunning = showEditModal && selectedJob ? selectedJob.isRunning : false;
 
 		// Format runs and select active run
 		const sortedRuns = selectedJob && selectedJob.runs ?
-			[...selectedJob.runs].sort((a, b) => new Date(b.startTime) - new Date(a.startTime)) : [];
+			[...selectedJob.runs].sort((runFirst, runSecond) => new Date(runSecond.startTime) - new Date(runFirst.startTime)) : [];
 		
-		const selectedRun = sortedRuns.find(r => r._id === selectedRunId) || sortedRuns[0];
+		const selectedRun = sortedRuns.find(runItem => runItem._id === selectedRunId) || sortedRuns[0];
 
 		return (
 			<div className="layout-container">
@@ -439,29 +511,31 @@ class Sys extends Component {
 						</a>
 
 						<div className="sidebar-section-title">Active Jobs</div>
-						{activeJobs.map(job => (
+						{activeJobs.map(jobItem => (
 							<a 
-								key={job.id} 
-								className={`sidebar-item clickable ${selectedType === "job" && selectedJobId === job.id ? "active" : ""}`}
-								onClick={() => this.selectJob(job.id)}
+								key={jobItem.id} 
+								className={`sidebar-item clickable ${selectedType === "job" && selectedJobId === jobItem.id ? "active" : ""}`}
+								onClick={() => this.selectJob(jobItem.id)}
 							>
 								<BriefcaseIcon />
-								{job.name}
+								<span>{jobItem.name}</span>
+								{jobItem.isRunning && <span className="running-dot" title="Job is running" />}
 							</a>
 						))}
 
 						{inactiveJobs.length > 0 && (
 							<>
 								<div className="sidebar-section-title">Inactive Jobs</div>
-								{inactiveJobs.map(job => (
+								{inactiveJobs.map(jobItem => (
 									<a 
-										key={job.id} 
-										className={`sidebar-item clickable ${selectedType === "job" && selectedJobId === job.id ? "active" : ""}`}
-										onClick={() => this.selectJob(job.id)}
+										key={jobItem.id} 
+										className={`sidebar-item clickable ${selectedType === "job" && selectedJobId === jobItem.id ? "active" : ""}`}
+										onClick={() => this.selectJob(jobItem.id)}
 										style={{ opacity: 0.65 }}
 									>
 										<BriefcaseIcon />
-										{job.name}
+										<span>{jobItem.name}</span>
+										{jobItem.isRunning && <span className="running-dot" title="Job is running" />}
 									</a>
 								))}
 							</>
@@ -469,6 +543,10 @@ class Sys extends Component {
 					</nav>
 
 					<div className="sidebar-footer">
+						<button className="btn-sidebar-refresh" onClick={() => this.loadData()}>
+							<RefreshIcon />
+							<span style={{ marginLeft: "6px" }}>Refresh</span>
+						</button>
 						<button className="btn-create-job" onClick={this.openCreateModal}>
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" style={{ width: "16px", height: "16px", marginRight: "8px" }}>
 								<path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -533,15 +611,15 @@ class Sys extends Component {
 													<div className="no-logs">No system log entries recorded in database.</div>
 												) : (
 													[...logs]
-														.sort((a, b) => b.logTime - a.logTime)
-														.map((log, index) => {
-															const path = (log.app || "") + (log.app && log.module ? "." : "") + (log.module || "") + (log.module && log.function ? "." : "") + (log.function || "");
+														.sort((logFirst, logSecond) => logSecond.logTime - logFirst.logTime)
+														.map((logItem, logIndex) => {
+															const path = (logItem.app || "") + (logItem.app && logItem.module ? "." : "") + (logItem.module || "") + (logItem.module && logItem.function ? "." : "") + (logItem.function || "");
 															return (
-																<div key={index} className="log-row">
-																	<div className="log-time">{log.dateTime}</div>
+																<div key={logIndex} className="log-row">
+																	<div className="log-time">{logItem.dateTime}</div>
 																	<div className="log-msg">
 																		<span style={{ color: "#0284c7", fontWeight: "600", marginRight: "8px" }}>[{path}]</span>
-																		{log.message}
+																		{logItem.message}
 																	</div>
 																</div>
 															);
@@ -617,6 +695,10 @@ class Sys extends Component {
 														</span>
 													</div>
 													<div className="config-item">
+														<span className="config-label">Command</span>
+														<span className="config-value">{selectedJob.command || "Unset"}</span>
+													</div>
+													<div className="config-item">
 														<span className="config-label">Script</span>
 														<span className="config-value link">
 															{selectedJob.scriptName}
@@ -633,7 +715,9 @@ class Sys extends Component {
 													<h3 className="card-title">Execution History</h3>
 												</div>
 												<div className="card-header-actions">
-													<RefreshIcon onClick={() => this.loadData()} />
+													<span className="next-run-display">
+														Next Run: {calculateNextRunTime(selectedJob)}
+													</span>
 												</div>
 											</div>
 											<div className="card-body" style={{ padding: "0" }}>
@@ -656,20 +740,20 @@ class Sys extends Component {
 																	</td>
 																</tr>
 															) : (
-																sortedRuns.map(run => {
-																	const isSelected = selectedRun && selectedRun._id === run._id;
-																	const msgCount = run.messages ? run.messages.length : 0;
+																sortedRuns.map(runItem => {
+																	const isSelected = selectedRun && selectedRun._id === runItem._id;
+																	const msgCount = runItem.messages ? runItem.messages.length : 0;
 
 																	return (
 																		<tr 
-																			key={run._id} 
+																			key={runItem._id} 
 																			className={`clickable ${isSelected ? "selected" : ""}`}
-																			onClick={() => this.selectRun(run._id)}
+																			onClick={() => this.selectRun(runItem._id)}
 																		>
-																			<td>{formatDatePart(run.startTime)}</td>
-																			<td>{formatTimePart(run.startTime)}</td>
-																			<td>{run.completeTime ? formatTimePart(run.completeTime) : "Running"}</td>
-																			<td>{formatDuration(run.startTime, run.completeTime)}</td>
+																			<td>{formatDatePart(runItem.startTime)}</td>
+																			<td>{formatTimePart(runItem.startTime)}</td>
+																			<td>{runItem.completeTime ? formatTimePart(runItem.completeTime) : "Running"}</td>
+																			<td>{formatDuration(runItem.startTime, runItem.completeTime)}</td>
 																			<td>{msgCount}</td>
 																		</tr>
 																	);
@@ -707,12 +791,12 @@ class Sys extends Component {
 													{!selectedRun || !selectedRun.messages || selectedRun.messages.length === 0 ? (
 														<div className="no-logs">No message logs recorded for this run.</div>
 													) : (
-														selectedRun.messages.map((msg, index) => {
-															const parsed = parseLogMessage(msg.message);
-															const isError = msg.severity > 0;
+														selectedRun.messages.map((messageItem, messageIndex) => {
+															const parsed = parseLogMessage(messageItem.message);
+															const isError = messageItem.severity > 0;
 															return (
-																<div key={index} className={`log-row ${isError ? "error" : ""}`}>
-																	<div className="log-time">{parsed.time || formatDate(msg.time) || "-"}</div>
+																<div key={messageIndex} className={`log-row ${isError ? "error" : ""}`}>
+																	<div className="log-time">{parsed.time || formatDate(messageItem.time) || "-"}</div>
 																	<div className="log-msg">{parsed.text}</div>
 																</div>
 															);
@@ -761,7 +845,7 @@ class Sys extends Component {
 											className="form-control" 
 											placeholder="e.g., Data Sync Alpha"
 											value={formName}
-											onChange={(e) => this.setState({ formName: e.target.value })}
+											onChange={(event) => this.setState({ formName: event.target.value })}
 											required
 										/>
 									</div>
@@ -773,7 +857,7 @@ class Sys extends Component {
 											className="form-control" 
 											placeholder="e.g., sync/datasync.py"
 											value={formScript}
-											onChange={(e) => this.setState({ formScript: e.target.value })}
+											onChange={(event) => this.setState({ formScript: event.target.value })}
 											required
 										/>
 										<span className="form-help">Relative path inside server directory.</span>
@@ -786,7 +870,7 @@ class Sys extends Component {
 											className="form-control" 
 											placeholder="e.g., 86400"
 											value={formFrequency}
-											onChange={(e) => this.setState({ formFrequency: e.target.value })}
+											onChange={(event) => this.setState({ formFrequency: event.target.value })}
 											required
 										/>
 									</div>
@@ -798,7 +882,7 @@ class Sys extends Component {
 											className="form-control" 
 											placeholder="e.g., 02:17"
 											value={formStartTime}
-											onChange={(e) => this.setState({ formStartTime: e.target.value })}
+											onChange={(event) => this.setState({ formStartTime: event.target.value })}
 										/>
 										<span className="form-help">Time of execution if frequency matches daily bounds.</span>
 									</div>
@@ -808,11 +892,25 @@ class Sys extends Component {
 										<select 
 											className="form-control"
 											value={formStatus}
-											onChange={(e) => this.setState({ formStatus: e.target.value })}
+											onChange={(event) => this.setState({ formStatus: event.target.value })}
 										>
 											<option value="active">Active</option>
 											<option value="inactive">Inactive</option>
 										</select>
+									</div>
+
+									<div className="form-group">
+										<label className="form-label">Command</label>
+										<select 
+											className="form-control"
+											value={formCommand}
+											onChange={(event) => this.setState({ formCommand: event.target.value })}
+										>
+											<option value="Unset">Unset</option>
+											<option value="Start" disabled={isJobRunning}>Start</option>
+											<option value="Stop" disabled={!isJobRunning}>Stop</option>
+										</select>
+										<span className="form-help">Select manual command for the job execution engine.</span>
 									</div>
 								</div>
 

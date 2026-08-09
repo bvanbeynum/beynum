@@ -144,6 +144,31 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar-footer {
 	padding: 16px;
 	border-top: 1px solid #f1f5f9;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.btn-sidebar-refresh {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 8px 16px;
+	background-color: #ffffff;
+	color: #475569;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	font-weight: 600;
+	font-size: 12px;
+	cursor: pointer;
+	transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-sidebar-refresh:hover {
+	background-color: #f1f5f9;
+	border-color: #94a3b8;
+	color: #1e293b;
 }
 
 .btn-create-job {
@@ -166,6 +191,40 @@ h1, h2, h3, h4, h5, h6 {
 .btn-create-job:hover {
 	background-color: #1d4ed8;
 }
+
+.running-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: #10b981;
+	box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+	margin-left: auto;
+	flex-shrink: 0;
+	animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+	}
+	70% {
+		box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+	}
+}
+
+.next-run-display {
+	font-size: 12px;
+	font-weight: 600;
+	color: #0284c7;
+	background-color: #f0f9ff;
+	padding: 4px 10px;
+	border-radius: 6px;
+	border: 1px solid #bae6fd;
+}
+
 
 /* Main Content Panel */
 .main-content {
