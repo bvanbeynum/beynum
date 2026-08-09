@@ -25,6 +25,7 @@ export default {
 		created: Date,
 		modified: Date,
 		status: String,
+		command: String,
 		runs: [{
 			startTime: Date,
 			completeTime: Date,

@@ -71,6 +71,51 @@ export default {
 			});
 	},
 
+	setJobCommand: async (request, response) => {
+		if (!request.query.jobid || !request.query.command) {
+			response.statusMessage = "Missing Job or Command";
+			response.status(561).json({ error: "Missing Job or Command" });
+			return;
+		}
+		
+		let job = null;
+		try {
+			const clientResponse = await client.get(`${ request.serverPath }/sys/data/job?id=${ request.query.jobid }`);
+			job = clientResponse.body.jobs[0];
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `562: ${error.message}` }});
+			response.statusMessage = "Error pulling job details";
+			response.status(562).json({ location: "Pull job details", error: error.message });
+			return;
+		}
+
+		job.command = request.query.command;
+
+		try {
+			clientResponse = await client.post(`${ request.serverPath }/sys/data/job`).send({ job: job });
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `563: ${error.message}` }});
+			response.statusMessage = "Error saving job";
+			response.status(563).json({ location: "Save job", error: error.message });
+			return;
+		}
+
+		try {
+			const clientResponse = await client.get(`${ request.serverPath }/sys/data/job?id=${ job.id }`);
+			job = clientResponse.body.jobs[0];
+		}
+		catch (error) {
+			client.post(`${ request.serverPath }/sys/api/addlog`).send({ log: { logTime: new Date(), logTypeId: "640b4dc2743f6b08b4402952", message: `564: ${error.message}` }});
+			response.statusMessage = "Error loading job";
+			response.status(564).json({ location: "Pull saved job", error: error.message });
+			return;
+		}
+
+		response.status(200).json({ job: job });
+	},
+
 	saveJobRun: async (request, response) => {
 		if (!request.query.jobid || !request.body.jobrun) {
 			response.statusMessage = "Missing object to save";

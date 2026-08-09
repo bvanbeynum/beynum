@@ -31,6 +31,7 @@ router.get("/sys/api/getrecentlogs", api.getRecentLogs);
 router.get("/sys/api/geturlstatuslist", api.getUrlStatusList);
 
 router.get("/sys/api/getjobs", api.getJobs);
+router.get("/sys/api/setjobcommand", api.setJobCommand);
 router.post("/sys/api/savejobrun", api.saveJobRun);
 router.get("/sys/api/getrun", api.getRun);
 
